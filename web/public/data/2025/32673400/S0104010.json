@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "form_code": "S0104010",
+    "form_name": "Ф4. Звіт про власний капітал",
+    "filename": "32673400_460140032673400S010401010000006122025.XML_2026-06-05 16:47:45.xml",
+    "timestamp": "2026-06-05 16:47:45",
+    "period_year": 2025,
+    "period_month": 12,
+    "date_filled": "05062026",
+    "software": "Арт-Звіт Pro - версія 5.8.8",
+    "tin": "32673400",
+    "c_doc_cnt": "00006"
+  },
+  "company": {
+    "edrpou": "32673400",
+    "name": "ТзОВ \"Кормотех\"",
+    "kved": null,
+    "kved_name": null,
+    "address": null,
+    "territory": null,
+    "opf_code": null,
+    "opf_name": null,
+    "director": "СТЕФАНИШИН МАРІЯ МИХАЙЛІВНА",
+    "accountant": "Сеймівська Марія Ігорівна",
+    "phone": null,
+    "employees": null,
+    "accounting_standard": null,
+    "katottg": "UA46140050150014119"
+  },
+  "data": {
+    "4000": {
+      "col_3": 9000,
+      "col_4": null,
+      "col_5": 155,
+      "col_6": null,
+      "col_7": 1348544,
+      "col_8": null,
+      "col_9": null,
+      "col_10": 1357699
+    },
+    "4095": {
+      "col_3": 9000,
+      "col_4": null,
+      "col_5": 155,
+      "col_6": null,
+      "col_7": 1348544,
+      "col_8": null,
+      "col_9": null,
+      "col_10": 1357699
+    },
+    "4100": {
+      "col_3": null,
+      "col_4": null,
+      "col_5": null,
+      "col_6": null,
+      "col_7": 91058,
+      "col_8": null,
+      "col_9": null,
+      "col_10": 91058
+    },
+    "4200": {
+      "col_3": null,
+      "col_4": null,
+      "col_5": null,
+      "col_6": null,
+      "col_7": -405000,
+      "col_8": null,
+      "col_9": null,
+      "col_10": -405000
+    },
+    "4290": {
+      "col_3": null,
+      "col_4": null,
+      "col_5": -116,
+      "col_6": null,
+      "col_7": null,
+      "col_8": null,
+      "col_9": null,
+      "col_10": -116
+    },
+    "4295": {
+      "col_3": null,
+      "col_4": null,
+      "col_5": -116,
+      "col_6": null,
+      "col_7": -313942,
+      "col_8": null,
+      "col_9": null,
+      "col_10": -314058
+    },
+    "4300": {
+      "col_3": 9000,
+      "col_4": null,
+      "col_5": 39,
+      "col_6": null,
+      "col_7": 1034602,
+      "col_8": null,
+      "col_9": null,
+      "col_10": 1043641
+    }
+  }
+}

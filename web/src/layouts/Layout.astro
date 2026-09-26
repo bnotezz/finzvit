@@ -1,0 +1,91 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'FinZvit — Переглядач фінансової звітності',
+  description = 'Публічний переглядач фінансової звітності підприємств України за офіційними формами держстатистики та ДПС (data.gov.ua).',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="uk" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-[#07080B] text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-accent/20 selection:text-accent relative overflow-x-hidden">
+    <!-- Верхній навігаційний бар -->
+    <header class="border-b border-white/5 bg-[#07080B]/80 backdrop-blur-xl sticky top-0 z-50 no-print">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 p-[1px] shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-all">
+            <div class="w-full h-full bg-zinc-950 rounded-[11px] flex items-center justify-center text-accent font-mono font-bold text-lg">
+              ₴
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
+              FinZvit
+              <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                2025 РІК
+              </span>
+            </span>
+          </div>
+        </a>
+
+        <div class="flex items-center gap-3 text-xs">
+          <a
+            href="https://data.gov.ua/dataset/7436ae83-dfc1-4836-9962-8af3e831c522"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hidden sm:flex items-center gap-2 text-zinc-400 hover:text-white transition-colors bg-zinc-900/80 border border-white/10 px-3.5 py-1.5 rounded-xl hover:border-white/20"
+          >
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Джерело: data.gov.ua</span>
+          </a>
+
+          <a
+            href="/company/32673400"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-zinc-950 font-medium transition-all"
+          >
+            <span>Демо-звіт</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Основний контент -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <slot />
+    </main>
+
+    <!-- Футер -->
+    <footer class="border-t border-white/5 bg-[#07080B] py-8 text-center text-xs text-zinc-500 no-print mt-auto">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-zinc-400 font-semibold">FinZvit</span>
+          <span>— відкрита фінансова звітність юридичних осіб України (НП(С)БО та МСФЗ)</span>
+        </div>
+        <div class="flex items-center gap-4 text-zinc-400 font-mono text-[11px]">
+          <span>Звітний період: 2025</span>
+          <span>•</span>
+          <a href="https://data.gov.ua" target="_blank" class="hover:text-accent transition-colors">data.gov.ua</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

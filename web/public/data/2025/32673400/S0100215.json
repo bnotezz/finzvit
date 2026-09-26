@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "form_code": "S0100215",
+    "form_name": "Ф2. Звіт про фінансові результати",
+    "filename": "32673400_460140032673400S010021510000006122025.XML_2026-06-05 16:47:45.xml",
+    "timestamp": "2026-06-05 16:47:45",
+    "period_year": 2025,
+    "period_month": 12,
+    "date_filled": "05062026",
+    "software": "Арт-Звіт Pro - версія 5.8.8",
+    "tin": "32673400",
+    "c_doc_cnt": "00006"
+  },
+  "company": {
+    "edrpou": "32673400",
+    "name": "ТзОВ \"Кормотех\"",
+    "kved": "10.92",
+    "kved_name": null,
+    "address": null,
+    "territory": null,
+    "opf_code": null,
+    "opf_name": null,
+    "director": "СТЕФАНИШИН МАРІЯ МИХАЙЛІВНА",
+    "accountant": "Сеймівська Марія Ігорівна",
+    "phone": null,
+    "employees": null,
+    "accounting_standard": null,
+    "katottg": "UA46140050150014119"
+  },
+  "data": {
+    "2000": {
+      "current": 6249313,
+      "previous": 5335858
+    },
+    "2050": {
+      "current": 4707547,
+      "previous": 3896492
+    },
+    "2090": {
+      "current": 1541766,
+      "previous": 1439366
+    },
+    "2120": {
+      "current": 12432,
+      "previous": 17054
+    },
+    "2130": {
+      "current": 267632,
+      "previous": 211744
+    },
+    "2150": {
+      "current": 995548,
+      "previous": 752460
+    },
+    "2180": {
+      "current": 93194,
+      "previous": 98867
+    },
+    "2190": {
+      "current": 197824,
+      "previous": 393349
+    },
+    "2220": {
+      "current": null,
+      "previous": 36
+    },
+    "2240": {
+      "current": 97,
+      "previous": 8001
+    },
+    "2250": {
+      "current": 73640,
+      "previous": 57096
+    },
+    "2270": {
+      "current": 8645,
+      "previous": 6397
+    },
+    "2290": {
+      "current": 115636,
+      "previous": 337893
+    },
+    "2300": {
+      "current": -24577,
+      "previous": -61206
+    },
+    "2350": {
+      "current": 91059,
+      "previous": 276687
+    },
+    "2500": {
+      "current": 2994537,
+      "previous": 2626148
+    },
+    "2505": {
+      "current": 635936,
+      "previous": 490930
+    },
+    "2510": {
+      "current": 119311,
+      "previous": 92237
+    },
+    "2515": {
+      "current": 125555,
+      "previous": 122254
+    },
+    "2520": {
+      "current": 1073418,
+      "previous": 830973
+    },
+    "2550": {
+      "current": 4948757,
+      "previous": 4162542
+    },
+    "2465": {
+      "current": 91059,
+      "previous": 276687
+    }
+  }
+}

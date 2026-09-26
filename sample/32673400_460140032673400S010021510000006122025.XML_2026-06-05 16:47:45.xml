@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="S0100215.xsd">
+  <DECLARHEAD>
+    <TIN>32673400</TIN>
+    <C_DOC>S01</C_DOC>
+    <C_DOC_SUB>002</C_DOC_SUB>
+    <C_DOC_VER>15</C_DOC_VER>
+    <C_DOC_TYPE>0</C_DOC_TYPE>
+    <C_DOC_CNT>00006</C_DOC_CNT>
+    <C_REG>46</C_REG>
+    <C_RAJ>014</C_RAJ>
+    <PERIOD_MONTH>12</PERIOD_MONTH>
+    <PERIOD_TYPE>5</PERIOD_TYPE>
+    <PERIOD_YEAR>2025</PERIOD_YEAR>
+    <D_FILL>05062026</D_FILL>
+    <SOFTWARE>Арт-Звіт Pro - версія 5.8.8</SOFTWARE>
+  </DECLARHEAD>
+  <DECLARBODY>
+    <FIRM_BUH>Сеймівська Марія Ігорівна</FIRM_BUH>
+    <FIRM_EDRPOU>32673400</FIRM_EDRPOU>
+    <FIRM_NAME>ТзОВ "Кормотех"</FIRM_NAME>
+    <FIRM_RUK>СТЕФАНИШИН МАРІЯ МИХАЙЛІВНА</FIRM_RUK>
+    <REP_PERNM>Рік 2025</REP_PERNM>
+    <FIRM_KVED>10.92</FIRM_KVED>
+    <A2000>6249313</A2000>
+    <A2010 xsi:nil="true"></A2010>
+    <A2011 xsi:nil="true"></A2011>
+    <A2012 xsi:nil="true"></A2012>
+    <A2013 xsi:nil="true"></A2013>
+    <A2014 xsi:nil="true"></A2014>
+    <A2050>4707547</A2050>
+    <A2090>1541766</A2090>
+    <A2095 xsi:nil="true"></A2095>
+    <A2120>12432</A2120>
+    <A2121 xsi:nil="true"></A2121>
+    <A2130>267632</A2130>
+    <A2150>995548</A2150>
+    <A2180>93194</A2180>
+    <A2181 xsi:nil="true"></A2181>
+    <A2190>197824</A2190>
+    <A2195 xsi:nil="true"></A2195>
+    <A2200 xsi:nil="true"></A2200>
+    <A2220 xsi:nil="true"></A2220>
+    <A2240>97</A2240>
+    <A2250>73640</A2250>
+    <A2255 xsi:nil="true"></A2255>
+    <A2270>8645</A2270>
+    <A2275 xsi:nil="true"></A2275>
+    <A2290>115636</A2290>
+    <A2295 xsi:nil="true"></A2295>
+    <A2300>-24577</A2300>
+    <A2305 xsi:nil="true"></A2305>
+    <A2350>91059</A2350>
+    <A2355 xsi:nil="true"></A2355>
+    <A2500>2994537</A2500>
+    <A2505>635936</A2505>
+    <A2510>119311</A2510>
+    <A2515>125555</A2515>
+    <A2520>1073418</A2520>
+    <A2550>4948757</A2550>
+    <A2600 xsi:nil="true"></A2600>
+    <A2605 xsi:nil="true"></A2605>
+    <A2610 xsi:nil="true"></A2610>
+    <A2615 xsi:nil="true"></A2615>
+    <A2650 xsi:nil="true"></A2650>
+    <B2000>5335858</B2000>
+    <B2010 xsi:nil="true"></B2010>
+    <B2011 xsi:nil="true"></B2011>
+    <B2012 xsi:nil="true"></B2012>
+    <B2013 xsi:nil="true"></B2013>
+    <B2014 xsi:nil="true"></B2014>
+    <B2050>3896492</B2050>
+    <B2090>1439366</B2090>
+    <B2095 xsi:nil="true"></B2095>
+    <B2120>17054</B2120>
+    <B2121 xsi:nil="true"></B2121>
+    <B2130>211744</B2130>
+    <B2150>752460</B2150>
+    <B2180>98867</B2180>
+    <B2181 xsi:nil="true"></B2181>
+    <B2190>393349</B2190>
+    <B2195 xsi:nil="true"></B2195>
+    <B2200 xsi:nil="true"></B2200>
+    <B2220>36</B2220>
+    <B2240>8001</B2240>
+    <B2250>57096</B2250>
+    <B2255 xsi:nil="true"></B2255>
+    <B2270>6397</B2270>
+    <B2275 xsi:nil="true"></B2275>
+    <B2290>337893</B2290>
+    <B2295 xsi:nil="true"></B2295>
+    <B2300>-61206</B2300>
+    <B2305 xsi:nil="true"></B2305>
+    <B2350>276687</B2350>
+    <B2355 xsi:nil="true"></B2355>
+    <B2500>2626148</B2500>
+    <B2505>490930</B2505>
+    <B2510>92237</B2510>
+    <B2515>122254</B2515>
+    <B2520>830973</B2520>
+    <B2550>4162542</B2550>
+    <B2600 xsi:nil="true"></B2600>
+    <B2605 xsi:nil="true"></B2605>
+    <B2610 xsi:nil="true"></B2610>
+    <B2615 xsi:nil="true"></B2615>
+    <B2650 xsi:nil="true"></B2650>
+    <LASTDAY>1</LASTDAY>
+    <OBL>46</OBL>
+    <RAY>014</RAY>
+    <N1>2026</N1>
+    <N2>1</N2>
+    <A2070 xsi:nil="true"></A2070>
+    <B2070 xsi:nil="true"></B2070>
+    <A2105 xsi:nil="true"></A2105>
+    <B2105 xsi:nil="true"></B2105>
+    <A2110 xsi:nil="true"></A2110>
+    <B2110 xsi:nil="true"></B2110>
+    <A2111 xsi:nil="true"></A2111>
+    <B2111 xsi:nil="true"></B2111>
+    <A2112 xsi:nil="true"></A2112>
+    <B2112 xsi:nil="true"></B2112>
+    <A2122 xsi:nil="true"></A2122>
+    <B2122 xsi:nil="true"></B2122>
+    <A2182 xsi:nil="true"></A2182>
+    <B2182 xsi:nil="true"></B2182>
+    <A2241 xsi:nil="true"></A2241>
+    <B2241 xsi:nil="true"></B2241>
+    <A2400 xsi:nil="true"></A2400>
+    <B2400 xsi:nil="true"></B2400>
+    <A2405 xsi:nil="true"></A2405>
+    <B2405 xsi:nil="true"></B2405>
+    <A2410 xsi:nil="true"></A2410>
+    <B2410 xsi:nil="true"></B2410>
+    <A2415 xsi:nil="true"></A2415>
+    <B2415 xsi:nil="true"></B2415>
+    <A2445 xsi:nil="true"></A2445>
+    <B2445 xsi:nil="true"></B2445>
+    <A2450 xsi:nil="true"></A2450>
+    <B2450 xsi:nil="true"></B2450>
+    <A2455 xsi:nil="true"></A2455>
+    <B2455 xsi:nil="true"></B2455>
+    <A2460 xsi:nil="true"></A2460>
+    <B2460 xsi:nil="true"></B2460>
+    <A2465>91059</A2465>
+    <B2465>276687</B2465>
+    <KVED>10.92</KVED>
+    <A2123 xsi:nil="true"></A2123>
+    <B2123 xsi:nil="true"></B2123>
+    <KATOTTG>UA46140050150014119</KATOTTG>
+  </DECLARBODY>
+</DECLAR>

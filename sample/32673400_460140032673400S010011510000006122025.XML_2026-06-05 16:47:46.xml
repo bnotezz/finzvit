@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="S0100115.xsd">
+  <DECLARHEAD>
+    <TIN>32673400</TIN>
+    <C_DOC>S01</C_DOC>
+    <C_DOC_SUB>001</C_DOC_SUB>
+    <C_DOC_VER>15</C_DOC_VER>
+    <C_DOC_TYPE>0</C_DOC_TYPE>
+    <C_DOC_CNT>00006</C_DOC_CNT>
+    <C_REG>46</C_REG>
+    <C_RAJ>014</C_RAJ>
+    <PERIOD_MONTH>12</PERIOD_MONTH>
+    <PERIOD_TYPE>5</PERIOD_TYPE>
+    <PERIOD_YEAR>2025</PERIOD_YEAR>
+    <D_FILL>05062026</D_FILL>
+    <SOFTWARE>Арт-Звіт Pro - версія 5.8.8</SOFTWARE>
+  </DECLARHEAD>
+  <DECLARBODY>
+    <FIRM_NAME>ТзОВ "Кормотех"</FIRM_NAME>
+    <FIRM_EDRPOU>32673400</FIRM_EDRPOU>
+    <FIRM_TERR>ЛЬВІВСЬКА ОБЛАСТЬ, ЯВОРІВСЬКИЙ РАЙОН, С. ПРИЛБИЧІ</FIRM_TERR>
+    <FIRM_KVED>10.92</FIRM_KVED>
+    <FIRM_ADR>81062  с.Прилбичі, Яворівський р-н., Львівська обл.</FIRM_ADR>
+    <FIRM_RUK>СТЕФАНИШИН МАРІЯ МИХАЙЛІВНА</FIRM_RUK>
+    <FIRM_BUH>Сеймівська Марія Ігорівна</FIRM_BUH>
+    <FIRM_KVEDNM>Виробництво готових кормів для домашніх тварин</FIRM_KVEDNM>
+    <FIRM_OPFCD>240</FIRM_OPFCD>
+    <FIRM_OPFNM>Товариство з обмеженою відповідальністю</FIRM_OPFNM>
+    <FIRM_TELORG>0322951915</FIRM_TELORG>
+    <MY_DATE>31122025</MY_DATE>
+    <A1000>1192</A1000>
+    <B1000>1307</B1000>
+    <A1001>3734</A1001>
+    <B1001>4371</B1001>
+    <A1002>2542</A1002>
+    <B1002>3064</B1002>
+    <A1005>13775</A1005>
+    <B1005>68772</B1005>
+    <A1010>619068</A1010>
+    <B1010>579146</B1010>
+    <A1011>958627</A1011>
+    <B1011>993652</B1011>
+    <A1012>339559</A1012>
+    <B1012>414506</B1012>
+    <A1030 xsi:nil="true"></A1030>
+    <B1030 xsi:nil="true"></B1030>
+    <A1035 xsi:nil="true"></A1035>
+    <B1035 xsi:nil="true"></B1035>
+    <A1036 xsi:nil="true"></A1036>
+    <B1036 xsi:nil="true"></B1036>
+    <A1040 xsi:nil="true"></A1040>
+    <B1040 xsi:nil="true"></B1040>
+    <A1045 xsi:nil="true"></A1045>
+    <B1045 xsi:nil="true"></B1045>
+    <A1090>65998</A1090>
+    <B1090>72207</B1090>
+    <A1095>700033</A1095>
+    <B1095>721432</B1095>
+    <A1100>678759</A1100>
+    <B1100>805604</B1100>
+    <A1110 xsi:nil="true"></A1110>
+    <B1110 xsi:nil="true"></B1110>
+    <A1120 xsi:nil="true"></A1120>
+    <B1120 xsi:nil="true"></B1120>
+    <A1125>681142</A1125>
+    <B1125>803970</B1125>
+    <A1130>232509</A1130>
+    <B1130>360987</B1130>
+    <A1135>14800</A1135>
+    <B1135>8243</B1135>
+    <A1136>4431</A1136>
+    <B1136 xsi:nil="true"></B1136>
+    <A1155>677</A1155>
+    <B1155>1425</B1155>
+    <A1160 xsi:nil="true"></A1160>
+    <B1160 xsi:nil="true"></B1160>
+    <A1165>66978</A1165>
+    <B1165>3254</B1165>
+    <A1170>3130</A1170>
+    <B1170>4873</B1170>
+    <A1190>13063</A1190>
+    <B1190>8940</B1190>
+    <A1195>1691058</A1195>
+    <B1195>1997296</B1195>
+    <A1200 xsi:nil="true"></A1200>
+    <B1200 xsi:nil="true"></B1200>
+    <A1300>2391091</A1300>
+    <B1300>2718728</B1300>
+    <A1400>9000</A1400>
+    <B1400>9000</B1400>
+    <A1405 xsi:nil="true"></A1405>
+    <B1405 xsi:nil="true"></B1405>
+    <A1410>155</A1410>
+    <B1410>39</B1410>
+    <A1411 xsi:nil="true"></A1411>
+    <B1411 xsi:nil="true"></B1411>
+    <A1415 xsi:nil="true"></A1415>
+    <B1415 xsi:nil="true"></B1415>
+    <A1420>1348544</A1420>
+    <B1420>1034602</B1420>
+    <A1425 xsi:nil="true"></A1425>
+    <B1425 xsi:nil="true"></B1425>
+    <A1430 xsi:nil="true"></A1430>
+    <B1430 xsi:nil="true"></B1430>
+    <A1435 xsi:nil="true"></A1435>
+    <B1435 xsi:nil="true"></B1435>
+    <A1495>1357699</A1495>
+    <B1495>1043641</B1495>
+    <A1510 xsi:nil="true"></A1510>
+    <B1510 xsi:nil="true"></B1510>
+    <A1515>65892</A1515>
+    <B1515>58271</B1515>
+    <A1520 xsi:nil="true"></A1520>
+    <B1520 xsi:nil="true"></B1520>
+    <A1525 xsi:nil="true"></A1525>
+    <B1525 xsi:nil="true"></B1525>
+    <A1595>66452</A1595>
+    <B1595>59731</B1595>
+    <A1600>320478</A1600>
+    <B1600>469710</B1600>
+    <A1605 xsi:nil="true"></A1605>
+    <B1605 xsi:nil="true"></B1605>
+    <A1610>100671</A1610>
+    <B1610>36547</B1610>
+    <A1615>467568</A1615>
+    <B1615>657733</B1615>
+    <A1620>8109</A1620>
+    <B1620>27822</B1620>
+    <A1621 xsi:nil="true"></A1621>
+    <B1621>3147</B1621>
+    <A1625 xsi:nil="true"></A1625>
+    <B1625>457</B1625>
+    <A1630>17142</A1630>
+    <B1630>22309</B1630>
+    <A1635>300</A1635>
+    <B1635>5559</B1635>
+    <A1640 xsi:nil="true"></A1640>
+    <B1640>283499</B1640>
+    <A1645 xsi:nil="true"></A1645>
+    <B1645 xsi:nil="true"></B1645>
+    <A1690>9697</A1690>
+    <B1690>56356</B1690>
+    <A1695>966940</A1695>
+    <B1695>1615356</B1695>
+    <A1700 xsi:nil="true"></A1700>
+    <B1700 xsi:nil="true"></B1700>
+    <A1800 xsi:nil="true"></A1800>
+    <B1800 xsi:nil="true"></B1800>
+    <LASTDAY>1</LASTDAY>
+    <A1020 xsi:nil="true"></A1020>
+    <B1020 xsi:nil="true"></B1020>
+    <A1021 xsi:nil="true"></A1021>
+    <A1022 xsi:nil="true"></A1022>
+    <B1021 xsi:nil="true"></B1021>
+    <B1022 xsi:nil="true"></B1022>
+    <A1670 xsi:nil="true"></A1670>
+    <B1670 xsi:nil="true"></B1670>
+    <A1050 xsi:nil="true"></A1050>
+    <B1050 xsi:nil="true"></B1050>
+    <A1166 xsi:nil="true"></A1166>
+    <B1166 xsi:nil="true"></B1166>
+    <OBL>46</OBL>
+    <RAY>014</RAY>
+    <N1>2026</N1>
+    <N2>1</N2>
+    <N3>999</N3>
+    <N5>1</N5>
+    <A1015 xsi:nil="true"></A1015>
+    <B1015 xsi:nil="true"></B1015>
+    <A1016 xsi:nil="true"></A1016>
+    <B1016 xsi:nil="true"></B1016>
+    <A1017 xsi:nil="true"></A1017>
+    <B1017 xsi:nil="true"></B1017>
+    <A1060 xsi:nil="true"></A1060>
+    <A1065 xsi:nil="true"></A1065>
+    <B1065 xsi:nil="true"></B1065>
+    <A1101>366654</A1101>
+    <B1101>508599</B1101>
+    <A1102>6424</A1102>
+    <B1102>6704</B1102>
+    <A1103>154391</A1103>
+    <B1103>143795</B1103>
+    <A1104>151290</A1104>
+    <B1104>146506</B1104>
+    <A1115 xsi:nil="true"></A1115>
+    <B1115 xsi:nil="true"></B1115>
+    <A1140 xsi:nil="true"></A1140>
+    <B1140 xsi:nil="true"></B1140>
+    <A1145 xsi:nil="true"></A1145>
+    <B1145 xsi:nil="true"></B1145>
+    <A1167>66978</A1167>
+    <B1167>3254</B1167>
+    <A1180 xsi:nil="true"></A1180>
+    <B1180 xsi:nil="true"></B1180>
+    <A1181 xsi:nil="true"></A1181>
+    <B1181 xsi:nil="true"></B1181>
+    <A1182 xsi:nil="true"></A1182>
+    <B1182 xsi:nil="true"></B1182>
+    <A1183 xsi:nil="true"></A1183>
+    <B1183 xsi:nil="true"></B1183>
+    <A1184 xsi:nil="true"></A1184>
+    <B1184 xsi:nil="true"></B1184>
+    <A1412 xsi:nil="true"></A1412>
+    <B1412 xsi:nil="true"></B1412>
+    <A1500>560</A1500>
+    <B1500>1460</B1500>
+    <A1505 xsi:nil="true"></A1505>
+    <B1505 xsi:nil="true"></B1505>
+    <A1521 xsi:nil="true"></A1521>
+    <B1521 xsi:nil="true"></B1521>
+    <A1526 xsi:nil="true"></A1526>
+    <B1526 xsi:nil="true"></B1526>
+    <A1530 xsi:nil="true"></A1530>
+    <B1530 xsi:nil="true"></B1530>
+    <A1531 xsi:nil="true"></A1531>
+    <B1531 xsi:nil="true"></B1531>
+    <A1532 xsi:nil="true"></A1532>
+    <B1532 xsi:nil="true"></B1532>
+    <A1533 xsi:nil="true"></A1533>
+    <B1533 xsi:nil="true"></B1533>
+    <A1534 xsi:nil="true"></A1534>
+    <B1534 xsi:nil="true"></B1534>
+    <A1535 xsi:nil="true"></A1535>
+    <B1535 xsi:nil="true"></B1535>
+    <A1540 xsi:nil="true"></A1540>
+    <B1540 xsi:nil="true"></B1540>
+    <A1545 xsi:nil="true"></A1545>
+    <B1545 xsi:nil="true"></B1545>
+    <A1650 xsi:nil="true"></A1650>
+    <B1650 xsi:nil="true"></B1650>
+    <A1660>42975</A1660>
+    <B1660>55364</B1660>
+    <A1665 xsi:nil="true"></A1665>
+    <B1665 xsi:nil="true"></B1665>
+    <A1900>2391091</A1900>
+    <B1900>2718728</B1900>
+    <B1060 xsi:nil="true"></B1060>
+    <A1401 xsi:nil="true"></A1401>
+    <B1401 xsi:nil="true"></B1401>
+    <KATOTTG>UA46140050150014119</KATOTTG>
+  </DECLARBODY>
+</DECLAR>

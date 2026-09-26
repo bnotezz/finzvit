@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>Ф2. Звіт про фінансові результати (в тисячах)</xs:documentation>
+  </xs:annotation>
+
+<xs:include schemaLocation="common_types.xsd" />
+
+  <xs:element name="DECLAR" type="DeclarContent"/>
+  <xs:complexType name="DeclarContent">
+    <xs:sequence>
+      <xs:element name="DECLARHEAD" type="DHead"/>
+      <xs:element name="DECLARBODY" type="DBody"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DHead">
+    <xs:sequence>
+      <xs:element name="TIN" type="DGLong" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="C_DOC" type="xs:string" minOccurs="1" maxOccurs="1" fixed="S01"/>
+      <xs:element name="C_DOC_SUB" type="xs:string" minOccurs="1" maxOccurs="1" fixed="002"/>
+      <xs:element name="C_DOC_VER" type="xs:string" minOccurs="1" maxOccurs="1" fixed="15"/>
+      <xs:element name="C_DOC_TYPE" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="C_DOC_CNT" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="C_REG" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="C_RAJ" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="PERIOD_MONTH" type="DGMonth" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="PERIOD_TYPE" type="DGPType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="PERIOD_YEAR" type="DGYear" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="D_FILL" type="DGDate" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="SOFTWARE" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DBody">
+    <xs:sequence>
+      <!-- Main -->
+      <xs:element name="FIRM_BUH" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="FIRM_EDRPOU" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="FIRM_NAME" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="FIRM_RUK" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="REP_PERNM" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="FIRM_KVED" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2000" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2010" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2011" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2012" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2013" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2014" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2050" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2090" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2095" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2120" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2121" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2130" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2150" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2180" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2181" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2190" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2195" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2200" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2220" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2240" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2250" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2255" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2270" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2275" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2290" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2295" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2300" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2305" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2350" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2355" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2500" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2505" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2510" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2515" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2520" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2550" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2600" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2605" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2610" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2615" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2650" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2000" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2010" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2011" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2012" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2013" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2014" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2050" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2090" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2095" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2120" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2121" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2130" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2150" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2180" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2181" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2190" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2195" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2200" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2220" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2240" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2250" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2255" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2270" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2275" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2290" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2295" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2300" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2305" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2350" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2355" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2500" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2505" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2510" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2515" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2520" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2550" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2600" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2605" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2610" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2615" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2650" type="DGdecimal2"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="LASTDAY" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="OBL" type="STATOBL"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="RAY" type="STATRAY"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="N1" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="N2" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2070" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2070" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2105" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2105" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2110" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2110" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2111" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2111" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2112" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2112" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2122" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2122" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2182" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2182" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2241" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2241" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2400" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2400" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2405" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2405" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2410" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2410" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2415" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2415" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2445" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2445" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2450" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2450" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2455" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2455" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2460" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2460" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2465" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2465" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="KVED" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="A2123" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="B2123" type="DGdecimal0"  nillable="true" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="KATOTTG" type="xs:string"  nillable="true" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+<!-- 26.02.2024 16:15:54 -->

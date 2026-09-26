@@ -1,0 +1,311 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SearchBar } from '../components/search/SearchBar';
+import { 
+  Building2, 
+  TrendingUp, 
+  FileSpreadsheet, 
+  ShieldCheck, 
+  ExternalLink, 
+  Sparkles,
+  ArrowRight,
+  Layers,
+  Database,
+  BarChart3
+} from 'lucide-react';
+
+const FEATURED_COMPANIES = [
+  {
+    name: 'ТзОВ "Кормотех"',
+    edrpou: '32673400',
+    industry: 'Виробництво готових кормів',
+    badge: 'Демо-звітність 2025',
+    metric: '6.2 млрд ₴ виручки',
+    forms: '5 форм подано',
+    highlight: true,
+  },
+  {
+    name: 'ПАТ "Укрзалізниця"',
+    edrpou: '00290771',
+    industry: 'Залізничний транспорт',
+    badge: 'Державний сектор',
+    metric: 'Транспортні перевезення',
+    forms: 'Форми Ф1, Ф2',
+    highlight: false,
+  },
+  {
+    name: 'ТОВ "Нова Пошта"',
+    edrpou: '31316718',
+    industry: 'Поштова та кур\'єрська діяльність',
+    badge: 'Логістика',
+    metric: 'Експрес-доставка',
+    forms: 'Форми Ф1, Ф2',
+    highlight: false,
+  },
+  {
+    name: 'ТОВ "Розетка.УА"',
+    edrpou: '37193071',
+    industry: 'Електронна комерція',
+    badge: 'E-Commerce',
+    metric: 'Онлайн-ритейл',
+    forms: 'Форми Ф1, Ф2',
+    highlight: false,
+  },
+];
+---
+
+<Layout title="FinZvit — Ультра-сучасний переглядач фінансової звітності">
+  <!-- Фоновий неоновий градієнт та сітка -->
+  <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-gradient-to-b from-emerald-500/10 via-teal-500/5 to-transparent blur-[140px] rounded-full"></div>
+    <div class="absolute top-1/3 -left-40 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+  </div>
+
+  <div class="flex flex-col items-center justify-center pt-8 pb-20 max-w-5xl mx-auto space-y-12">
+    
+    <!-- Верхній преміальний бейдж -->
+    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-700">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="text-xs font-medium text-zinc-300">
+        Офіційні відкриті дані Держстату України · Звітний рік 2025
+      </span>
+      <span class="text-zinc-600">•</span>
+      <a 
+        href="https://data.gov.ua/dataset/7436ae83-dfc1-4836-9962-8af3e831c522" 
+        target="_blank" 
+        class="text-xs font-mono text-accent hover:underline flex items-center gap-1"
+      >
+        <span>data.gov.ua</span>
+        <ExternalLink className="w-3 h-3" />
+      </a>
+    </div>
+
+    <!-- Головний титульний блок -->
+    <div class="text-center space-y-5 max-w-3xl">
+      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.08]">
+        Фінансова звітність <br />
+        <span class="bg-gradient-to-r from-emerald-400 via-teal-200 to-indigo-300 bg-clip-text text-transparent">
+          в офіційних формах
+        </span>
+      </h1>
+      <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed">
+        Введіть код ЄДРПОУ будь-якої юридичної особи України та досліджуйте Баланс (Ф1), Фінрезультати (Ф2), Рух коштів (Ф3) та Власний капітал (Ф4) у точній відповідності до державних стандартів.
+      </p>
+    </div>
+
+    <!-- Пошуковий термінал -->
+    <div class="w-full pt-2">
+      <SearchBar client:load autoFocus={true} size="large" />
+    </div>
+
+    <!-- Картки верифікованих підприємств для швидкого перегляду -->
+    <div class="w-full pt-4 space-y-3">
+      <div className="flex items-center justify-between text-xs text-zinc-500 font-mono uppercase tracking-wider px-1">
+        <span>Швидкий перехід до підприємств:</span>
+        <span className="hidden sm:inline">Звітність за 2025 рік</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {FEATURED_COMPANIES.map((c) => (
+          <a
+            key={c.edrpou}
+            href={`/company/${c.edrpou}`}
+            class={`p-4 rounded-2xl border transition-all duration-300 text-left flex flex-col justify-between group relative overflow-hidden backdrop-blur-xl ${
+              c.highlight
+                ? 'bg-zinc-900/90 border-accent/40 hover:border-accent hover:shadow-lg hover:shadow-accent/10'
+                : 'bg-zinc-950/60 border-white/5 hover:border-white/20 hover:bg-zinc-900/80'
+            }`}
+          >
+            {c.highlight && (
+              <div class="absolute top-0 right-0 w-24 h-24 bg-accent/10 rounded-full blur-xl pointer-events-none"></div>
+            )}
+
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border ${
+                  c.highlight
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    : 'bg-zinc-800/80 border-zinc-700/80 text-zinc-400'
+                }`}>
+                  {c.badge}
+                </span>
+                <span class="font-mono text-xs text-zinc-400 group-hover:text-white transition-colors">
+                  {c.edrpou}
+                </span>
+              </div>
+
+              <div class="font-bold text-white text-base group-hover:text-accent transition-colors line-clamp-1">
+                {c.name}
+              </div>
+              <div class="text-xs text-zinc-400 mt-1 line-clamp-1">
+                {c.industry}
+              </div>
+            </div>
+
+            <div class="pt-4 mt-3 border-t border-white/5 flex items-center justify-between text-xs">
+              <span class="font-mono text-zinc-400 text-[11px]">{c.metric}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-accent group-hover:translate-x-1 transition-all" />
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Інтерактивне вікно прев'ю фінансового терміналу (Showcase) -->
+    <div class="w-full pt-10">
+      <div class="rounded-3xl border border-white/10 bg-zinc-950/90 shadow-2xl overflow-hidden backdrop-blur-2xl">
+        {/* Заголовок вікна macOS */}
+        <div class="h-11 bg-zinc-900/80 border-b border-white/5 px-4 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+            <span class="text-xs font-mono text-zinc-400 ml-2">FinZvit Terminal • /company/32673400</span>
+          </div>
+
+          <div class="hidden sm:flex items-center gap-1.5 text-xs font-mono text-zinc-400 bg-zinc-800/60 px-2.5 py-1 rounded-lg border border-zinc-700/50">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span>НП(С)БО / МСФЗ 2025</span>
+          </div>
+        </div>
+
+        {/* Демо-шапка та показники Кормотеха */}
+        <div class="p-6 border-b border-white/5 bg-zinc-900/40">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 text-xs font-mono text-emerald-400 mb-1">
+                <span>✓ ОФІЦІЙНО ПОДАНО</span>
+                <span>•</span>
+                <span class="text-zinc-400">ДАТА: 05.06.2026</span>
+              </div>
+              <div class="text-xl sm:text-2xl font-bold text-white">ТзОВ "Кормотех"</div>
+              <div class="text-xs text-zinc-400 font-mono mt-0.5">
+                ЄДРПОУ: 32673400 · КВЕД: 10.92 (Виробництво кормів) · Працівників: 999
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <a
+                href="/company/32673400"
+                class="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-semibold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-500/10"
+              >
+                <span>Відкрити повний звіт</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Міні-метрики KPI */}
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+            <div class="p-3 rounded-xl bg-zinc-900/80 border border-white/5">
+              <div class="text-[11px] text-zinc-400">Чистий дохід (Ф2)</div>
+              <div class="text-lg font-bold font-mono text-white mt-1">6 249 313 <span class="text-xs font-normal text-zinc-500">тис. ₴</span></div>
+              <div class="text-[11px] font-mono text-emerald-400 mt-0.5">+17.1% до 2024 р.</div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-zinc-900/80 border border-white/5">
+              <div class="text-[11px] text-zinc-400">Чистий прибуток (Ф2)</div>
+              <div class="text-lg font-bold font-mono text-white mt-1">91 059 <span class="text-xs font-normal text-zinc-500">тис. ₴</span></div>
+              <div class="text-[11px] font-mono text-zinc-400 mt-0.5">Рядок 2350</div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-zinc-900/80 border border-white/5">
+              <div class="text-[11px] text-zinc-400">Активи підприємства (Ф1)</div>
+              <div class="text-lg font-bold font-mono text-white mt-1">2 718 728 <span class="text-xs font-normal text-zinc-500">тис. ₴</span></div>
+              <div class="text-[11px] font-mono text-emerald-400 mt-0.5">+13.7% зростання</div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-zinc-900/80 border border-white/5">
+              <div class="text-[11px] text-zinc-400">Власний капітал (Ф1)</div>
+              <div class="text-lg font-bold font-mono text-white mt-1">1 043 641 <span class="text-xs font-normal text-zinc-500">тис. ₴</span></div>
+              <div class="text-[11px] font-mono text-zinc-400 mt-0.5">Рядок 1495</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Міні-таблиця фрагменту звіту */}
+        <div class="overflow-x-auto p-4">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-zinc-500 font-mono border-b border-white/5 pb-2">
+                <th class="py-2 px-3">Стаття офіційного балансу</th>
+                <th class="py-2 px-2 text-center">Код</th>
+                <th class="py-2 px-3 text-right">Початок 2025 р.</th>
+                <th class="py-2 px-3 text-right">Кінець 2025 р.</th>
+                <th class="py-2 px-3 text-right">Динаміка</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 font-mono text-zinc-300">
+              <tr>
+                <td class="py-2 px-3 font-sans font-medium text-white">Нематеріальні активи</td>
+                <td class="py-2 px-2 text-center text-zinc-500">1000</td>
+                <td class="py-2 px-3 text-right">1 192</td>
+                <td class="py-2 px-3 text-right text-white">1 307</td>
+                <td class="py-2 px-3 text-right text-emerald-400">+9.6%</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-sans font-medium text-white">Основні засоби (залишкова)</td>
+                <td class="py-2 px-2 text-center text-zinc-500">1010</td>
+                <td class="py-2 px-3 text-right">619 068</td>
+                <td class="py-2 px-3 text-right text-white">579 146</td>
+                <td class="py-2 px-3 text-right text-rose-400">-6.4%</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-sans font-medium text-white">Запаси</td>
+                <td class="py-2 px-2 text-center text-zinc-500">1100</td>
+                <td class="py-2 px-3 text-right">678 759</td>
+                <td class="py-2 px-3 text-right text-white">805 604</td>
+                <td class="py-2 px-3 text-right text-emerald-400">+18.7%</td>
+              </tr>
+              <tr class="bg-accent/10 font-bold text-white">
+                <td class="py-2.5 px-3 font-sans text-accent">БАЛАНС (АКТИВ)</td>
+                <td class="py-2.5 px-2 text-center text-accent">1300</td>
+                <td class="py-2.5 px-3 text-right text-white">2 391 091</td>
+                <td class="py-2.5 px-3 text-right text-accent font-bold">2 718 728</td>
+                <td class="py-2.5 px-3 text-right text-emerald-400">+13.7%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Трійка головних переваг системи -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 w-full">
+      <div class="p-6 rounded-3xl border border-white/5 bg-zinc-950/60 backdrop-blur-xl space-y-3 relative overflow-hidden group hover:border-accent/30 transition-colors">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-accent">
+          <FileSpreadsheet className="w-5 h-5" />
+        </div>
+        <h3 class="font-bold text-white text-base">Офіційні форми Держстату</h3>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Структура таблиць строго відповідає бланкам Ф1, Ф2, Ф3, Ф4 та формам малого бізнесу з кодами рядків, підсумками та контрактивними статтями.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-3xl border border-white/5 bg-zinc-950/60 backdrop-blur-xl space-y-3 relative overflow-hidden group hover:border-indigo-500/30 transition-colors">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+          <TrendingUp className="w-5 h-5" />
+        </div>
+        <h3 class="font-bold text-white text-base">Миттєва фінансова аналітика</h3>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Автоматичний підрахунок виручки, чистого фінансового результату, активів і капіталу з відсотковою динамікою порівняно з минулим періодом.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-3xl border border-white/5 bg-zinc-950/60 backdrop-blur-xl space-y-3 relative overflow-hidden group hover:border-teal-500/30 transition-colors">
+        <div class="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+        <h3 class="font-bold text-white text-base">100% Верифіковані дані</h3>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Пряма інтеграція з офіційним реєстром річної звітності порталу data.gov.ua (ДПС та Держстат). Жодних прихованих або спотворених цифр.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</Layout>

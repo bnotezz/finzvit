@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { CompanyPageView } from '../../components/company/CompanyPageView';
+
+export function getStaticPaths() {
+  // Для статичного білду додаємо зразки
+  return [
+    { params: { edrpou: '32673400' } },
+    { params: { edrpou: '00290771' } },
+  ];
+}
+
+const { edrpou } = Astro.params;
+---
+
+<Layout title={`Компанія ${edrpou} — FinZvit`}>
+  <CompanyPageView client:only="react" edrpou={edrpou || ''} />
+</Layout>

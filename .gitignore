@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build
+dist/
+build/
+output/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Astro
+.astro/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db

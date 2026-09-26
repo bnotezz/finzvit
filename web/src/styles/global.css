@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #07080B;
+  --color-surface-card: rgba(20, 22, 31, 0.75);
+  --color-surface-hover: rgba(30, 34, 48, 0.85);
+  --color-surface-input: rgba(15, 17, 26, 0.9);
+  
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-card: rgba(255, 255, 255, 0.12);
+  --color-border-accent: rgba(52, 211, 153, 0.3);
+
+  --color-accent: #34D399;
+  --color-accent-hover: #10B981;
+  --color-accent-dim: #059669;
+  
+  --color-financial-positive: #34D399;
+  --color-financial-negative: #F87171;
+  --color-financial-neutral: #9CA3AF;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Geist Mono', JetBrains Mono, ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #07080B;
+    color: #F3F4F6;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Моноширинні цифри у фінансових таблицях */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Стилізований скролбар для таблиць */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(9, 10, 15, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Оптимізація друку */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .bg-surface, .bg-surface-card {
+    background: transparent !important;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #ddd !important;
+    color: #000000 !important;
+  }
+}

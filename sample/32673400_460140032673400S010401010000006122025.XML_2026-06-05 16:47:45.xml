@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="S0104010.xsd">
+  <DECLARHEAD>
+    <TIN>32673400</TIN>
+    <C_DOC>S01</C_DOC>
+    <C_DOC_SUB>040</C_DOC_SUB>
+    <C_DOC_VER>10</C_DOC_VER>
+    <C_DOC_TYPE>0</C_DOC_TYPE>
+    <C_DOC_CNT>00006</C_DOC_CNT>
+    <C_REG>46</C_REG>
+    <C_RAJ>014</C_RAJ>
+    <PERIOD_MONTH>12</PERIOD_MONTH>
+    <PERIOD_TYPE>5</PERIOD_TYPE>
+    <PERIOD_YEAR>2025</PERIOD_YEAR>
+    <D_FILL>05062026</D_FILL>
+    <SOFTWARE>Арт-Звіт Pro - версія 5.8.8</SOFTWARE>
+  </DECLARHEAD>
+  <DECLARBODY>
+    <FIRM_EDRPOU>32673400</FIRM_EDRPOU>
+    <REP_PERNM>2025</REP_PERNM>
+    <FIRM_RUK>СТЕФАНИШИН МАРІЯ МИХАЙЛІВНА</FIRM_RUK>
+    <FIRM_BUH>Сеймівська Марія Ігорівна</FIRM_BUH>
+    <FIRM_NAME>ТзОВ "Кормотех"</FIRM_NAME>
+    <LASTDAY>1</LASTDAY>
+    <OBL>46</OBL>
+    <RAY>014</RAY>
+    <A4000_3>9000</A4000_3>
+    <A4000_4 xsi:nil="true"></A4000_4>
+    <A4000_5>155</A4000_5>
+    <A4000_6 xsi:nil="true"></A4000_6>
+    <A4000_7>1348544</A4000_7>
+    <A4000_8 xsi:nil="true"></A4000_8>
+    <A4000_9 xsi:nil="true"></A4000_9>
+    <A4000_10>1357699</A4000_10>
+    <A4005_3 xsi:nil="true"></A4005_3>
+    <A4005_4 xsi:nil="true"></A4005_4>
+    <A4005_5 xsi:nil="true"></A4005_5>
+    <A4005_6 xsi:nil="true"></A4005_6>
+    <A4005_7 xsi:nil="true"></A4005_7>
+    <A4005_8 xsi:nil="true"></A4005_8>
+    <A4005_9 xsi:nil="true"></A4005_9>
+    <A4005_10 xsi:nil="true"></A4005_10>
+    <A4010_3 xsi:nil="true"></A4010_3>
+    <A4010_4 xsi:nil="true"></A4010_4>
+    <A4010_5 xsi:nil="true"></A4010_5>
+    <A4010_6 xsi:nil="true"></A4010_6>
+    <A4010_7 xsi:nil="true"></A4010_7>
+    <A4010_8 xsi:nil="true"></A4010_8>
+    <A4010_9 xsi:nil="true"></A4010_9>
+    <A4010_10 xsi:nil="true"></A4010_10>
+    <A4090_3 xsi:nil="true"></A4090_3>
+    <A4090_4 xsi:nil="true"></A4090_4>
+    <A4090_5 xsi:nil="true"></A4090_5>
+    <A4090_6 xsi:nil="true"></A4090_6>
+    <A4090_7 xsi:nil="true"></A4090_7>
+    <A4090_8 xsi:nil="true"></A4090_8>
+    <A4090_9 xsi:nil="true"></A4090_9>
+    <A4090_10 xsi:nil="true"></A4090_10>
+    <A4095_3>9000</A4095_3>
+    <A4095_4 xsi:nil="true"></A4095_4>
+    <A4095_5>155</A4095_5>
+    <A4095_6 xsi:nil="true"></A4095_6>
+    <A4095_7>1348544</A4095_7>
+    <A4095_8 xsi:nil="true"></A4095_8>
+    <A4095_9 xsi:nil="true"></A4095_9>
+    <A4095_10>1357699</A4095_10>
+    <A4100_3 xsi:nil="true"></A4100_3>
+    <A4100_4 xsi:nil="true"></A4100_4>
+    <A4100_5 xsi:nil="true"></A4100_5>
+    <A4100_6 xsi:nil="true"></A4100_6>
+    <A4100_7>91058</A4100_7>
+    <A4100_8 xsi:nil="true"></A4100_8>
+    <A4100_9 xsi:nil="true"></A4100_9>
+    <A4100_10>91058</A4100_10>
+    <A4110_3 xsi:nil="true"></A4110_3>
+    <A4110_4 xsi:nil="true"></A4110_4>
+    <A4110_5 xsi:nil="true"></A4110_5>
+    <A4110_6 xsi:nil="true"></A4110_6>
+    <A4110_7 xsi:nil="true"></A4110_7>
+    <A4110_8 xsi:nil="true"></A4110_8>
+    <A4110_9 xsi:nil="true"></A4110_9>
+    <A4110_10 xsi:nil="true"></A4110_10>
+    <A4200_3 xsi:nil="true"></A4200_3>
+    <A4200_4 xsi:nil="true"></A4200_4>
+    <A4200_5 xsi:nil="true"></A4200_5>
+    <A4200_6 xsi:nil="true"></A4200_6>
+    <A4200_7>-405000</A4200_7>
+    <A4200_8 xsi:nil="true"></A4200_8>
+    <A4200_9 xsi:nil="true"></A4200_9>
+    <A4200_10>-405000</A4200_10>
+    <A4205_3 xsi:nil="true"></A4205_3>
+    <A4205_4 xsi:nil="true"></A4205_4>
+    <A4205_5 xsi:nil="true"></A4205_5>
+    <A4205_6 xsi:nil="true"></A4205_6>
+    <A4205_7 xsi:nil="true"></A4205_7>
+    <A4205_8 xsi:nil="true"></A4205_8>
+    <A4205_9 xsi:nil="true"></A4205_9>
+    <A4205_10 xsi:nil="true"></A4205_10>
+    <A4210_3 xsi:nil="true"></A4210_3>
+    <A4210_4 xsi:nil="true"></A4210_4>
+    <A4210_5 xsi:nil="true"></A4210_5>
+    <A4210_6 xsi:nil="true"></A4210_6>
+    <A4210_7 xsi:nil="true"></A4210_7>
+    <A4210_8 xsi:nil="true"></A4210_8>
+    <A4210_9 xsi:nil="true"></A4210_9>
+    <A4210_10 xsi:nil="true"></A4210_10>
+    <A4215_3 xsi:nil="true"></A4215_3>
+    <A4215_4 xsi:nil="true"></A4215_4>
+    <A4215_5 xsi:nil="true"></A4215_5>
+    <A4215_6 xsi:nil="true"></A4215_6>
+    <A4215_7 xsi:nil="true"></A4215_7>
+    <A4215_8 xsi:nil="true"></A4215_8>
+    <A4215_9 xsi:nil="true"></A4215_9>
+    <A4215_10 xsi:nil="true"></A4215_10>
+    <A4220_3 xsi:nil="true"></A4220_3>
+    <A4220_4 xsi:nil="true"></A4220_4>
+    <A4220_5 xsi:nil="true"></A4220_5>
+    <A4220_6 xsi:nil="true"></A4220_6>
+    <A4220_7 xsi:nil="true"></A4220_7>
+    <A4220_8 xsi:nil="true"></A4220_8>
+    <A4220_9 xsi:nil="true"></A4220_9>
+    <A4220_10 xsi:nil="true"></A4220_10>
+    <A4225_3 xsi:nil="true"></A4225_3>
+    <A4225_4 xsi:nil="true"></A4225_4>
+    <A4225_5 xsi:nil="true"></A4225_5>
+    <A4225_6 xsi:nil="true"></A4225_6>
+    <A4225_7 xsi:nil="true"></A4225_7>
+    <A4225_8 xsi:nil="true"></A4225_8>
+    <A4225_9 xsi:nil="true"></A4225_9>
+    <A4225_10 xsi:nil="true"></A4225_10>
+    <A4240_3 xsi:nil="true"></A4240_3>
+    <A4240_4 xsi:nil="true"></A4240_4>
+    <A4240_5 xsi:nil="true"></A4240_5>
+    <A4240_6 xsi:nil="true"></A4240_6>
+    <A4240_7 xsi:nil="true"></A4240_7>
+    <A4240_8 xsi:nil="true"></A4240_8>
+    <A4240_9 xsi:nil="true"></A4240_9>
+    <A4240_10 xsi:nil="true"></A4240_10>
+    <A4245_3 xsi:nil="true"></A4245_3>
+    <A4245_4 xsi:nil="true"></A4245_4>
+    <A4245_5 xsi:nil="true"></A4245_5>
+    <A4245_6 xsi:nil="true"></A4245_6>
+    <A4245_7 xsi:nil="true"></A4245_7>
+    <A4245_8 xsi:nil="true"></A4245_8>
+    <A4245_9 xsi:nil="true"></A4245_9>
+    <A4245_10 xsi:nil="true"></A4245_10>
+    <A4260_3 xsi:nil="true"></A4260_3>
+    <A4260_4 xsi:nil="true"></A4260_4>
+    <A4260_5 xsi:nil="true"></A4260_5>
+    <A4260_6 xsi:nil="true"></A4260_6>
+    <A4260_7 xsi:nil="true"></A4260_7>
+    <A4260_8 xsi:nil="true"></A4260_8>
+    <A4260_9 xsi:nil="true"></A4260_9>
+    <A4260_10 xsi:nil="true"></A4260_10>
+    <A4265_3 xsi:nil="true"></A4265_3>
+    <A4265_4 xsi:nil="true"></A4265_4>
+    <A4265_5 xsi:nil="true"></A4265_5>
+    <A4265_6 xsi:nil="true"></A4265_6>
+    <A4265_7 xsi:nil="true"></A4265_7>
+    <A4265_8 xsi:nil="true"></A4265_8>
+    <A4265_9 xsi:nil="true"></A4265_9>
+    <A4265_10 xsi:nil="true"></A4265_10>
+    <A4270_3 xsi:nil="true"></A4270_3>
+    <A4270_4 xsi:nil="true"></A4270_4>
+    <A4270_5 xsi:nil="true"></A4270_5>
+    <A4270_6 xsi:nil="true"></A4270_6>
+    <A4270_7 xsi:nil="true"></A4270_7>
+    <A4270_8 xsi:nil="true"></A4270_8>
+    <A4270_9 xsi:nil="true"></A4270_9>
+    <A4270_10 xsi:nil="true"></A4270_10>
+    <A4275_3 xsi:nil="true"></A4275_3>
+    <A4275_4 xsi:nil="true"></A4275_4>
+    <A4275_5 xsi:nil="true"></A4275_5>
+    <A4275_6 xsi:nil="true"></A4275_6>
+    <A4275_7 xsi:nil="true"></A4275_7>
+    <A4275_8 xsi:nil="true"></A4275_8>
+    <A4275_9 xsi:nil="true"></A4275_9>
+    <A4275_10 xsi:nil="true"></A4275_10>
+    <A4280_3 xsi:nil="true"></A4280_3>
+    <A4280_4 xsi:nil="true"></A4280_4>
+    <A4280_5 xsi:nil="true"></A4280_5>
+    <A4280_6 xsi:nil="true"></A4280_6>
+    <A4280_7 xsi:nil="true"></A4280_7>
+    <A4280_8 xsi:nil="true"></A4280_8>
+    <A4280_9 xsi:nil="true"></A4280_9>
+    <A4280_10 xsi:nil="true"></A4280_10>
+    <A4290_3 xsi:nil="true"></A4290_3>
+    <A4290_4 xsi:nil="true"></A4290_4>
+    <A4290_5>-116</A4290_5>
+    <A4290_6 xsi:nil="true"></A4290_6>
+    <A4290_7 xsi:nil="true"></A4290_7>
+    <A4290_8 xsi:nil="true"></A4290_8>
+    <A4290_9 xsi:nil="true"></A4290_9>
+    <A4290_10>-116</A4290_10>
+    <A4291_3 xsi:nil="true"></A4291_3>
+    <A4291_4 xsi:nil="true"></A4291_4>
+    <A4291_5 xsi:nil="true"></A4291_5>
+    <A4291_6 xsi:nil="true"></A4291_6>
+    <A4291_7 xsi:nil="true"></A4291_7>
+    <A4291_8 xsi:nil="true"></A4291_8>
+    <A4291_9 xsi:nil="true"></A4291_9>
+    <A4291_10 xsi:nil="true"></A4291_10>
+    <A4295_3 xsi:nil="true"></A4295_3>
+    <A4295_4 xsi:nil="true"></A4295_4>
+    <A4295_5>-116</A4295_5>
+    <A4295_6 xsi:nil="true"></A4295_6>
+    <A4295_7>-313942</A4295_7>
+    <A4295_8 xsi:nil="true"></A4295_8>
+    <A4295_9 xsi:nil="true"></A4295_9>
+    <A4295_10>-314058</A4295_10>
+    <A4300_3>9000</A4300_3>
+    <A4300_4 xsi:nil="true"></A4300_4>
+    <A4300_5>39</A4300_5>
+    <A4300_6 xsi:nil="true"></A4300_6>
+    <A4300_7>1034602</A4300_7>
+    <A4300_8 xsi:nil="true"></A4300_8>
+    <A4300_9 xsi:nil="true"></A4300_9>
+    <A4300_10>1043641</A4300_10>
+    <N1>2026</N1>
+    <N2>1</N2>
+    <A4111_3 xsi:nil="true"></A4111_3>
+    <A4111_4 xsi:nil="true"></A4111_4>
+    <A4111_5 xsi:nil="true"></A4111_5>
+    <A4111_6 xsi:nil="true"></A4111_6>
+    <A4111_7 xsi:nil="true"></A4111_7>
+    <A4111_8 xsi:nil="true"></A4111_8>
+    <A4111_9 xsi:nil="true"></A4111_9>
+    <A4111_10 xsi:nil="true"></A4111_10>
+    <A4112_3 xsi:nil="true"></A4112_3>
+    <A4112_4 xsi:nil="true"></A4112_4>
+    <A4112_5 xsi:nil="true"></A4112_5>
+    <A4112_6 xsi:nil="true"></A4112_6>
+    <A4112_7 xsi:nil="true"></A4112_7>
+    <A4112_8 xsi:nil="true"></A4112_8>
+    <A4112_9 xsi:nil="true"></A4112_9>
+    <A4112_10 xsi:nil="true"></A4112_10>
+    <A4113_3 xsi:nil="true"></A4113_3>
+    <A4113_4 xsi:nil="true"></A4113_4>
+    <A4113_5 xsi:nil="true"></A4113_5>
+    <A4113_6 xsi:nil="true"></A4113_6>
+    <A4113_7 xsi:nil="true"></A4113_7>
+    <A4113_8 xsi:nil="true"></A4113_8>
+    <A4113_9 xsi:nil="true"></A4113_9>
+    <A4113_10 xsi:nil="true"></A4113_10>
+    <A4114_3 xsi:nil="true"></A4114_3>
+    <A4114_4 xsi:nil="true"></A4114_4>
+    <A4114_5 xsi:nil="true"></A4114_5>
+    <A4114_6 xsi:nil="true"></A4114_6>
+    <A4114_7 xsi:nil="true"></A4114_7>
+    <A4114_8 xsi:nil="true"></A4114_8>
+    <A4114_9 xsi:nil="true"></A4114_9>
+    <A4114_10 xsi:nil="true"></A4114_10>
+    <A4116_3 xsi:nil="true"></A4116_3>
+    <A4116_4 xsi:nil="true"></A4116_4>
+    <A4116_6 xsi:nil="true"></A4116_6>
+    <A4116_5 xsi:nil="true"></A4116_5>
+    <A4116_7 xsi:nil="true"></A4116_7>
+    <A4116_8 xsi:nil="true"></A4116_8>
+    <A4116_9 xsi:nil="true"></A4116_9>
+    <A4116_10 xsi:nil="true"></A4116_10>
+    <KATOTTG>UA46140050150014119</KATOTTG>
+  </DECLARBODY>
+</DECLAR>
