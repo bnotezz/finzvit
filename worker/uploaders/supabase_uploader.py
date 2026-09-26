@@ -24,8 +24,14 @@ class SupabaseUploader:
         local_output_dir: str = "output"
     ):
         self.url = supabase_url or os.getenv("SUPABASE_URL")
-        # Для воркера потрібен SERVICE_ROLE_KEY або anon key з правами
-        self.key = supabase_key or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+        # Сучасний стандарт Supabase: Secret API Key (sb_secret_... / sbs_...)
+        # Зі збереженням зворотної сумісності для SUPABASE_SERVICE_ROLE_KEY
+        self.key = (
+            supabase_key 
+            or os.getenv("SUPABASE_SECRET_KEY") 
+            or os.getenv("SUPABASE_SERVICE_ROLE_KEY") 
+            or os.getenv("SUPABASE_KEY")
+        )
         self.local_output_dir = local_output_dir
         self.client: Optional[Client] = None
 

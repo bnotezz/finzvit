@@ -12,6 +12,18 @@ interface CompanyPageViewProps {
 }
 
 export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
+  // Визначаємо актуальний код ЄДРПОУ (з пропсів або безпосередньо з URL-шляху)
+  const effectiveEdrpou = React.useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const last = parts[parts.length - 1];
+      if (last && /^\d+$/.test(last)) {
+        return last;
+      }
+    }
+    return edrpou || '';
+  }, [edrpou]);
+
   const [company, setCompany] = useState<CompanyMeta | null>(null);
   const [balanceReport, setBalanceReport] = useState<ReportData | null>(null);
   const [incomeReport, setIncomeReport] = useState<ReportData | null>(null);
@@ -21,11 +33,13 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!effectiveEdrpou) return;
+
     let isMounted = true;
     setIsLoading(true);
     setError(null);
 
-    fetchCompanyMeta(edrpou)
+    fetchCompanyMeta(effectiveEdrpou)
       .then(async (meta) => {
         if (!isMounted) return;
         setCompany(meta);
@@ -45,7 +59,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         if (f1Form && f2Form && f1Form.code === f2Form.code) {
           // Якщо це об'єднана форма (малі / мікро) — завантажуємо один звіт для обох
           promises.push(
-            fetchReportData(edrpou, f1Form.code)
+            fetchReportData(effectiveEdrpou, f1Form.code)
               .then((rep) => {
                 if (isMounted) {
                   setBalanceReport(rep);
@@ -57,14 +71,14 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         } else {
           if (f1Form) {
             promises.push(
-              fetchReportData(edrpou, f1Form.code)
+              fetchReportData(effectiveEdrpou, f1Form.code)
                 .then((rep) => isMounted && setBalanceReport(rep))
                 .catch((err) => console.error('Помилка завантаження Ф1:', err))
             );
           }
           if (f2Form) {
             promises.push(
-              fetchReportData(edrpou, f2Form.code)
+              fetchReportData(effectiveEdrpou, f2Form.code)
                 .then((rep) => isMounted && setIncomeReport(rep))
                 .catch((err) => console.error('Помилка завантаження Ф2:', err))
             );
@@ -85,7 +99,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     return () => {
       isMounted = false;
     };
-  }, [edrpou]);
+  }, [effectiveEdrpou]);
 
   // Експорт активного звіту у CSV
   const handleExportCsv = () => {
