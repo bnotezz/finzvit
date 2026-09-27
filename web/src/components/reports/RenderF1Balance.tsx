@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronDown, ChevronRight, Filter, Eye, EyeOff, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight, Eye, EyeOff, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { F1_BALANCE_ROWS } from '../../lib/form-definitions';
 import { formatCurrency, calculateChange } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
@@ -51,89 +51,192 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
     }).length;
   }, [data]);
 
+  // Швидкі підсумки балансу (Актив ряд. 1300 vs Пасив ряд. 1900)
+  const assetRow = data['1300'];
+  const liabilityRow = data['1900'];
+  const assetEnd = assetRow?.end ?? null;
+  const assetBegin = assetRow?.begin ?? null;
+  const liabilityEnd = liabilityRow?.end ?? null;
+  const liabilityBegin = liabilityRow?.begin ?? null;
+  const hasTotals = assetEnd !== null || liabilityEnd !== null;
+  const isBalanced =
+    assetEnd !== null && liabilityEnd !== null && Math.abs(Number(assetEnd) - Number(liabilityEnd)) < 0.01;
+
   let currentSection = '';
 
   return (
     <div className="rounded-2xl border border-border-card bg-surface-card shadow-2xl backdrop-blur-md overflow-hidden">
       {/* Шапка форми з перемикачами */}
-      <div className="p-4 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-3.5 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
               Баланс (Звіт про фінансовий стан)
             </h2>
-            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20">
+            <span className="text-[10px] sm:text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20 shrink-0">
               Форма № 1
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-[11px] sm:text-xs text-zinc-400 mt-0.5 leading-normal">
             Звітний період: на 31 грудня {report.meta?.period_year || 2025} року · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
 
         {/* Панель керування (Актив/Пасив та фільтр заповнених) */}
-        <div className="flex flex-wrap items-center gap-2 text-xs no-print">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs no-print w-full md:w-auto">
           {/* Таби Актив / Пасив */}
-          <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1">
+          <div className="grid grid-cols-3 sm:flex items-center bg-zinc-900/90 border border-zinc-800 rounded-xl p-1">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium text-center transition-all ${
                 activeTab === 'all'
                   ? 'bg-zinc-800 text-white shadow-sm'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Усі (Актив + Пасив)
+              <span className="sm:hidden">Усі</span>
+              <span className="hidden sm:inline">Усі (Актив + Пасив)</span>
             </button>
             <button
               onClick={() => setActiveTab('asset')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium text-center transition-all ${
                 activeTab === 'asset'
                   ? 'bg-zinc-800 text-accent shadow-sm'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Тільки Актив
+              <span className="sm:hidden">Актив</span>
+              <span className="hidden sm:inline">Тільки Актив</span>
             </button>
             <button
               onClick={() => setActiveTab('liability')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg font-medium text-center transition-all ${
                 activeTab === 'liability'
                   ? 'bg-zinc-800 text-indigo-400 shadow-sm'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Тільки Пасив
+              <span className="sm:hidden">Пасив</span>
+              <span className="hidden sm:inline">Тільки Пасив</span>
             </button>
           </div>
 
           {/* Перемикач тільки заповнених */}
           <button
             onClick={() => setOnlyFilled(!onlyFilled)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-colors ${
+            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl border transition-colors ${
               onlyFilled
                 ? 'bg-accent/10 border-accent/30 text-accent'
-                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+                : 'bg-zinc-900/90 border-zinc-800 text-zinc-400 hover:text-white'
             }`}
             title="Перемкнути відображення порожніх рядків бланку"
           >
-            {onlyFilled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            <span>{onlyFilled ? `Заповнені статті (${filledCount})` : 'Усі статті форми'}</span>
+            {onlyFilled ? <Eye className="w-3.5 h-3.5 shrink-0" /> : <EyeOff className="w-3.5 h-3.5 shrink-0" />}
+            <span>{onlyFilled ? `Заповнені (${filledCount})` : 'Усі статті форми'}</span>
           </button>
         </div>
       </div>
 
-      {/* Таблиця */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-sm">
+      {/* Мобільні швидкі підсумки балансу (Актив vs Пасив) */}
+      {hasTotals && (
+        <div className="sm:hidden p-3 bg-zinc-900/40 border-b border-border-subtle space-y-2">
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {/* Актив (1300) */}
+            <div className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800">
+              <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <span className="font-medium">Актив (1300)</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
+              </div>
+              <div className="text-sm font-bold font-mono text-white mt-1">
+                {formatCurrency(assetEnd)}
+              </div>
+              <div className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                Поч: {formatCurrency(assetBegin)}
+              </div>
+            </div>
+
+            {/* Пасив (1900) */}
+            <div className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800">
+              <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <span className="font-medium">Пасив (1900)</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+              </div>
+              <div className="text-sm font-bold font-mono text-white mt-1">
+                {formatCurrency(liabilityEnd)}
+              </div>
+              <div className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                Поч: {formatCurrency(liabilityBegin)}
+              </div>
+            </div>
+          </div>
+
+          {/* Індикатор рівності балансу */}
+          {assetEnd !== null && liabilityEnd !== null && (
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 text-[11px]">
+              <span className="text-zinc-400">Рівність Балансу:</span>
+              {isBalanced ? (
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Збігається (Актив = Пасив)
+                </span>
+              ) : (
+                <span className="text-amber-400 font-medium flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Δ {(Number(assetEnd) - Number(liabilityEnd)).toLocaleString('uk-UA')} тис. ₴
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Мобільна підказка про свайп таблиці */}
+      <div className="flex sm:hidden items-center justify-between px-3 py-1.5 bg-zinc-900/70 border-b border-zinc-800 text-[11px] text-zinc-400 select-none">
+        <span className="flex items-center gap-1.5 text-zinc-400">
+          <span className="inline-block text-accent font-bold">←</span>
+          <span>Свайп колонок вбік</span>
+          <span className="inline-block text-accent font-bold">→</span>
+        </span>
+        <span className="text-zinc-500 font-mono text-[10px]">тис. ₴</span>
+      </div>
+
+      {/* Таблиця з закріпленою лівою колонкою на мобільному */}
+      <div className="overflow-x-auto relative">
+        <table className="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">
-              <th className="py-3 px-4 min-w-[280px]">Стаття звіту</th>
-              <th className="py-3 px-3 w-16 text-center font-mono">Код</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[140px]">На початок (тис. ₴)</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[140px]">На кінець (тис. ₴)</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[120px] hidden sm:table-cell">Зміна (тис. ₴)</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[90px]">Зміна, %</th>
+              {/* Стаття звіту: закріплена зліва (sticky) на мобільному */}
+              <th className="sticky left-0 z-20 bg-zinc-900/95 py-2.5 sm:py-3 px-3 sm:px-4 min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none">
+                Стаття звіту
+              </th>
+
+              {/* Код рядка: тільки на десктопі, на мобільному виводиться під назвою */}
+              <th className="hidden sm:table-cell py-3 px-3 w-16 text-center font-mono">
+                Код
+              </th>
+
+              {/* На початок */}
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px]">
+                <span className="sm:hidden">Початок</span>
+                <span className="hidden sm:inline">На початок (тис. ₴)</span>
+              </th>
+
+              {/* На кінець */}
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px]">
+                <span className="sm:hidden">Кінець</span>
+                <span className="hidden sm:inline">На кінець (тис. ₴)</span>
+              </th>
+
+              {/* Абсолютна зміна: тільки на десктопі */}
+              <th className="py-3 px-4 text-right font-mono min-w-[120px] hidden sm:table-cell">
+                Зміна (тис. ₴)
+              </th>
+
+              {/* Відносна зміна */}
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[70px] sm:min-w-[90px]">
+                <span className="sm:hidden">Δ, %</span>
+                <span className="hidden sm:inline">Зміна, %</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
@@ -148,19 +251,21 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                   <tr
                     key={idx}
                     onClick={() => toggleSection(row.name)}
-                    className="bg-zinc-900/90 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
+                    className="bg-zinc-900/95 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
                   >
-                    <td colSpan={6} className="py-2.5 px-4 font-semibold text-white">
-                      <div className="flex items-center justify-between">
+                    <td colSpan={6} className="py-2.5 px-3 sm:px-4 font-semibold text-white">
+                      <div className="sticky left-3 sm:left-4 inline-flex items-center justify-between w-full max-w-[calc(100vw-48px)] sm:max-w-none pr-2">
                         <div className="flex items-center gap-2">
                           {isCollapsed ? (
-                            <ChevronRight className="w-4 h-4 text-accent" />
+                            <ChevronRight className="w-4 h-4 text-accent shrink-0" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-accent" />
+                            <ChevronDown className="w-4 h-4 text-accent shrink-0" />
                           )}
-                          <span>{row.name}</span>
+                          <span className="text-xs sm:text-sm font-semibold truncate sm:whitespace-normal">
+                            {row.name}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        <span className="text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0 ml-2">
                           {row.section}
                         </span>
                       </div>
@@ -182,6 +287,13 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
               const change = calculateChange(beginVal, endVal);
               const isTotalRow = row.isTotal;
 
+              // Колір фону закріпленої клітинки на мобільному, щоб дані не просвічували при скролі
+              const stickyBgClass = isMainBalance
+                ? 'bg-zinc-900'
+                : isTotalRow
+                ? 'bg-zinc-900'
+                : 'bg-zinc-950';
+
               return (
                 <tr
                   key={idx}
@@ -193,52 +305,70 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                       : 'hover:bg-zinc-800/30 text-zinc-300'
                   }`}
                 >
-                  {/* Назва статті */}
-                  <td className="py-2.5 px-4">
+                  {/* Назва статті: sticky зліва на мобільному */}
+                  <td
+                    className={`sticky left-0 z-10 ${stickyBgClass} sm:bg-transparent py-2 sm:py-2.5 px-3 sm:px-4 border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none`}
+                  >
                     <div
-                      style={{
-                        paddingLeft: `${Math.max(0, row.level - 1) * 1.25}rem`,
-                      }}
-                      className="flex items-center gap-2"
+                      className={`flex flex-col ${
+                        row.level === 2 ? 'pl-2.5 sm:pl-5 text-zinc-400' : ''
+                      }`}
                     >
-                      {isTotalRow && !isMainBalance && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
+                      <div className="flex items-start gap-1.5">
+                        {isTotalRow && !isMainBalance && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1 sm:mt-1.5"></span>
+                        )}
+                        <span
+                          className={`leading-snug break-words ${
+                            isMainBalance
+                              ? 'text-accent text-sm sm:text-base tracking-wide font-bold'
+                              : isTotalRow
+                              ? 'text-white'
+                              : ''
+                          }`}
+                        >
+                          {row.name}
+                        </span>
+                      </div>
+
+                      {/* Код рядка на мобільному відображається під назвою */}
+                      {row.code && (
+                        <span className="text-[10px] font-mono text-zinc-500 sm:hidden mt-0.5">
+                          #{row.code}
+                        </span>
                       )}
-                      <span className={isMainBalance ? 'text-accent text-base tracking-wide' : ''}>
-                        {row.name}
-                      </span>
                     </div>
                   </td>
 
-                  {/* Код рядка */}
-                  <td className="py-2.5 px-3 text-center font-mono text-xs text-zinc-500">
+                  {/* Код рядка на десктопі */}
+                  <td className="hidden sm:table-cell py-2.5 px-3 text-center font-mono text-xs text-zinc-500">
                     {row.code || ''}
                   </td>
 
                   {/* На початок звітного періоду */}
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2 sm:py-2.5 px-2.5 sm:px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
                     {formatCurrency(beginVal, { isDeduction: row.isDeduction })}
                   </td>
 
                   {/* На кінець звітного періоду */}
                   <td
-                    className={`py-2.5 px-4 text-right font-mono tabular-nums font-medium ${
-                      isMainBalance ? 'text-accent text-base' : 'text-white'
+                    className={`py-2 sm:py-2.5 px-2.5 sm:px-4 text-right font-mono tabular-nums text-xs sm:text-sm font-medium ${
+                      isMainBalance ? 'text-accent font-bold text-sm sm:text-base' : 'text-white'
                     }`}
                   >
                     {formatCurrency(endVal, { isDeduction: row.isDeduction })}
                   </td>
 
-                  {/* Абсолютна зміна */}
+                  {/* Абсолютна зміна (десктоп) */}
                   <td className="py-2.5 px-4 text-right font-mono tabular-nums text-zinc-400 hidden sm:table-cell">
                     {change.absolute !== null ? formatCurrency(change.absolute) : '—'}
                   </td>
 
                   {/* Відносна зміна % */}
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
+                  <td className="py-2 sm:py-2.5 px-2.5 sm:px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
                     {change.direction !== 'none' ? (
                       <span
-                        className={`text-xs font-medium px-1.5 py-0.5 rounded ${
+                        className={`text-[11px] sm:text-xs font-medium px-1 sm:px-1.5 py-0.5 rounded whitespace-nowrap ${
                           change.direction === 'positive'
                             ? 'bg-emerald-500/10 text-emerald-400'
                             : change.direction === 'negative'
