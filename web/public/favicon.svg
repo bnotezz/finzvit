@@ -1,53 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0E131F" />
+    <!-- Background Gradient -->
+    <linearGradient id="fav-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D121D" />
       <stop offset="100%" stop-color="#05070B" />
     </linearGradient>
-    <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+    <!-- Border Gradient -->
+    <linearGradient id="fav-border" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#34D399" />
-      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="60%" stop-color="#10B981" />
       <stop offset="100%" stop-color="#06B6D4" />
     </linearGradient>
-    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6EE7B7" />
+
+    <!-- Hryvnia Cursive 'г' Gradient -->
+    <linearGradient id="hryvnia-stem" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
       <stop offset="50%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#6EE7B7" />
     </linearGradient>
-    <linearGradient id="bar-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+
+    <!-- Horizontal Bars Gradient -->
+    <linearGradient id="hryvnia-bars" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#34D399" />
       <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
+
+    <!-- Filter for soft ambient glow -->
+    <filter id="ambient-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  <!-- Squircle Background -->
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg-grad)" stroke="url(#border-grad)" stroke-width="2" />
+  <!-- Squircle Container -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#fav-bg)" stroke="url(#fav-border)" stroke-width="2" />
 
-  <!-- Radial Ambient Glow -->
-  <circle cx="32" cy="32" r="18" fill="#10B981" opacity="0.18" filter="url(#glow)" />
+  <!-- Center Emerald Ambient Glow -->
+  <circle cx="32" cy="32" r="16" fill="#10B981" opacity="0.16" filter="url(#ambient-glow)" />
 
-  <!-- Growth Indicator Dots / Trend in Top Right -->
-  <circle cx="48" cy="16" r="3" fill="#38BDF8" />
-  <circle cx="48" cy="16" r="5" stroke="#38BDF8" stroke-width="1" opacity="0.4" />
-
-  <!-- Stylized Hryvnia (₴) with Analytics aesthetic -->
-  <g transform="translate(32, 33)">
-    <!-- Main S-Curve of ₴ -->
+  <!-- Authentic Ukrainian Hryvnia Symbol (₴): Cursive Ukrainian 'г' with 2 parallel crossbars -->
+  <g>
+    <!-- Cursive 'г' Stem & Top Arch (NO bottom curve!) -->
     <path 
-      d="M 6 -15 C 3 -18 -4 -18 -8 -15 C -12 -12 -12 -6 -8 -3 C -3 0 6 3 9 7 C 13 11 13 18 8 22 C 3 25 -5 25 -10 21 C -12 19 -13 17 -14 14" 
+      d="M 22 47 L 22 25 C 22 17.5 28.5 15 35 15.5 C 41 16 45 20 45 26" 
       fill="none" 
-      stroke="url(#accent-grad)" 
-      stroke-width="4.5" 
+      stroke="url(#hryvnia-stem)" 
+      stroke-width="5" 
       stroke-linecap="round" 
       stroke-linejoin="round"
     />
+
     <!-- Top Horizontal Crossbar -->
-    <line x1="-15" y1="-3" x2="15" y2="-3" stroke="url(#bar-grad)" stroke-width="3.5" stroke-linecap="round" />
+    <line x1="12" y1="28" x2="47" y2="28" stroke="url(#hryvnia-bars)" stroke-width="3.8" stroke-linecap="round" />
+
     <!-- Bottom Horizontal Crossbar -->
-    <line x1="-15" y1="5" x2="15" y2="5" stroke="url(#bar-grad)" stroke-width="3.5" stroke-linecap="round" />
+    <line x1="12" y1="36" x2="47" y2="36" stroke="url(#hryvnia-bars)" stroke-width="3.8" stroke-linecap="round" />
+
+    <!-- Financial Analytics Indicator (3 Ascending Growth Bars in bottom-right) -->
+    <rect x="33" y="44" width="3.2" height="4" rx="1.2" fill="#34D399" opacity="0.75" />
+    <rect x="39" y="41" width="3.2" height="7" rx="1.2" fill="#34D399" opacity="0.9" />
+    <rect x="45" y="38" width="3.2" height="10" rx="1.2" fill="#38BDF8" />
   </g>
 </svg>
