@@ -1,0 +1,62 @@
+name: FinZvit Data Ingestion
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Звітний рік (наприклад, 2025)'
+        required: true
+        default: '2025'
+      dataset_url:
+        description: 'Пряме посилання на ZIP архів з data.gov.ua'
+        required: true
+        default: 'https://data.gov.ua/dataset/6456ef0c-985c-4bb7-bf9d-16831161b416/resource/fe3f6731-8a79-463b-b3af-03811d7a0e26/download/fin_zvit_2025_ric_-2026-01-01_2026-09-07.zip'
+      dry_run:
+        description: 'Тестовий запуск без запису в R2/Supabase'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # до 6 годин виконання
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'worker/requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r worker/requirements.txt
+
+      - name: Download dataset from data.gov.ua
+        run: |
+          echo "Завантаження архіву з ${{ github.event.inputs.dataset_url }}..."
+          curl -L -o dataset.zip "${{ github.event.inputs.dataset_url }}"
+          ls -lh dataset.zip
+
+      - name: Run Data Worker
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME || 'finzvit-data' }}
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          EXTRA_FLAGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            EXTRA_FLAGS="--dry-run"
+          fi
+          python3 worker/run_worker.py --input dataset.zip --year ${{ github.event.inputs.year }} --threads 40 $EXTRA_FLAGS

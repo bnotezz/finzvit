@@ -52,6 +52,13 @@ export default {
         // Cache at Cloudflare Edge CDN for 1 year (immutable historical financial reports)
         headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
 
+        // Add Cache-Tag for instant selective purging (by edrpou and year)
+        const parts = key.split('/');
+        if (parts.length >= 2) {
+          const [kYear, kEdrpou] = parts;
+          headers.set('Cache-Tag', `company-${kEdrpou},year-${kYear},finzvit-data`);
+        }
+
         return new Response(object.body, { headers });
       } catch (err: any) {
         return new Response(JSON.stringify({ error: 'Error fetching from R2', details: err?.message }), {

@@ -1,8 +1,12 @@
 import os
+import io
 import re
 import zipfile
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional, Generator, BinaryIO
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class FileReportInfo:
@@ -10,8 +14,9 @@ class FileReportInfo:
     form_code: str
     timestamp: str
     filename: str
-    zip_path: Optional[str] = None  # Шлях до ZIP-архіву (якщо в архіві)
-    file_path: Optional[str] = None # Прямий шлях до файлу на диску (якщо з папки)
+    zip_path: Optional[str] = None   # Шлях до основного ZIP-архіву
+    inner_zip: Optional[str] = None  # Ім'я підархіву всередині основного ZIP
+    file_path: Optional[str] = None  # Прямий шлях до файлу на диску (якщо з папки)
 
 class ReportScanner:
     """
@@ -98,38 +103,70 @@ class ReportScanner:
     @classmethod
     def scan_zip(cls, zip_file_path: str) -> List[FileReportInfo]:
         """
-        Сканує ZIP архів з XML файлами без розпакування на диск.
+        Сканує ZIP архів з XML файлами та вкладеними підархівами (.zip) без розпакування на диск.
         """
         dedup: Dict[Tuple[str, str], FileReportInfo] = {}
 
         with zipfile.ZipFile(zip_file_path, "r") as zf:
             for item in zf.infolist():
-                if item.is_dir() or not item.filename.lower().endswith(".xml"):
-                    continue
-                parsed = cls.parse_filename(item.filename)
-                if not parsed:
+                if item.is_dir():
                     continue
 
-                edrpou, form_code, ts = parsed
-                key = (edrpou, form_code)
+                # 1. Прямий XML файл в архіві
+                if item.filename.lower().endswith(".xml"):
+                    parsed = cls.parse_filename(item.filename)
+                    if not parsed:
+                        continue
 
-                info = FileReportInfo(
-                    edrpou=edrpou,
-                    form_code=form_code,
-                    timestamp=ts,
-                    filename=item.filename,
-                    zip_path=zip_file_path
-                )
+                    edrpou, form_code, ts = parsed
+                    key = (edrpou, form_code)
 
-                if key not in dedup or ts > dedup[key].timestamp:
-                    dedup[key] = info
+                    info = FileReportInfo(
+                        edrpou=edrpou,
+                        form_code=form_code,
+                        timestamp=ts,
+                        filename=item.filename,
+                        zip_path=zip_file_path
+                    )
+
+                    if key not in dedup or ts > dedup[key].timestamp:
+                        dedup[key] = info
+
+                # 2. Вкладений підархів (.zip)
+                elif item.filename.lower().endswith(".zip"):
+                    try:
+                        inner_bytes = zf.read(item.filename)
+                        with zipfile.ZipFile(io.BytesIO(inner_bytes), "r") as inner_zf:
+                            for inner_item in inner_zf.infolist():
+                                if inner_item.is_dir() or not inner_item.filename.lower().endswith(".xml"):
+                                    continue
+                                parsed = cls.parse_filename(inner_item.filename)
+                                if not parsed:
+                                    continue
+
+                                edrpou, form_code, ts = parsed
+                                key = (edrpou, form_code)
+
+                                info = FileReportInfo(
+                                    edrpou=edrpou,
+                                    form_code=form_code,
+                                    timestamp=ts,
+                                    filename=inner_item.filename,
+                                    zip_path=zip_file_path,
+                                    inner_zip=item.filename
+                                )
+
+                                if key not in dedup or ts > dedup[key].timestamp:
+                                    dedup[key] = info
+                    except Exception as e:
+                        logger.error("Помилка сканування підархіву %s: %s", item.filename, e)
 
         return list(dedup.values())
 
     @classmethod
     def read_file_content(cls, info: FileReportInfo) -> bytes:
         """
-        Зчитує байти XML-файлу з диску або з ZIP архіву.
+        Зчитує байти XML-файлу з диску, з основного ZIP архіву або з вкладеного підархіву.
         """
         if info.file_path and os.path.exists(info.file_path):
             with open(info.file_path, "rb") as f:
@@ -137,6 +174,12 @@ class ReportScanner:
 
         if info.zip_path and os.path.exists(info.zip_path):
             with zipfile.ZipFile(info.zip_path, "r") as zf:
-                return zf.read(info.filename)
+                if info.inner_zip:
+                    # Читаємо з вкладеного підархіву
+                    inner_bytes = zf.read(info.inner_zip)
+                    with zipfile.ZipFile(io.BytesIO(inner_bytes), "r") as inner_zf:
+                        return inner_zf.read(info.filename)
+                else:
+                    return zf.read(info.filename)
 
         raise FileNotFoundError(f"Неможливо відкрити файл для {info.edrpou} - {info.filename}")
