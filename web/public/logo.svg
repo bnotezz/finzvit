@@ -1,68 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" width="280" height="64" fill="none">
   <defs>
     <linearGradient id="logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0D121D" />
-      <stop offset="100%" stop-color="#05070B" />
+      <stop offset="0%" stop-color="#0F141F"/>
+      <stop offset="100%" stop-color="#06080C"/>
     </linearGradient>
     <linearGradient id="logo-border" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="60%" stop-color="#10B981" />
-      <stop offset="100%" stop-color="#06B6D4" />
-    </linearGradient>
-    <linearGradient id="logo-hryvnia" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10B981" />
-      <stop offset="50%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#6EE7B7" />
-    </linearGradient>
-    <linearGradient id="logo-bars" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#38BDF8" />
-    </linearGradient>
-    <linearGradient id="logo-brand" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#14B8A6" />
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
   </defs>
 
   <!-- Left Icon Badge (48x48) -->
   <g transform="translate(8, 8)">
-    <rect width="48" height="48" rx="14" fill="url(#logo-bg)" stroke="url(#logo-border)" stroke-width="1.8" />
-    <circle cx="24" cy="24" r="14" fill="#10B981" opacity="0.15" />
-
-    <!-- Scaled ₴ Symbol -->
-    <g transform="translate(24, 24) scale(0.72) translate(-32, -32)">
-      <!-- Cursive 'г' Stem & Top Arch -->
-      <path 
-        d="M 22 47 L 22 25 C 22 17.5 28.5 15 35 15.5 C 41 16 45 20 45 26" 
-        fill="none" 
-        stroke="url(#logo-hryvnia)" 
-        stroke-width="5" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"
-      />
-      <!-- Top Crossbar -->
-      <line x1="12" y1="28" x2="47" y2="28" stroke="url(#logo-bars)" stroke-width="3.8" stroke-linecap="round" />
-      <!-- Bottom Crossbar -->
-      <line x1="12" y1="36" x2="47" y2="36" stroke="url(#logo-bars)" stroke-width="3.8" stroke-linecap="round" />
-      <!-- 3 Ascending Financial Bars -->
-      <rect x="33" y="44" width="3.2" height="4" rx="1.2" fill="#34D399" opacity="0.75" />
-      <rect x="39" y="41" width="3.2" height="7" rx="1.2" fill="#34D399" opacity="0.9" />
-      <rect x="45" y="38" width="3.2" height="10" rx="1.2" fill="#38BDF8" />
-    </g>
+    <rect width="48" height="48" rx="14" fill="url(#logo-bg)" stroke="url(#logo-border)" stroke-width="1.8"/>
+    <circle cx="24" cy="24" r="12" fill="#10B981" opacity="0.15"/>
+    <text x="24" y="34" font-family="-apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif" font-size="28" font-weight="bold" fill="#34D399" text-anchor="middle">₴</text>
   </g>
 
   <!-- Typography: FinZvit -->
-  <g transform="translate(68, 38)">
-    <text font-family="system-ui, -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" letter-spacing="-0.5">
-      <tspan fill="#FFFFFF">Fin</tspan>
-      <tspan fill="url(#logo-brand)">Zvit</tspan>
-    </text>
-  </g>
+  <text x="68" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="28" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">Fin</text>
+  <text x="112" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="28" font-weight="900" fill="#34D399" letter-spacing="-0.5">Zvit</text>
 
   <!-- Subtitle -->
-  <g transform="translate(69, 52)">
-    <text font-family="'Geist Mono', 'SF Mono', Consolas, monospace" font-size="7.5" font-weight="600" fill="#71717A" letter-spacing="1.5">
-      ВІДКРИТА ФІНАНСОВА ЗВІТНІСТЬ
-    </text>
-  </g>
+  <text x="69" y="52" font-family="-apple-system, BlinkMacSystemFont, 'Geist Mono', monospace" font-size="7.5" font-weight="600" fill="#71717A" letter-spacing="1.5">
+    ВІДКРИТА ФІНАНСОВА ЗВІТНІСТЬ
+  </text>
 </svg>
