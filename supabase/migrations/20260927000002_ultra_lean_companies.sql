@@ -27,20 +27,24 @@ DROP COLUMN IF EXISTS accounting_standard,
 DROP COLUMN IF EXISTS updated_at;
 
 -- 3. Залишаємо виключно мінімальну компактну структуру для пошуку (лише ~70 байт на рядок)
+-- Встановлюємо COLLATE "C" для edrpou, щоб первинний B-tree ключ (pkey) напряму
+-- підтримував швидкий префіксний пошук (LIKE '123%') без окремого зайвого індексу.
 ALTER TABLE public.companies
-ALTER COLUMN edrpou TYPE VARCHAR(10),
+ALTER COLUMN edrpou TYPE VARCHAR(10) COLLATE "C",
 ALTER COLUMN name TYPE TEXT,
 ALTER COLUMN kved TYPE VARCHAR(10),
 ALTER COLUMN year TYPE SMALLINT;
 
--- 4. Оптимізовані легкі індекси:
---  - Префіксний індекс для миттєвого пошуку за першими цифрами ЄДРПОУ (10 MB)
---  - Триграмний індекс pg_trgm для швидкого нечіткого пошуку за назвою компанії (30 MB)
+-- 4. Оптимізація індексів (жодного зайвого дублювання):
+--  - Видаляємо окремий індекс edrpou (економія ~24 MB), оскільки primary key companies_pkey з COLLATE "C" повністю його покриває.
 DROP INDEX IF EXISTS public.idx_companies_edrpou_prefix;
-CREATE INDEX IF NOT EXISTS idx_companies_edrpou ON public.companies (edrpou varchar_pattern_ops);
+DROP INDEX IF EXISTS public.idx_companies_edrpou;
 
+--  - Замінюємо важкий GIN-індекс (~105 MB) на компактний GiST-індекс (~35 MB).
+--    GiST займає втричі менше місця (економія ~70 MB) і чудово оптимізований під запити з LIMIT 10.
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 DROP INDEX IF EXISTS public.idx_companies_name_trgm;
-CREATE INDEX IF NOT EXISTS idx_companies_name_trgm ON public.companies USING gin (name gin_trgm_ops);
+CREATE INDEX idx_companies_name_trgm ON public.companies USING gist (name gist_trgm_ops);
 
 -- 5. Оновлюємо пошукову RPC функцію
 -- УВАГА: Оскільки тип рядка повернення (OUT параметри / RETURNS TABLE) змінився, 

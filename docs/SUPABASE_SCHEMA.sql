@@ -7,40 +7,20 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
 
--- 2. Створення таблиці компаній
+-- 2. Створення ультра-компактної таблиці компаній (лише ~70 байт на рядок)
+-- Усі важкі деталі (адреси, форми, звіти) зберігаються у Cloudflare R2
 CREATE TABLE IF NOT EXISTS public.companies (
-    edrpou VARCHAR(10) PRIMARY KEY,
+    edrpou VARCHAR(10) COLLATE "C" PRIMARY KEY,
     name TEXT NOT NULL,
     kved VARCHAR(10),
-    kved_name TEXT,
-    address TEXT,
-    territory TEXT,
-    opf_code VARCHAR(10),
-    opf_name TEXT,
-    employees INTEGER,
-    accounting_standard TEXT,
-    available_forms JSONB DEFAULT '[]'::jsonb,
-    year SMALLINT DEFAULT 2025,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    year SMALLINT DEFAULT 2025
 );
 
--- 3. Налаштування індексів для миттєвого пошуку
--- Префіксний пошук за кодом ЄДРПОУ
-CREATE INDEX IF NOT EXISTS idx_companies_edrpou_prefix 
-ON public.companies (edrpou varchar_pattern_ops);
-
--- Триграмний індекс для нечіткого / швидкого пошуку за назвою компанії
+-- 3. Налаштування мінімальних індексів (жодного зайвого дублювання):
+--  - Primary key `companies_pkey` завдяки COLLATE "C" напряму обслуговує префіксний пошук (LIKE '123%')
+--  - Триграмний GiST-індекс для нечіткого швидкого пошуку за назвою (займає ~35 MB замість 105 MB у GIN)
 CREATE INDEX IF NOT EXISTS idx_companies_name_trgm 
-ON public.companies USING gin (name gin_trgm_ops);
-
--- Повнотекстовий індекс (FTS)
-ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS fts_document tsvector
-GENERATED ALWAYS AS (
-    to_tsvector('simple', coalesce(edrpou, '') || ' ' || coalesce(name, '') || ' ' || coalesce(kved, ''))
-) STORED;
-
-CREATE INDEX IF NOT EXISTS idx_companies_fts 
-ON public.companies USING gin (fts_document);
+ON public.companies USING gist (name gist_trgm_ops);
 
 -- 4. Налаштування Row Level Security (RLS)
 ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
@@ -54,7 +34,8 @@ TO anon, authenticated
 USING (true);
 
 -- 5. RPC функція для автокомпліту та пошуку
--- Працює як для коду ЄДРПОУ (числа), так і для текстової назви підприємства
+DROP FUNCTION IF EXISTS public.search_companies(TEXT, INTEGER);
+
 CREATE OR REPLACE FUNCTION public.search_companies(
     search_query TEXT,
     lim INTEGER DEFAULT 10
@@ -63,9 +44,6 @@ RETURNS TABLE (
     edrpou VARCHAR(10),
     name TEXT,
     kved VARCHAR(10),
-    kved_name TEXT,
-    address TEXT,
-    available_forms JSONB,
     similarity REAL
 )
 LANGUAGE plpgsql
@@ -90,9 +68,6 @@ BEGIN
             c.edrpou,
             c.name,
             c.kved,
-            c.kved_name,
-            c.address,
-            c.available_forms,
             1.0::REAL AS similarity
         FROM public.companies c
         WHERE c.edrpou LIKE cleaned_query || '%'
@@ -104,14 +79,11 @@ BEGIN
             c.edrpou,
             c.name,
             c.kved,
-            c.kved_name,
-            c.address,
-            c.available_forms,
             similarity(c.name, cleaned_query)::REAL AS similarity
         FROM public.companies c
         WHERE 
             c.name ILIKE '%' || cleaned_query || '%'
-            OR c.fts_document @@ plainto_tsquery('simple', cleaned_query)
+            OR c.name % cleaned_query
         ORDER BY 
             similarity(c.name, cleaned_query) DESC,
             length(c.name) ASC
