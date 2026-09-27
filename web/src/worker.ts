@@ -235,7 +235,7 @@ export default {
         // Якщо в R2 нічого не знайдено — fallback до статичних файлів (якщо такі є в dist/data)
         if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
           const assetRes = await env.ASSETS.fetch(request);
-          if (assetRes.status === 200) {
+          if (assetRes.status < 400) {
             return assetRes;
           }
         }
