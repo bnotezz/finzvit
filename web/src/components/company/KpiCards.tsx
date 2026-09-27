@@ -32,7 +32,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'liquidity' | 'solvency' | 'profitability'>('all');
 
   // Дані з Балансу (Ф1 / 1-м / 1-мс)
-  const bData = balanceReport?.data || {};
+  const bData = (balanceReport as any)?.data || balanceReport || {};
 
   // Рядки Балансу
   const r1095 = bData['1095']?.end ?? null; // Необоротні активи
@@ -52,7 +52,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
   const r1900 = bData['1900']?.end ?? null; // Баланс (Пасиви)
 
   // Дані зі Звіту про фінрезультати (Ф2 / 2-м / 2-мс)
-  const iData = incomeReport?.data || {};
+  const iData = (incomeReport as any)?.data || incomeReport || {};
 
   // Рядки Фінрезультатів
   const revenueRow = iData['2000'];

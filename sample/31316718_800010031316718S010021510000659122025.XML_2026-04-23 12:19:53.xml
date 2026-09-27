@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="S0100215.XSD">
+  <DECLARHEAD>
+    <TIN>31316718</TIN>
+    <C_DOC>S01</C_DOC>
+    <C_DOC_SUB>002</C_DOC_SUB>
+    <C_DOC_VER>15</C_DOC_VER>
+    <C_DOC_TYPE>0</C_DOC_TYPE>
+    <C_DOC_CNT>659</C_DOC_CNT>
+    <C_REG>80</C_REG>
+    <C_RAJ>001</C_RAJ>
+    <PERIOD_MONTH>12</PERIOD_MONTH>
+    <PERIOD_TYPE>5</PERIOD_TYPE>
+    <PERIOD_YEAR>2025</PERIOD_YEAR>
+    <D_FILL>23042026</D_FILL>
+    <SOFTWARE>MEDOC</SOFTWARE>
+  </DECLARHEAD>
+  <DECLARBODY>
+    <FIRM_BUH>Ганич Олена Сергіївна</FIRM_BUH>
+    <FIRM_EDRPOU>31316718</FIRM_EDRPOU>
+    <FIRM_NAME>ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НОВА ПОШТА"</FIRM_NAME>
+    <FIRM_RUK>ТАФІЙЧУК ЄВГЕН ОЛЕКСАНДРОВИЧ</FIRM_RUK>
+    <REP_PERNM>Рік 2025</REP_PERNM>
+    <FIRM_KVED>53.20</FIRM_KVED>
+    <A2000>54153003</A2000>
+    <A2010 xsi:nil="true" />
+    <A2011 xsi:nil="true" />
+    <A2012 xsi:nil="true" />
+    <A2013 xsi:nil="true" />
+    <A2014 xsi:nil="true" />
+    <A2050>42745978</A2050>
+    <A2090>11407025</A2090>
+    <A2095 xsi:nil="true" />
+    <A2120>1063635</A2120>
+    <A2121 xsi:nil="true" />
+    <A2130>4468859</A2130>
+    <A2150>787141</A2150>
+    <A2180>1988268</A2180>
+    <A2181 xsi:nil="true" />
+    <A2190>5226392</A2190>
+    <A2195 xsi:nil="true" />
+    <A2200 xsi:nil="true" />
+    <A2220>1309235</A2220>
+    <A2240 xsi:nil="true" />
+    <A2250>2191241</A2250>
+    <A2255 xsi:nil="true" />
+    <A2270>1134038</A2270>
+    <A2275 xsi:nil="true" />
+    <A2290>3210348</A2290>
+    <A2295 xsi:nil="true" />
+    <A2300>-599978</A2300>
+    <A2305 xsi:nil="true" />
+    <A2350>2610370</A2350>
+    <A2355 xsi:nil="true" />
+    <A2500>2168465</A2500>
+    <A2505>12459744</A2505>
+    <A2510>2582896</A2510>
+    <A2515>4025629</A2515>
+    <A2520>28753512</A2520>
+    <A2550>49990246</A2550>
+    <A2600 xsi:nil="true" />
+    <A2605 xsi:nil="true" />
+    <A2610 xsi:nil="true" />
+    <A2615 xsi:nil="true" />
+    <A2650 xsi:nil="true" />
+    <B2000>44541772</B2000>
+    <B2010>0</B2010>
+    <B2011>0</B2011>
+    <B2012>0</B2012>
+    <B2013>0</B2013>
+    <B2014>0</B2014>
+    <B2050>34686346</B2050>
+    <B2090>9855426</B2090>
+    <B2095 xsi:nil="true" />
+    <B2120>769352</B2120>
+    <B2121>0</B2121>
+    <B2130>4186782</B2130>
+    <B2150>903474</B2150>
+    <B2180>1380919</B2180>
+    <B2181>0</B2181>
+    <B2190>4153603</B2190>
+    <B2195 xsi:nil="true" />
+    <B2200>0</B2200>
+    <B2220>2953039</B2220>
+    <B2240>0</B2240>
+    <B2250>2034444</B2250>
+    <B2255>0</B2255>
+    <B2270>2235561</B2270>
+    <B2275>0</B2275>
+    <B2290>2836637</B2290>
+    <B2295 xsi:nil="true" />
+    <B2300>-336306</B2300>
+    <B2305>0</B2305>
+    <B2350>2500331</B2350>
+    <B2355 xsi:nil="true" />
+    <B2500>2647314</B2500>
+    <B2505>10085098</B2505>
+    <B2510>2036899</B2510>
+    <B2515>2983431</B2515>
+    <B2520>23404779</B2520>
+    <B2550>41157521</B2550>
+    <B2600 xsi:nil="true" />
+    <B2605 xsi:nil="true" />
+    <B2610 xsi:nil="true" />
+    <B2615 xsi:nil="true" />
+    <B2650>0.00</B2650>
+    <LASTDAY>01</LASTDAY>
+    <OBL>80</OBL>
+    <RAY>001</RAY>
+    <N1>2026</N1>
+    <N2>01</N2>
+    <A2070 xsi:nil="true" />
+    <B2070>0</B2070>
+    <A2105 xsi:nil="true" />
+    <B2105>0</B2105>
+    <A2110 xsi:nil="true" />
+    <B2110>0</B2110>
+    <A2111 xsi:nil="true" />
+    <B2111>0</B2111>
+    <A2112 xsi:nil="true" />
+    <B2112>0</B2112>
+    <A2122 xsi:nil="true" />
+    <B2122>0</B2122>
+    <A2182 xsi:nil="true" />
+    <B2182>0</B2182>
+    <A2241 xsi:nil="true" />
+    <B2241>0</B2241>
+    <A2400 xsi:nil="true" />
+    <B2400>0</B2400>
+    <A2405 xsi:nil="true" />
+    <B2405>0</B2405>
+    <A2410 xsi:nil="true" />
+    <B2410>0</B2410>
+    <A2415 xsi:nil="true" />
+    <B2415>0</B2415>
+    <A2445 xsi:nil="true" />
+    <B2445>0</B2445>
+    <A2450>0</A2450>
+    <B2450>0</B2450>
+    <A2455 xsi:nil="true" />
+    <B2455>0</B2455>
+    <A2460>0</A2460>
+    <B2460>0</B2460>
+    <A2465>2610370</A2465>
+    <B2465>2500331</B2465>
+    <KVED>53.20</KVED>
+    <A2123 xsi:nil="true" />
+    <B2123>0</B2123>
+    <KATOTTG>UA80000000000126643</KATOTTG>
+  </DECLARBODY>
+</DECLAR>

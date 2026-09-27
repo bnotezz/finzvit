@@ -41,12 +41,10 @@ class ParserGeneric(BaseFormParser):
             if nil.lower() == "true":
                 continue
 
-            if child.text and child.text.strip():
-                txt = child.text.strip()
-                try:
-                    num = float(txt.replace(" ", "").replace(",", "."))
-                    result[tag] = int(num) if num.is_integer() else num
-                except ValueError:
-                    result[tag] = txt
+            num = self._get_number(body, child.tag)
+            if num is not None:
+                result[tag] = num
+            elif child.text and child.text.strip():
+                result[tag] = child.text.strip()
 
         return result

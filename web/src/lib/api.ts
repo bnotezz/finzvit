@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { CompanyMeta, ReportData, CompanySearchResult } from './types';
+import type { CompanyMeta, ReportData, CompanySearchResult, CompanyFullData } from './types';
 
 // Базовий URL сховища звітів (Cloudflare R2 або локальний fallback /data/)
 const R2_PUBLIC_URL = import.meta.env.PUBLIC_R2_URL || '/data';
@@ -48,6 +48,28 @@ export async function searchCompanies(query: string, limit = 8): Promise<Company
     console.error('Не вдалося завантажити реєстр:', err);
     return [];
   }
+}
+
+/**
+ * Завантажує єдиний повний документ компанії зі всіма її звітами та реквізитами (/{year}/{edrpou}.json)
+ * Забезпечує завантаження всієї фінансової звітності за 1 надшвидкий мережевий запит.
+ */
+export async function fetchCompanyData(edrpou: string, year = 2025): Promise<CompanyFullData> {
+  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    // Fallback: якщо єдиного файлу немає, спробувати завантажити legacy meta.json
+    try {
+      const meta = await fetchCompanyMeta(edrpou, year);
+      return {
+        ...meta,
+        reports: {},
+      };
+    } catch {
+      throw new Error(`Компанію з ЄДРПОУ ${edrpou} не знайдено або звітність за ${year} рік відсутня.`);
+    }
+  }
+  return res.json();
 }
 
 /**

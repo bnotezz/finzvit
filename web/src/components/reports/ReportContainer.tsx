@@ -12,26 +12,38 @@ import { RenderGenericReport } from './RenderGenericReport';
 
 interface ReportContainerProps {
   company: CompanyMeta;
+  initialReports?: Record<string, ReportData>;
   onActiveReportChange?: (reportTitle: string, reportData: ReportData | null) => void;
 }
 
 export const ReportContainer: React.FC<ReportContainerProps> = ({
   company,
+  initialReports,
   onActiveReportChange,
 }) => {
   const forms = company.available_forms || [];
   const [activeFormCode, setActiveFormCode] = useState<string>(forms[0]?.code || '');
-  const [loadedReports, setLoadedReports] = useState<Record<string, ReportData>>({});
+  const [loadedReports, setLoadedReports] = useState<Record<string, ReportData>>(initialReports || {});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Завантаження звіту при зміні активного табу
+  // Синхронізація попередньо завантажених звітів
+  useEffect(() => {
+    if (initialReports && Object.keys(initialReports).length > 0) {
+      setLoadedReports((prev) => ({ ...initialReports, ...prev }));
+    }
+  }, [initialReports]);
+
+  // Завантаження або активація звіту при зміні активного табу
   useEffect(() => {
     if (!activeFormCode) return;
 
+    const activeForm = forms.find((f) => f.code === activeFormCode);
+    const formTitle = activeForm?.title || activeFormCode;
+
     if (loadedReports[activeFormCode]) {
       const rep = loadedReports[activeFormCode];
-      onActiveReportChange?.(rep.meta.form_name, rep);
+      onActiveReportChange?.(formTitle, rep);
       return;
     }
 
@@ -43,7 +55,7 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
       .then((data) => {
         if (!isMounted) return;
         setLoadedReports((prev) => ({ ...prev, [activeFormCode]: data }));
-        onActiveReportChange?.(data.meta.form_name, data);
+        onActiveReportChange?.(formTitle, data);
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -57,7 +69,7 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeFormCode, company.edrpou]);
+  }, [activeFormCode, company.edrpou, loadedReports]);
 
   if (forms.length === 0) {
     return (
@@ -69,6 +81,8 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
   }
 
   const currentReport = loadedReports[activeFormCode];
+  const activeForm = forms.find((f) => f.code === activeFormCode);
+  const formTitle = activeForm?.title || activeFormCode;
 
   // Вибір рендерера залежно від коду форми
   const renderReportContent = () => {
@@ -88,7 +102,14 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
     } else if (code.includes('100') || code.includes('111')) {
       return <RenderMicroReport report={currentReport} />;
     } else {
-      return <RenderGenericReport report={currentReport} />;
+      return (
+        <RenderGenericReport
+          report={currentReport}
+          formTitle={formTitle}
+          formCode={activeFormCode}
+          year={company.year}
+        />
+      );
     }
   };
 

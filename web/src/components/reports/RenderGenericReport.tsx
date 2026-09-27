@@ -5,15 +5,27 @@ import { Search } from 'lucide-react';
 
 interface RenderGenericReportProps {
   report: ReportData;
+  formTitle?: string;
+  formCode?: string;
+  year?: number;
 }
 
-export const RenderGenericReport: React.FC<RenderGenericReportProps> = ({ report }) => {
-  const data = report.data || {};
+export const RenderGenericReport: React.FC<RenderGenericReportProps> = ({
+  report,
+  formTitle,
+  formCode,
+  year = 2025,
+}) => {
+  const data = (report as any)?.data || report || {};
   const [filter, setFilter] = useState('');
 
   const entries = Object.entries(data).filter(([key]) =>
     key.toLowerCase().includes(filter.toLowerCase())
   );
+
+  const displayTitle = formTitle || report.meta?.form_name || 'Примітки до річної звітності';
+  const displayCode = formCode || report.meta?.form_code || '';
+  const displayYear = year || report.meta?.period_year || 2025;
 
   return (
     <div className="rounded-2xl border border-border-card bg-surface-card shadow-2xl backdrop-blur-md overflow-hidden">
@@ -21,14 +33,16 @@ export const RenderGenericReport: React.FC<RenderGenericReportProps> = ({ report
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-white tracking-tight">
-              {report.meta?.form_name || 'Примітки до річної звітності'}
+              {displayTitle}
             </h2>
-            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20">
-              {report.meta?.form_code}
-            </span>
+            {displayCode && (
+              <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20">
+                {displayCode}
+              </span>
+            )}
           </div>
           <p className="text-xs text-zinc-400 mt-1">
-            Звітний період: за {report.meta?.period_year || 2025} рік · Загальна кількість показників: {Object.keys(data).length}
+            Звітний період: за {displayYear} рік · Загальна кількість показників: {Object.keys(data).length}
           </p>
         </div>
 

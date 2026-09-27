@@ -9,7 +9,7 @@ interface RenderF4EquityProps {
 }
 
 export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
   const [onlyFilled, setOnlyFilled] = useState(true);
 
   // Фільтрація рядків

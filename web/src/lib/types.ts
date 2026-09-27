@@ -23,20 +23,25 @@ export interface CompanyMeta {
   year?: number;
 }
 
-export interface ReportData {
-  meta: {
-    form_code: string;
-    form_name: string;
+export interface CompanyFullData extends CompanyMeta {
+  reports: Record<string, any>;
+}
+
+export type ReportData = {
+  meta?: {
+    form_code?: string;
+    form_name?: string;
     filename?: string;
     timestamp?: string;
-    period_year: number;
+    period_year?: number;
     period_month?: number;
     date_filled?: string;
     software?: string;
   };
-  company: CompanyMeta;
-  data: Record<string, any>;
-}
+  company?: Partial<CompanyMeta>;
+  data?: Record<string, any>;
+  [key: string]: any;
+};
 
 export interface StatementRowDef {
   code: string | null;      // Код рядка (напр. '1000') або null для заголовка розділу

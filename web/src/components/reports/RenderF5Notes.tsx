@@ -138,7 +138,7 @@ const SECTION_XII_ROWS = [
 ];
 
 export const RenderF5Notes: React.FC<RenderF5NotesProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
   const [onlyFilled, setOnlyFilled] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'assets' | 'capex' | 'income' | 'provisions' | 'inventory' | 'debt' | 'tax'>('all');
 

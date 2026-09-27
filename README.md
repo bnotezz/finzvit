@@ -25,9 +25,9 @@
 | **Компоненти UI** | **React 19.3.0** + **@astrojs/react 7.0.0** | Інтерактивні острови (таби, пошуковий термінал, KPI картки) |
 | **Стилізація** | **Tailwind CSS 4.3.3** + `@tailwindcss/vite` | Новітній рушій стилізації без застарілих конфігів |
 | **Іконки та графіка** | **Lucide React 1.48.0** | Сучасний набір векторних іконок інтерфейсу |
-| **Data Worker** | Python 3.11+, lxml, httpx, boto3, supabase-py | Потокове розпакування ZIP, дедуплікація версій, парсинг XML, R2/Supabase |
-| **База даних / Пошук** | Supabase (PostgreSQL 15+ / `@supabase/supabase-js 2.117.2`) | Реєстр компаній, автокомпліт, швидкий пошук за ЄДРПОУ/назвою |
-| **Сховище даних** | Cloudflare R2 | Зберігання JSON-звітів `{year}/{edrpou}/{form}.json` |
+| **Data Worker** | Python 3.11+, lxml, httpx, boto3, supabase-py | Потокове розпакування ZIP, дедуплікація версій, парсинг XML, розрахунок KPI, R2/Supabase |
+| **База даних / Пошук** | Supabase (PostgreSQL 15+ / `@supabase/supabase-js 2.117.2`) | Легкий реєстр компаній, автокомпліт, швидкий пошук за ЄДРПОУ/назвою |
+| **Сховище даних** | Cloudflare R2 + Edge Worker (`wrangler`) | Єдиний ультра-оптимізований JSON `{year}/{edrpou}.json` (-36% ваги, без зайвих метаданих), проксі з кешуванням |
 
 ---
 
@@ -39,30 +39,46 @@ finzvit/
 │   ├── ARCHITECTURE.md          # Архітектура пайплайну та веб-додатку
 │   ├── REQUIREMENTS.md          # Функціональні та нефункціональні вимоги
 │   ├── TASKS.md                 # Покроковий план розробки та ітерації
+│   ├── FINANCIAL_METRICS_AND_RATIOS.md # Методологія розрахунку фінансових показників
 │   └── SUPABASE_SCHEMA.sql      # DDL міграції для бази даних Supabase
 ├── worker/                      # Python Data Pipeline
 │   ├── parsers/                 # Окремі парсери для кожної форми
 │   │   ├── base_parser.py       # Базовий інтерфейс парсера
 │   │   ├── parser_f1.py         # S0100115 (Ф1 Баланс)
 │   │   ├── parser_f2.py         # S0100215 (Ф2 Фінансові результати)
-│   │   ├── parser_f3.py         # S0100311 (Ф3 Рух грошових коштів)
+│   │   ├── parser_f3.py         # S0100311 (Ф3 Рух грошових коштів - прямий) & S0103355 (Ф3-н непрямий)
 │   │   ├── parser_f4.py         # S0104010 (Ф4 Власний капітал)
 │   │   ├── parser_f1_f2_m.py    # S0110014 (Ф1-м, Ф2-м Малі підприємства)
-│   │   └── parser_f1_f2_ms.py   # S0111007 (Ф1-мс, Ф2-мс Мікропідприємства)
-│   ├── scanner.py               # Сканування ZIP-архівів та вибір найновіших версій
-│   ├── uploader_r2.py           # Завантаження звітів у Cloudflare R2
-│   ├── uploader_supabase.py     # Синхронізація реєстру компаній із Supabase
-│   └── run_worker.py            # Головний скрипт виконання пайплайну
+│   │   ├── parser_f1_f2_ms.py   # S0111007 (Ф1-мс, Ф2-мс Мікропідприємства)
+│   │   └── parser_generic.py    # S0105009 (Ф5 Примітки до річної звітності) та ін.
+│   ├── financial_calc.py        # Розрахунок ключових фінпоказників (виручка, чистий прибуток, EBITDA, рентабельність тощо)
+│   ├── meta_builder.py          # Побудова компактного уніфікованого JSON компанії (-36% розміру)
+│   ├── scanner.py               # Потокове сканування ZIP-архівів та вибір найновіших версій
+│   ├── uploaders/
+│   │   ├── r2_uploader.py       # Пакетне завантаження звітів у Cloudflare R2
+│   │   └── supabase_uploader.py # Батч-синхронізація легкого реєстру компаній із Supabase
+│   └── run_worker.py            # Головний CLI-скрипт виконання пайплайну
+├── tests/                       # 54 автоматизовані тести
+│   ├── test_xml_to_json_parser.py          # Тестування парсингу всіх 5 форм звітів для 2 компаній
+│   ├── test_financial_calc.py              # Тестування розрахунку всіх KPI (дохід, маржа, рентабельність)
+│   ├── test_xml_parsing_edge_cases.py      # Перевірка крайових випадків (BOM, 1251, null-байти, xsi:nil)
+│   ├── test_csv_comparison.py              # Верифікація за еталонними CSV рядків та показників
+│   └── ...
+├── sample/                      # Зразки XML, еталонні CSV та тестовий zip-архів
+│   ├── fin_zvit_2025_sample.zip            # Тестовий ZIP-архів для 2 компаній (Кормотех, Нова Пошта)
+│   ├── comparison_financial_rows.csv       # Еталонні рядки всіх 5 форм для перевірки парсера
+│   └── comparison_financial_kpi.csv        # Еталонні значення розрахованих фінпоказників
 ├── web/                         # Веб-додаток на Astro 7 + React 19 + Tailwind 4
 │   ├── src/
 │   │   ├── components/          # Загальні UI компоненти
 │   │   │   ├── search/          # SearchBar термінал з індикатором цифр ЄДРПОУ
 │   │   │   ├── company/         # Шапка компанії та KPI картки
-│   │   │   └── reports/         # Окремі рендерери форм (Ф1, Ф2, Ф3, Ф4, малий бізнес)
+│   │   │   └── reports/         # Окремі рендерери форм (Ф1, Ф2, Ф3, Ф4, Ф5, малий бізнес)
 │   │   ├── layouts/
 │   │   ├── lib/                 # Клієнт Supabase, R2 fetcher, форматування
-│   │   └── pages/               # / та /company/[edrpou]
-└── sample/                      # Тестові XML-файли для локального тестування
+│   │   ├── pages/               # / та /company/[edrpou]
+│   │   └── worker.ts            # Cloudflare Worker edge API з кешуванням та проксі
+└── supabase/                    # Міграції бази даних Supabase
 ```
 
 ---
@@ -84,9 +100,15 @@ npm run build
 ```
 *(Збірка займає ~1 секунду завдяки Astro 7 та Tailwind 4)*.
 
-### 3. Data Worker (підготовка даних):
+### 3. Запуск автоматизованих тестів:
 ```bash
-python3 worker/run_worker.py --input sample --output web/public/data
+python3 -m unittest discover -v tests
+```
+*(Виконує 54 тести: парсинг усіх 5 форм, бухгалтерські рівності актив=пасив, розрахунок KPI, стійкість до битих даних та порівняння з еталонними CSV)*.
+
+### 4. Data Worker (підготовка даних):
+```bash
+python3 worker/run_worker.py --input sample/fin_zvit_2025_sample.zip --year 2025 --output web/public/data
 ```
 
 ---

@@ -9,7 +9,7 @@ interface RenderF3CashFlowProps {
 }
 
 export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
 
   const [onlyFilled, setOnlyFilled] = useState(true);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});

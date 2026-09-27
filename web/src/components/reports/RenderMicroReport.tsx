@@ -8,7 +8,7 @@ interface RenderMicroReportProps {
 }
 
 export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
   const balanceData = data.balance || {};
   const incomeData = data.income || {};
 

@@ -9,7 +9,7 @@ interface RenderF1BalanceProps {
 }
 
 export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
 
   // Фільтри та керування відображенням
   const [activeTab, setActiveTab] = useState<'all' | 'asset' | 'liability'>('all');

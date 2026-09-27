@@ -2,7 +2,8 @@ from typing import Dict, Any, List
 
 class CompanyMetaBuilder:
     """
-    Збирає зведену інформацію про компанію (meta.json) на основі всіх її поданих звітів.
+    Збирає зведену інформацію про компанію (meta.json) та єдиний консолідований JSON (edrpou.json)
+    на основі всіх її поданих звітів.
     """
 
     @classmethod
@@ -18,7 +19,6 @@ class CompanyMetaBuilder:
         for rep in parsed_reports:
             comp = rep.get("company", {})
             if comp.get("name"):
-                # Наповнюємо всіма непорожніми полями
                 for k, v in comp.items():
                     if v and not base_company.get(k):
                         base_company[k] = v
@@ -36,7 +36,6 @@ class CompanyMetaBuilder:
             if ts > last_updated:
                 last_updated = ts
 
-            # Форматуємо дату заповнення якщо вона є, наприклад 05062026 -> 05.06.2026
             formatted_date = d_fill
             if d_fill and len(d_fill) == 8 and d_fill.isdigit():
                 formatted_date = f"{d_fill[:2]}.{d_fill[2:4]}.{d_fill[4:]}"
@@ -48,14 +47,16 @@ class CompanyMetaBuilder:
                 "timestamp": ts
             })
 
-        # Сортуємо форми: спочатку Баланс (Ф1), потім Фінрезультати (Ф2), потім інші
         def form_sort_key(f):
-            c = f["code"]
+            c = f.get("code") or ""
             if "001" in c: return 1
             if "002" in c: return 2
             if "100" in c: return 3
             if "111" in c: return 4
-            if "003" in c: return 5
+            if "003" in c or "033" in c: return 5
+            if "040" in c: return 6
+            if "050" in c: return 7
+            if "060" in c: return 8
             return 9
 
         available_forms.sort(key=form_sort_key)
@@ -76,3 +77,88 @@ class CompanyMetaBuilder:
             "last_updated": last_updated,
             "year": 2025
         }
+
+    @staticmethod
+    def _clean_report_data(data: Any) -> Any:
+        """
+        Рекурсивно очищає дані від null-значень та порожніх словників для зменшення розміру JSON.
+        """
+        if not isinstance(data, dict):
+            return data
+        cleaned = {}
+        for k, v in data.items():
+            if v is None:
+                continue
+            if isinstance(v, dict):
+                sub = CompanyMetaBuilder._clean_report_data(v)
+                if sub:
+                    cleaned[k] = sub
+            else:
+                cleaned[k] = v
+        return cleaned
+
+    @classmethod
+    def build_unified_company_json(
+        cls,
+        company_info: Dict[str, Any],
+        available_forms: List[Dict[str, Any]],
+        reports: Dict[str, Any],
+        year: int = 2025,
+        last_updated: str = ""
+    ) -> Dict[str, Any]:
+        """
+        Формує оптимізований єдиний консолідований JSON-документ /{year}/{edrpou}.json.
+        Усуває надлишкове дублювання реквізитів підприємства та службових заголовків у кожній формі.
+        """
+        def form_sort_key(f):
+            c = f.get("code", "")
+            if "001" in c: return 1
+            if "002" in c: return 2
+            if "100" in c: return 3
+            if "111" in c: return 4
+            if "003" in c or "033" in c: return 5
+            if "040" in c: return 6
+            if "050" in c: return 7
+            if "060" in c: return 8
+            return 9
+
+        company_fields = [
+            "edrpou", "name", "kved", "kved_name", "address",
+            "territory", "opf_code", "opf_name", "director",
+            "employees", "accounting_standard"
+        ]
+        doc = {}
+        for f in company_fields:
+            v = company_info.get(f)
+            if v is not None and v != "":
+                doc[f] = v
+        if "edrpou" in doc:
+            doc["edrpou"] = str(doc["edrpou"])
+
+        sorted_forms = sorted(available_forms, key=form_sort_key)
+        clean_forms = []
+        for f in sorted_forms:
+            item = {}
+            for k in ["code", "title", "date_filled", "timestamp"]:
+                if f.get(k):
+                    item[k] = f[k]
+            if item.get("code"):
+                clean_forms.append(item)
+
+        # Очищаємо звіти: зберігаємо лише фінансові дані без дублювання company та meta
+        clean_reports = {}
+        for form_code, rep in reports.items():
+            if isinstance(rep, dict) and "data" in rep:
+                raw_data = rep["data"]
+            else:
+                raw_data = rep
+            cleaned_data = cls._clean_report_data(raw_data)
+            clean_reports[form_code] = cleaned_data
+
+        doc["available_forms"] = clean_forms
+        if last_updated:
+            doc["last_updated"] = last_updated
+        doc["year"] = year
+        doc["reports"] = clean_reports
+
+        return doc

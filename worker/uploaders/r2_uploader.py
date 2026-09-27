@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 class R2Uploader:
     """
     Високопродуктивний завантажувач файлів у Cloudflare R2 (S3 сумісний протокол).
-    Підтримує:
-    - Паралельне завантаження через ThreadPoolExecutor (30-50 потоків)
-    - Пул HTTP-з'єднань (max_pool_connections=100)
-    - Опціональне збереження на диск (--save-local), за замовчуванням False для збереження пам'яті/диска
+    Оптимізації для високої пропускної здатності:
+    - ThreadPoolExecutor з 60-100 потоками
+    - Реєстрація max_pool_connections для HTTP Keep-Alive
+    - Прямий стрімінг без запису на диск за замовчуванням
     """
 
     def __init__(
@@ -29,7 +29,7 @@ class R2Uploader:
         bucket_name: Optional[str] = None,
         local_output_dir: str = "output",
         save_local: bool = False,
-        max_workers: int = 40
+        max_workers: int = 80
     ):
         self.account_id = account_id or os.getenv("R2_ACCOUNT_ID")
         self.access_key_id = access_key_id or os.getenv("R2_ACCESS_KEY_ID")
@@ -56,7 +56,8 @@ class R2Uploader:
                     aws_secret_access_key=self.secret_access_key,
                     config=Config(
                         signature_version="s3v4",
-                        max_pool_connections=max(50, self.max_workers + 10)
+                        max_pool_connections=max(100, self.max_workers + 20),
+                        retries={"max_attempts": 3, "mode": "adaptive"}
                     )
                 )
                 logger.info("✅ Cloudflare R2 клієнт успішно ініціалізовано (бакет: %s, потоків: %d).", self.bucket_name, self.max_workers)
@@ -67,9 +68,10 @@ class R2Uploader:
         """
         Завантажує один JSON об'єкт.
         """
-        json_bytes = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+        # Компактна серіалізація без зайвих пробілів (швидше передається мережею)
+        json_bytes = json.dumps(data, ensure_ascii=False, separators=(',', ':')).encode("utf-8")
 
-        # Локальне збереження (якщо увімкнено прапорцем або якщо R2 не налаштовано)
+        # Локальне збереження
         if self.save_local or not self.s3_client:
             local_path = os.path.join(self.local_output_dir, key)
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
@@ -98,15 +100,13 @@ class R2Uploader:
         pbar=None
     ) -> int:
         """
-        Паралельне завантаження списку пар (key, data) у Cloudflare R2.
+        Паралельне високошвидкісне завантаження списку пар (key, data) у Cloudflare R2.
         Повертає кількість успішно завантажених об'єктів.
         """
         if not items:
             return 0
 
-        # Якщо R2 відсутній і локальне збереження вимкнено — нема чого робити
         if not self.s3_client and not self.save_local:
-            # Зберігаємо локально як fallback
             self.save_local = True
 
         success_count = 0
@@ -118,7 +118,6 @@ class R2Uploader:
                 pbar.update(1)
             return res
 
-        # Використовуємо ThreadPoolExecutor
         workers = min(self.max_workers, len(items)) if self.s3_client else 4
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = [executor.submit(_worker, it) for it in items]

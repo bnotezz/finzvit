@@ -1,0 +1,1097 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DECLAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="S0105009.XSD">
+  <DECLARHEAD>
+    <TIN>31316718</TIN>
+    <C_DOC>S01</C_DOC>
+    <C_DOC_SUB>050</C_DOC_SUB>
+    <C_DOC_VER>09</C_DOC_VER>
+    <C_DOC_TYPE>0</C_DOC_TYPE>
+    <C_DOC_CNT>662</C_DOC_CNT>
+    <C_REG>80</C_REG>
+    <C_RAJ>001</C_RAJ>
+    <PERIOD_MONTH>12</PERIOD_MONTH>
+    <PERIOD_TYPE>5</PERIOD_TYPE>
+    <PERIOD_YEAR>2025</PERIOD_YEAR>
+    <D_FILL>23042026</D_FILL>
+    <SOFTWARE>MEDOC</SOFTWARE>
+  </DECLARHEAD>
+  <DECLARBODY>
+    <REP_NMONTH>1</REP_NMONTH>
+    <FIRM_NAME>ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ "НОВА ПОШТА"</FIRM_NAME>
+    <FIRM_EDRPOU>31316718</FIRM_EDRPOU>
+    <FIRM_TERR>Київ</FIRM_TERR>
+    <FIRM_OGU xsi:nil="true" />
+    <FIRM_SPODU xsi:nil="true" />
+    <FIRM_KVEDNM>Інша поштова та кур'єрська діяльність</FIRM_KVEDNM>
+    <FIRM_KVED>53.20</FIRM_KVED>
+    <REP_NYEAR>2026</REP_NYEAR>
+    <FIRM_RUK>ТАФІЙЧУК ЄВГЕН ОЛЕКСАНДРОВИЧ</FIRM_RUK>
+    <FIRM_BUH>Ганич Олена Сергіївна</FIRM_BUH>
+    <FIRM_OPFCD>240</FIRM_OPFCD>
+    <FIRM_OPFNM>Товариство з обмеженою відповідальністю</FIRM_OPFNM>
+    <LASTDAY>1</LASTDAY>
+    <A01>0</A01>
+    <B01>0</B01>
+    <C01 xsi:nil="true" />
+    <D01 xsi:nil="true" />
+    <E01 xsi:nil="true" />
+    <F01 xsi:nil="true" />
+    <G01 xsi:nil="true" />
+    <H01 xsi:nil="true" />
+    <I01 xsi:nil="true" />
+    <J01 xsi:nil="true" />
+    <K01 xsi:nil="true" />
+    <L01>0</L01>
+    <M01>0</M01>
+    <A02>0</A02>
+    <B02>0</B02>
+    <C02 xsi:nil="true" />
+    <D02 xsi:nil="true" />
+    <E02 xsi:nil="true" />
+    <F02 xsi:nil="true" />
+    <G02 xsi:nil="true" />
+    <H02 xsi:nil="true" />
+    <I02 xsi:nil="true" />
+    <J02 xsi:nil="true" />
+    <K02 xsi:nil="true" />
+    <L02>0</L02>
+    <M02>0</M02>
+    <A03>644</A03>
+    <B03>382</B03>
+    <C03>777</C03>
+    <D03 xsi:nil="true" />
+    <E03 xsi:nil="true" />
+    <F03 xsi:nil="true" />
+    <G03 xsi:nil="true" />
+    <H03>123</H03>
+    <I03 xsi:nil="true" />
+    <J03 xsi:nil="true" />
+    <K03 xsi:nil="true" />
+    <L03>1421</L03>
+    <M03>505</M03>
+    <A04>0</A04>
+    <B04>0</B04>
+    <C04 xsi:nil="true" />
+    <D04 xsi:nil="true" />
+    <E04 xsi:nil="true" />
+    <F04 xsi:nil="true" />
+    <G04 xsi:nil="true" />
+    <H04 xsi:nil="true" />
+    <I04 xsi:nil="true" />
+    <J04 xsi:nil="true" />
+    <K04 xsi:nil="true" />
+    <L04>0</L04>
+    <M04>0</M04>
+    <A05>10985</A05>
+    <B05>4786</B05>
+    <C05 xsi:nil="true" />
+    <D05 xsi:nil="true" />
+    <E05 xsi:nil="true" />
+    <F05 xsi:nil="true" />
+    <G05 xsi:nil="true" />
+    <H05>1894</H05>
+    <I05 xsi:nil="true" />
+    <J05 xsi:nil="true" />
+    <K05 xsi:nil="true" />
+    <L05>10985</L05>
+    <M05>6680</M05>
+    <A6 xsi:nil="true" />
+    <A06>0</A06>
+    <B06>0</B06>
+    <C06 xsi:nil="true" />
+    <D06 xsi:nil="true" />
+    <E06 xsi:nil="true" />
+    <F06 xsi:nil="true" />
+    <G06 xsi:nil="true" />
+    <H06 xsi:nil="true" />
+    <I06 xsi:nil="true" />
+    <J06 xsi:nil="true" />
+    <K06 xsi:nil="true" />
+    <L06>0</L06>
+    <M06>0</M06>
+    <A07>262421</A07>
+    <B07>190501</B07>
+    <C07>54364</C07>
+    <D07 xsi:nil="true" />
+    <E07 xsi:nil="true" />
+    <F07>1881</F07>
+    <G07>1676</G07>
+    <H07>29938</H07>
+    <I07 xsi:nil="true" />
+    <J07>50</J07>
+    <K07>24</K07>
+    <L07>314954</L07>
+    <M07>218787</M07>
+    <A08>274050</A08>
+    <B08>195669</B08>
+    <C08>55141</C08>
+    <D08>0</D08>
+    <E08>0</E08>
+    <F08>1881</F08>
+    <G08>1676</G08>
+    <H08>31955</H08>
+    <I08>0</I08>
+    <J08>50</J08>
+    <K08>24</K08>
+    <L08>327360</L08>
+    <M08>225972</M08>
+    <N2 xsi:nil="true" />
+    <N3 xsi:nil="true" />
+    <N4 xsi:nil="true" />
+    <N5 xsi:nil="true" />
+    <N5_1 xsi:nil="true" />
+    <A10>578</A10>
+    <B10>0</B10>
+    <C10 xsi:nil="true" />
+    <D10 xsi:nil="true" />
+    <E10 xsi:nil="true" />
+    <F10 xsi:nil="true" />
+    <G10 xsi:nil="true" />
+    <H10 xsi:nil="true" />
+    <I10 xsi:nil="true" />
+    <J10 xsi:nil="true" />
+    <K10 xsi:nil="true" />
+    <L10>578</L10>
+    <M10>0</M10>
+    <N10 xsi:nil="true" />
+    <O10 xsi:nil="true" />
+    <P10 xsi:nil="true" />
+    <Q10 xsi:nil="true" />
+    <A11>0</A11>
+    <B11>0</B11>
+    <C11 xsi:nil="true" />
+    <D11 xsi:nil="true" />
+    <E11 xsi:nil="true" />
+    <F11 xsi:nil="true" />
+    <G11 xsi:nil="true" />
+    <H11 xsi:nil="true" />
+    <I11 xsi:nil="true" />
+    <J11 xsi:nil="true" />
+    <K11 xsi:nil="true" />
+    <L11>0</L11>
+    <M11>0</M11>
+    <N11 xsi:nil="true" />
+    <O11 xsi:nil="true" />
+    <P11 xsi:nil="true" />
+    <Q11 xsi:nil="true" />
+    <A12>953618</A12>
+    <B12>125050</B12>
+    <C12>96852</C12>
+    <D12 xsi:nil="true" />
+    <E12 xsi:nil="true" />
+    <F12>14073</F12>
+    <G12>2150</G12>
+    <H12>60269</H12>
+    <I12 xsi:nil="true" />
+    <J12>-21197</J12>
+    <K12>-1627</K12>
+    <L12>1015200</L12>
+    <M12>181542</M12>
+    <N12 xsi:nil="true" />
+    <O12 xsi:nil="true" />
+    <P12 xsi:nil="true" />
+    <Q12 xsi:nil="true" />
+    <A13>5421456</A13>
+    <B13>1733874</B13>
+    <C13>2043348</C13>
+    <D13 xsi:nil="true" />
+    <E13 xsi:nil="true" />
+    <F13>122848</F13>
+    <G13>70132</G13>
+    <H13>787008</H13>
+    <I13>14</I13>
+    <J13>-856</J13>
+    <K13>-254</K13>
+    <L13>7341086</L13>
+    <M13>2450496</M13>
+    <N13 xsi:nil="true" />
+    <O13 xsi:nil="true" />
+    <P13 xsi:nil="true" />
+    <Q13 xsi:nil="true" />
+    <A14>762614</A14>
+    <B14>157607</B14>
+    <C14>371732</C14>
+    <D14 xsi:nil="true" />
+    <E14 xsi:nil="true" />
+    <F14>90265</F14>
+    <G14>47936</G14>
+    <H14>79706</H14>
+    <I14 xsi:nil="true" />
+    <J14 xsi:nil="true" />
+    <K14 xsi:nil="true" />
+    <L14>1044081</L14>
+    <M14>189377</M14>
+    <N14>453632</N14>
+    <O14>60134</O14>
+    <P14 xsi:nil="true" />
+    <Q14 xsi:nil="true" />
+    <A15>105392</A15>
+    <B15>27034</B15>
+    <C15>28657</C15>
+    <D15 xsi:nil="true" />
+    <E15 xsi:nil="true" />
+    <F15>5244</F15>
+    <G15>2524</G15>
+    <H15>15829</H15>
+    <I15 xsi:nil="true" />
+    <J15>-56</J15>
+    <K15>-12</K15>
+    <L15>128749</L15>
+    <M15>40327</M15>
+    <N15 xsi:nil="true" />
+    <O15 xsi:nil="true" />
+    <P15 xsi:nil="true" />
+    <Q15 xsi:nil="true" />
+    <A16>0</A16>
+    <B16>0</B16>
+    <C16 xsi:nil="true" />
+    <D16 xsi:nil="true" />
+    <E16 xsi:nil="true" />
+    <F16 xsi:nil="true" />
+    <G16 xsi:nil="true" />
+    <H16 xsi:nil="true" />
+    <I16 xsi:nil="true" />
+    <J16 xsi:nil="true" />
+    <K16 xsi:nil="true" />
+    <L16>0</L16>
+    <M16>0</M16>
+    <N16 xsi:nil="true" />
+    <O16 xsi:nil="true" />
+    <P16 xsi:nil="true" />
+    <Q16 xsi:nil="true" />
+    <A17>0</A17>
+    <B17>0</B17>
+    <C17 xsi:nil="true" />
+    <D17 xsi:nil="true" />
+    <E17 xsi:nil="true" />
+    <F17 xsi:nil="true" />
+    <G17 xsi:nil="true" />
+    <H17 xsi:nil="true" />
+    <I17 xsi:nil="true" />
+    <J17 xsi:nil="true" />
+    <K17 xsi:nil="true" />
+    <L17>0</L17>
+    <M17>0</M17>
+    <N17 xsi:nil="true" />
+    <O17 xsi:nil="true" />
+    <P17 xsi:nil="true" />
+    <Q17 xsi:nil="true" />
+    <A18>3510750</A18>
+    <B18>724500</B18>
+    <C18>986051</C18>
+    <D18 xsi:nil="true" />
+    <E18 xsi:nil="true" />
+    <F18>168776</F18>
+    <G18>45209</G18>
+    <H18>615924</H18>
+    <I18>81</I18>
+    <J18>-4995</J18>
+    <K18>-1822</K18>
+    <L18>4322949</L18>
+    <M18>1293393</M18>
+    <N18 xsi:nil="true" />
+    <O18 xsi:nil="true" />
+    <P18 xsi:nil="true" />
+    <Q18 xsi:nil="true" />
+    <A19>0</A19>
+    <B19>0</B19>
+    <C19 xsi:nil="true" />
+    <D19 xsi:nil="true" />
+    <E19 xsi:nil="true" />
+    <F19 xsi:nil="true" />
+    <G19 xsi:nil="true" />
+    <H19 xsi:nil="true" />
+    <I19 xsi:nil="true" />
+    <J19 xsi:nil="true" />
+    <K19 xsi:nil="true" />
+    <L19>0</L19>
+    <M19>0</M19>
+    <N19 xsi:nil="true" />
+    <O19 xsi:nil="true" />
+    <P19 xsi:nil="true" />
+    <Q19 xsi:nil="true" />
+    <A20>2467423</A20>
+    <B20>1076013</B20>
+    <C20>367063</C20>
+    <D20 xsi:nil="true" />
+    <E20 xsi:nil="true" />
+    <F20>165202</F20>
+    <G20>77706</G20>
+    <H20>488574</H20>
+    <I20>36</I20>
+    <J20>-1643</J20>
+    <K20>-605</K20>
+    <L20>2667605</L20>
+    <M20>1486276</M20>
+    <N20 xsi:nil="true" />
+    <O20 xsi:nil="true" />
+    <P20 xsi:nil="true" />
+    <Q20 xsi:nil="true" />
+    <A21>0</A21>
+    <B21>0</B21>
+    <C21 xsi:nil="true" />
+    <D21 xsi:nil="true" />
+    <E21 xsi:nil="true" />
+    <F21 xsi:nil="true" />
+    <G21 xsi:nil="true" />
+    <H21 xsi:nil="true" />
+    <I21 xsi:nil="true" />
+    <J21 xsi:nil="true" />
+    <K21 xsi:nil="true" />
+    <L21>0</L21>
+    <M21>0</M21>
+    <N21 xsi:nil="true" />
+    <O21 xsi:nil="true" />
+    <P21 xsi:nil="true" />
+    <Q21 xsi:nil="true" />
+    <A22>0</A22>
+    <B22>0</B22>
+    <C22 xsi:nil="true" />
+    <D22 xsi:nil="true" />
+    <E22 xsi:nil="true" />
+    <F22 xsi:nil="true" />
+    <G22 xsi:nil="true" />
+    <H22 xsi:nil="true" />
+    <I22 xsi:nil="true" />
+    <J22 xsi:nil="true" />
+    <K22 xsi:nil="true" />
+    <L22>0</L22>
+    <M22>0</M22>
+    <N22 xsi:nil="true" />
+    <O22 xsi:nil="true" />
+    <P22 xsi:nil="true" />
+    <Q22 xsi:nil="true" />
+    <A23>0</A23>
+    <B23>0</B23>
+    <C23 xsi:nil="true" />
+    <D23 xsi:nil="true" />
+    <E23 xsi:nil="true" />
+    <F23 xsi:nil="true" />
+    <G23 xsi:nil="true" />
+    <H23 xsi:nil="true" />
+    <I23 xsi:nil="true" />
+    <J23 xsi:nil="true" />
+    <K23 xsi:nil="true" />
+    <L23>0</L23>
+    <M23>0</M23>
+    <N23 xsi:nil="true" />
+    <O23 xsi:nil="true" />
+    <P23 xsi:nil="true" />
+    <Q23 xsi:nil="true" />
+    <A24>0</A24>
+    <B24>0</B24>
+    <C24 xsi:nil="true" />
+    <D24 xsi:nil="true" />
+    <E24 xsi:nil="true" />
+    <F24 xsi:nil="true" />
+    <G24 xsi:nil="true" />
+    <H24 xsi:nil="true" />
+    <I24 xsi:nil="true" />
+    <J24 xsi:nil="true" />
+    <K24 xsi:nil="true" />
+    <L24>0</L24>
+    <M24>0</M24>
+    <N24 xsi:nil="true" />
+    <O24 xsi:nil="true" />
+    <P24 xsi:nil="true" />
+    <Q24 xsi:nil="true" />
+    <A25>7078962</A25>
+    <B25>2187616</B25>
+    <C25>2575226</C25>
+    <D25 xsi:nil="true" />
+    <E25 xsi:nil="true" />
+    <F25>1105325</F25>
+    <G25>998837</G25>
+    <H25>1946364</H25>
+    <I25 xsi:nil="true" />
+    <J25>7860</J25>
+    <K25 xsi:nil="true" />
+    <L25>8556723</L25>
+    <M25>3135143</M25>
+    <N25>8556723</N25>
+    <O25>3135143</O25>
+    <P25 xsi:nil="true" />
+    <Q25 xsi:nil="true" />
+    <A26>20300793</A26>
+    <B26>6031694</B26>
+    <C26>6468929</C26>
+    <D26>0</D26>
+    <E26>0</E26>
+    <F26>1671733</F26>
+    <G26>1244494</G26>
+    <H26>3993674</H26>
+    <I26>131</I26>
+    <J26>-20887</J26>
+    <K26>-4320</K26>
+    <L26>25076971</L26>
+    <M26>8776554</M26>
+    <N26>9010355</N26>
+    <O26>3195277</O26>
+    <P26>0</P26>
+    <Q26>0</Q26>
+    <N6 xsi:nil="true" />
+    <N7 xsi:nil="true" />
+    <N8 xsi:nil="true" />
+    <N9 xsi:nil="true" />
+    <N101 xsi:nil="true" />
+    <N111 xsi:nil="true" />
+    <N121 xsi:nil="true" />
+    <N122 xsi:nil="true" />
+    <A28 xsi:nil="true" />
+    <B28 xsi:nil="true" />
+    <A29>4022991</A29>
+    <B29>1061283</B29>
+    <A30 xsi:nil="true" />
+    <B30 xsi:nil="true" />
+    <A31>55604</A31>
+    <B31>57022</B31>
+    <A32 xsi:nil="true" />
+    <B32 xsi:nil="true" />
+    <A33 xsi:nil="true" />
+    <B33 xsi:nil="true" />
+    <A34>4078595</A34>
+    <B34>1118305</B34>
+    <A35 xsi:nil="true" />
+    <B35 xsi:nil="true" />
+    <C35 xsi:nil="true" />
+    <A36 xsi:nil="true" />
+    <B36 xsi:nil="true" />
+    <C36 xsi:nil="true" />
+    <A37 xsi:nil="true" />
+    <B37 xsi:nil="true" />
+    <C37 xsi:nil="true" />
+    <A38>900418</A38>
+    <B38>7688980</B38>
+    <C38 xsi:nil="true" />
+    <A39 xsi:nil="true" />
+    <B39 xsi:nil="true" />
+    <C39 xsi:nil="true" />
+    <A40>299724</A40>
+    <B40 xsi:nil="true" />
+    <C40>299724</C40>
+    <A41 xsi:nil="true" />
+    <B41 xsi:nil="true" />
+    <C41 xsi:nil="true" />
+    <A42>1200142</A42>
+    <B42>7688980</B42>
+    <C42>299724</C42>
+    <N131>7688980</N131>
+    <N141 xsi:nil="true" />
+    <N151 xsi:nil="true" />
+    <N161>299724</N161>
+    <N171 xsi:nil="true" />
+    <N181 xsi:nil="true" />
+    <A44>220378</A44>
+    <B44 xsi:nil="true" />
+    <A45 xsi:nil="true" />
+    <B45 xsi:nil="true" />
+    <A46>411713</A46>
+    <B46>398876</B46>
+    <A47>34210</A47>
+    <B47>438497</B47>
+    <A48 xsi:nil="true" />
+    <B48 xsi:nil="true" />
+    <A49>397334</A49>
+    <B49>1150895</B49>
+    <A50 xsi:nil="true" />
+    <B50 xsi:nil="true" />
+    <A51 xsi:nil="true" />
+    <B51 xsi:nil="true" />
+    <A52 xsi:nil="true" />
+    <B52 xsi:nil="true" />
+    <A53>1058234</A53>
+    <B54>1301303</B54>
+    <A55 xsi:nil="true" />
+    <B55>889938</B55>
+    <A56>251001</A56>
+    <B56 xsi:nil="true" />
+    <A57 xsi:nil="true" />
+    <B57>104612</B57>
+    <A58 xsi:nil="true" />
+    <B58 xsi:nil="true" />
+    <A59 xsi:nil="true" />
+    <B59>5909</B59>
+    <A60 xsi:nil="true" />
+    <B60 xsi:nil="true" />
+    <A61 xsi:nil="true" />
+    <B62>129084</B62>
+    <A63 xsi:nil="true" />
+    <B63>894433</B63>
+    <N191 xsi:nil="true" />
+    <N201 xsi:nil="true" />
+    <A64 xsi:nil="true" />
+    <A65>4029525</A65>
+    <A66 xsi:nil="true" />
+    <A67>165761</A67>
+    <A68 xsi:nil="true" />
+    <A69>4195286</A69>
+    <N211 xsi:nil="true" />
+    <A71>668965</A71>
+    <B71>896993</B71>
+    <C71 xsi:nil="true" />
+    <D71>774932</D71>
+    <E71 xsi:nil="true" />
+    <F71 xsi:nil="true" />
+    <G71>791026</G71>
+    <A72>0</A72>
+    <B72 xsi:nil="true" />
+    <C72 xsi:nil="true" />
+    <D72 xsi:nil="true" />
+    <E72 xsi:nil="true" />
+    <F72 xsi:nil="true" />
+    <G72>0</G72>
+    <A73>0</A73>
+    <B73 xsi:nil="true" />
+    <C73 xsi:nil="true" />
+    <D73 xsi:nil="true" />
+    <E73 xsi:nil="true" />
+    <F73 xsi:nil="true" />
+    <G73>0</G73>
+    <A74>0</A74>
+    <B74 xsi:nil="true" />
+    <C74 xsi:nil="true" />
+    <D74 xsi:nil="true" />
+    <E74 xsi:nil="true" />
+    <F74 xsi:nil="true" />
+    <G74>0</G74>
+    <A75>0</A75>
+    <B75 xsi:nil="true" />
+    <C75 xsi:nil="true" />
+    <D75 xsi:nil="true" />
+    <E75 xsi:nil="true" />
+    <F75 xsi:nil="true" />
+    <G75>0</G75>
+    <ST_1>забезпечення витрат (accruals)</ST_1>
+    <A76>589613</A76>
+    <B76>3401334</B76>
+    <C76 xsi:nil="true" />
+    <D76>3154128</D76>
+    <E76>224653</E76>
+    <F76 xsi:nil="true" />
+    <G76>612166</G76>
+    <ST_2>забезпечення матеріального заохочення</ST_2>
+    <A77>270937</A77>
+    <B77>1335566</B77>
+    <C77 xsi:nil="true" />
+    <D77>584461</D77>
+    <E77>719551</E77>
+    <F77 xsi:nil="true" />
+    <G77>302491</G77>
+    <A775>147472</A775>
+    <B775>14018</B775>
+    <C775>6774</C775>
+    <D775 xsi:nil="true" />
+    <E775 xsi:nil="true" />
+    <F775 xsi:nil="true" />
+    <G775>168264</G775>
+    <A78>1676987</A78>
+    <B78>5647911</B78>
+    <C78>6774</C78>
+    <D78>4513521</D78>
+    <E78>944204</E78>
+    <F78>0</F78>
+    <G78>1873947</G78>
+    <A80>118423</A80>
+    <B80 xsi:nil="true" />
+    <C80 xsi:nil="true" />
+    <A81 xsi:nil="true" />
+    <B81 xsi:nil="true" />
+    <C81 xsi:nil="true" />
+    <A82>10369</A82>
+    <B82 xsi:nil="true" />
+    <C82 xsi:nil="true" />
+    <A83>67151</A83>
+    <B83 xsi:nil="true" />
+    <C83 xsi:nil="true" />
+    <A84>505</A84>
+    <B84 xsi:nil="true" />
+    <C84 xsi:nil="true" />
+    <A85>237191</A85>
+    <B85 xsi:nil="true" />
+    <C85 xsi:nil="true" />
+    <A86 xsi:nil="true" />
+    <B86 xsi:nil="true" />
+    <C86 xsi:nil="true" />
+    <A87 xsi:nil="true" />
+    <B87 xsi:nil="true" />
+    <C87 xsi:nil="true" />
+    <A88>29326</A88>
+    <B88 xsi:nil="true" />
+    <C88 xsi:nil="true" />
+    <A89 xsi:nil="true" />
+    <B89 xsi:nil="true" />
+    <C89 xsi:nil="true" />
+    <A90 xsi:nil="true" />
+    <B90 xsi:nil="true" />
+    <C90 xsi:nil="true" />
+    <A91>10422</A91>
+    <B91 xsi:nil="true" />
+    <C91 xsi:nil="true" />
+    <A92>473387</A92>
+    <B92>0</B92>
+    <C92>0</C92>
+    <N221 xsi:nil="true" />
+    <N231 xsi:nil="true" />
+    <N241 xsi:nil="true" />
+    <N251 xsi:nil="true" />
+    <N261 xsi:nil="true" />
+    <A94>2370875</A94>
+    <B94>2370875</B94>
+    <C94 xsi:nil="true" />
+    <D94 xsi:nil="true" />
+    <A95>13239</A95>
+    <B95>13239</B95>
+    <C95 xsi:nil="true" />
+    <D95 xsi:nil="true" />
+    <N27>10927</N27>
+    <N952>1037302</N952>
+    <A96>32171</A96>
+    <A97>23719</A97>
+    <A98 xsi:nil="true" />
+    <A111 xsi:nil="true" />
+    <A112 xsi:nil="true" />
+    <A113 xsi:nil="true" />
+    <A114 xsi:nil="true" />
+    <A115 xsi:nil="true" />
+    <A116 xsi:nil="true" />
+    <A1210>650899</A1210>
+    <A1220>224993</A1220>
+    <A1225>275914</A1225>
+    <A1230 xsi:nil="true" />
+    <A1235>0</A1235>
+    <A1240>599978</A1240>
+    <A1241>650899</A1241>
+    <A1242>-50921</A1242>
+    <A1243 xsi:nil="true" />
+    <A1250>0</A1250>
+    <A1251 xsi:nil="true" />
+    <A1252 xsi:nil="true" />
+    <A1253 xsi:nil="true" />
+    <A1300>4025629</A1300>
+    <A1310>0</A1310>
+    <A1311 xsi:nil="true" />
+    <A1312 xsi:nil="true" />
+    <A1313 xsi:nil="true" />
+    <A1314 xsi:nil="true" />
+    <A1315 xsi:nil="true" />
+    <A1316 xsi:nil="true" />
+    <A1317 xsi:nil="true" />
+    <A1316_1 xsi:nil="true" />
+    <A1317_1 xsi:nil="true" />
+    <B491>14018</B491>
+    <B492 xsi:nil="true" />
+    <A09 xsi:nil="true" />
+    <B09 xsi:nil="true" />
+    <C09 xsi:nil="true" />
+    <D09 xsi:nil="true" />
+    <E09 xsi:nil="true" />
+    <F09 xsi:nil="true" />
+    <G09 xsi:nil="true" />
+    <H09 xsi:nil="true" />
+    <I09 xsi:nil="true" />
+    <J09 xsi:nil="true" />
+    <K09 xsi:nil="true" />
+    <L09>0</L09>
+    <M09 xsi:nil="true" />
+    <A105 xsi:nil="true" />
+    <B105 xsi:nil="true" />
+    <C105 xsi:nil="true" />
+    <D105 xsi:nil="true" />
+    <E105 xsi:nil="true" />
+    <F105 xsi:nil="true" />
+    <G105 xsi:nil="true" />
+    <H105 xsi:nil="true" />
+    <I105 xsi:nil="true" />
+    <J105 xsi:nil="true" />
+    <K105 xsi:nil="true" />
+    <L105>0</L105>
+    <M105>0</M105>
+    <N105 xsi:nil="true" />
+    <O105 xsi:nil="true" />
+    <P105 xsi:nil="true" />
+    <Q105 xsi:nil="true" />
+    <N123 xsi:nil="true" />
+    <N124 xsi:nil="true" />
+    <N125 xsi:nil="true" />
+    <N341 xsi:nil="true" />
+    <N342 xsi:nil="true" />
+    <N633 xsi:nil="true" />
+    <N926 xsi:nil="true" />
+    <A1410_3>0</A1410_3>
+    <A1410_4>0</A1410_4>
+    <A1410_5>0</A1410_5>
+    <A1410_6>0</A1410_6>
+    <A1410_7>0</A1410_7>
+    <A1410_8>0</A1410_8>
+    <A1410_9>0</A1410_9>
+    <A1410_10>0</A1410_10>
+    <A1410_11>0</A1410_11>
+    <A1410_12>0</A1410_12>
+    <A1410_13>0</A1410_13>
+    <A1410_14>0</A1410_14>
+    <A1410_15>0</A1410_15>
+    <A1410_16>0</A1410_16>
+    <A1410_17>0</A1410_17>
+    <A1411_3>0</A1411_3>
+    <A1411_5 xsi:nil="true" />
+    <A1411_6 xsi:nil="true" />
+    <A1411_7 xsi:nil="true" />
+    <A1411_8 xsi:nil="true" />
+    <A1411_9 xsi:nil="true" />
+    <A1411_10 xsi:nil="true" />
+    <A1411_11>0</A1411_11>
+    <A1411_12>0</A1411_12>
+    <A1411_13 xsi:nil="true" />
+    <A1411_14 xsi:nil="true" />
+    <A1411_15 xsi:nil="true" />
+    <A1411_16 xsi:nil="true" />
+    <A1411_17>0</A1411_17>
+    <A1412_3>0</A1412_3>
+    <A1412_4>0</A1412_4>
+    <A1412_5 xsi:nil="true" />
+    <A1412_6 xsi:nil="true" />
+    <A1412_7 xsi:nil="true" />
+    <A1412_8 xsi:nil="true" />
+    <A1412_9 xsi:nil="true" />
+    <A1412_10 xsi:nil="true" />
+    <A1412_11>0</A1412_11>
+    <A1412_12>0</A1412_12>
+    <A1412_13 xsi:nil="true" />
+    <A1412_14 xsi:nil="true" />
+    <A1412_15 xsi:nil="true" />
+    <A1412_16 xsi:nil="true" />
+    <A1412_17>0</A1412_17>
+    <A1413_3>0</A1413_3>
+    <A1413_4>0</A1413_4>
+    <A1413_5 xsi:nil="true" />
+    <A1413_6 xsi:nil="true" />
+    <A1413_7 xsi:nil="true" />
+    <A1413_8 xsi:nil="true" />
+    <A1413_9 xsi:nil="true" />
+    <A1413_10 xsi:nil="true" />
+    <A1413_11>0</A1413_11>
+    <A1413_12>0</A1413_12>
+    <A1413_13 xsi:nil="true" />
+    <A1413_14 xsi:nil="true" />
+    <A1413_15 xsi:nil="true" />
+    <A1413_16 xsi:nil="true" />
+    <A1413_17>0</A1413_17>
+    <A1414_1 xsi:nil="true" />
+    <A1414_3>0</A1414_3>
+    <A1414_4>0</A1414_4>
+    <A1414_5 xsi:nil="true" />
+    <A1414_6 xsi:nil="true" />
+    <A1414_7 xsi:nil="true" />
+    <A1414_8 xsi:nil="true" />
+    <A1414_9 xsi:nil="true" />
+    <A1414_10 xsi:nil="true" />
+    <A1414_11>0</A1414_11>
+    <A1414_12>0</A1414_12>
+    <A1414_13 xsi:nil="true" />
+    <A1414_14 xsi:nil="true" />
+    <A1414_15 xsi:nil="true" />
+    <A1414_16 xsi:nil="true" />
+    <A1414_17>0</A1414_17>
+    <A1415_3>0</A1415_3>
+    <A1415_4>0</A1415_4>
+    <A1415_5 xsi:nil="true" />
+    <A1415_6 xsi:nil="true" />
+    <A1415_7 xsi:nil="true" />
+    <A1415_8 xsi:nil="true" />
+    <A1415_9 xsi:nil="true" />
+    <A1415_10 xsi:nil="true" />
+    <A1415_11>0</A1415_11>
+    <A1415_12>0</A1415_12>
+    <A1415_13 xsi:nil="true" />
+    <A1415_14 xsi:nil="true" />
+    <A1415_15 xsi:nil="true" />
+    <A1415_16 xsi:nil="true" />
+    <A1415_17>0</A1415_17>
+    <A1420_3>0</A1420_3>
+    <A1420_5>0</A1420_5>
+    <A1420_6>0</A1420_6>
+    <A1420_9>0</A1420_9>
+    <A1420_10>0</A1420_10>
+    <A1420_11>0</A1420_11>
+    <A1420_13>0</A1420_13>
+    <A1420_14>0</A1420_14>
+    <A1420_15>0</A1420_15>
+    <A1420_16>0</A1420_16>
+    <A1420_17>0</A1420_17>
+    <A1421_3>0</A1421_3>
+    <A1421_5 xsi:nil="true" />
+    <A1421_6 xsi:nil="true" />
+    <A1421_9 xsi:nil="true" />
+    <A1421_10 xsi:nil="true" />
+    <A1421_11>0</A1421_11>
+    <A1421_13 xsi:nil="true" />
+    <A1421_14 xsi:nil="true" />
+    <A1421_15 xsi:nil="true" />
+    <A1421_16 xsi:nil="true" />
+    <A1421_17>0</A1421_17>
+    <A1422_3>0</A1422_3>
+    <A1422_5 xsi:nil="true" />
+    <A1422_6 xsi:nil="true" />
+    <A1422_9 xsi:nil="true" />
+    <A1422_10 xsi:nil="true" />
+    <A1422_11>0</A1422_11>
+    <A1422_13 xsi:nil="true" />
+    <A1422_14 xsi:nil="true" />
+    <A1422_15 xsi:nil="true" />
+    <A1422_16 xsi:nil="true" />
+    <A1422_17>0</A1422_17>
+    <A1423_1 xsi:nil="true" />
+    <A1423_3>0</A1423_3>
+    <A1423_5 xsi:nil="true" />
+    <A1423_6 xsi:nil="true" />
+    <A1423_9 xsi:nil="true" />
+    <A1423_10 xsi:nil="true" />
+    <A1423_11>0</A1423_11>
+    <A1423_13 xsi:nil="true" />
+    <A1423_14 xsi:nil="true" />
+    <A1423_15 xsi:nil="true" />
+    <A1423_16 xsi:nil="true" />
+    <A1423_17>0</A1423_17>
+    <A1424_3>0</A1424_3>
+    <A1424_5 xsi:nil="true" />
+    <A1424_6 xsi:nil="true" />
+    <A1424_9 xsi:nil="true" />
+    <A1424_10 xsi:nil="true" />
+    <A1424_11>0</A1424_11>
+    <A1424_13 xsi:nil="true" />
+    <A1424_14 xsi:nil="true" />
+    <A1424_15 xsi:nil="true" />
+    <A1424_16 xsi:nil="true" />
+    <A1424_17>0</A1424_17>
+    <A1430_3>0</A1430_3>
+    <A1430_4>0</A1430_4>
+    <A1430_5>0</A1430_5>
+    <A1430_6>0</A1430_6>
+    <A1430_7>0</A1430_7>
+    <A1430_8>0</A1430_8>
+    <A1430_9>0</A1430_9>
+    <A1430_10>0</A1430_10>
+    <A1430_11>0</A1430_11>
+    <A1430_12>0</A1430_12>
+    <A1430_13>0</A1430_13>
+    <A1430_14>0</A1430_14>
+    <A1430_15>0</A1430_15>
+    <A1430_16>0</A1430_16>
+    <A1430_17>0</A1430_17>
+    <N1431 xsi:nil="true" />
+    <N1432 xsi:nil="true" />
+    <N1433 xsi:nil="true" />
+    <A1500_3>0</A1500_3>
+    <A1500_4>0</A1500_4>
+    <A1500_5>0</A1500_5>
+    <A1500_6>0</A1500_6>
+    <A1500_7>0</A1500_7>
+    <A1500_8>0</A1500_8>
+    <A1500_9>0</A1500_9>
+    <A1500_10>0</A1500_10>
+    <A1500_11>0</A1500_11>
+    <A1510_3 xsi:nil="true" />
+    <A1510_4 xsi:nil="true" />
+    <A1510_5>0</A1510_5>
+    <A1510_6>0</A1510_6>
+    <A1510_7 xsi:nil="true" />
+    <A1510_8 xsi:nil="true" />
+    <A1510_9 xsi:nil="true" />
+    <A1510_10>0</A1510_10>
+    <A1510_11>0</A1510_11>
+    <A1511_3 xsi:nil="true" />
+    <A1511_4 xsi:nil="true" />
+    <A1511_5>0</A1511_5>
+    <A1511_6>0</A1511_6>
+    <A1511_7 xsi:nil="true" />
+    <A1511_8 xsi:nil="true" />
+    <A1511_9 xsi:nil="true" />
+    <A1511_10>0</A1511_10>
+    <A1511_11>0</A1511_11>
+    <A1512_3 xsi:nil="true" />
+    <A1512_4 xsi:nil="true" />
+    <A1512_5>0</A1512_5>
+    <A1512_6>0</A1512_6>
+    <A1512_7 xsi:nil="true" />
+    <A1512_8 xsi:nil="true" />
+    <A1512_9 xsi:nil="true" />
+    <A1512_10>0</A1512_10>
+    <A1512_11>0</A1512_11>
+    <A1513_3 xsi:nil="true" />
+    <A1513_4 xsi:nil="true" />
+    <A1513_5>0</A1513_5>
+    <A1513_6>0</A1513_6>
+    <A1513_7 xsi:nil="true" />
+    <A1513_8 xsi:nil="true" />
+    <A1513_9 xsi:nil="true" />
+    <A1513_10>0</A1513_10>
+    <A1513_11>0</A1513_11>
+    <A1514_3 xsi:nil="true" />
+    <A1514_4 xsi:nil="true" />
+    <A1514_5>0</A1514_5>
+    <A1514_6>0</A1514_6>
+    <A1514_7 xsi:nil="true" />
+    <A1514_8 xsi:nil="true" />
+    <A1514_9 xsi:nil="true" />
+    <A1514_10>0</A1514_10>
+    <A1514_11>0</A1514_11>
+    <A1515_3 xsi:nil="true" />
+    <A1515_4 xsi:nil="true" />
+    <A1515_5>0</A1515_5>
+    <A1515_6>0</A1515_6>
+    <A1515_7 xsi:nil="true" />
+    <A1515_8 xsi:nil="true" />
+    <A1515_9 xsi:nil="true" />
+    <A1515_10>0</A1515_10>
+    <A1515_11>0</A1515_11>
+    <A1516_3 xsi:nil="true" />
+    <A1516_4 xsi:nil="true" />
+    <A1516_5>0</A1516_5>
+    <A1516_6>0</A1516_6>
+    <A1516_7 xsi:nil="true" />
+    <A1516_8 xsi:nil="true" />
+    <A1516_9 xsi:nil="true" />
+    <A1516_10>0</A1516_10>
+    <A1516_11>0</A1516_11>
+    <A1517_3 xsi:nil="true" />
+    <A1517_4 xsi:nil="true" />
+    <A1517_5>0</A1517_5>
+    <A1517_6>0</A1517_6>
+    <A1517_7 xsi:nil="true" />
+    <A1517_8 xsi:nil="true" />
+    <A1517_9 xsi:nil="true" />
+    <A1517_10>0</A1517_10>
+    <A1517_11>0</A1517_11>
+    <A1518_3 xsi:nil="true" />
+    <A1518_4 xsi:nil="true" />
+    <A1518_5>0</A1518_5>
+    <A1518_6>0</A1518_6>
+    <A1518_7 xsi:nil="true" />
+    <A1518_8 xsi:nil="true" />
+    <A1518_9 xsi:nil="true" />
+    <A1518_10>0</A1518_10>
+    <A1518_11>0</A1518_11>
+    <A1519_3 xsi:nil="true" />
+    <A1519_4 xsi:nil="true" />
+    <A1519_5>0</A1519_5>
+    <A1519_6>0</A1519_6>
+    <A1519_7 xsi:nil="true" />
+    <A1519_8 xsi:nil="true" />
+    <A1519_9 xsi:nil="true" />
+    <A1519_10>0</A1519_10>
+    <A1519_11>0</A1519_11>
+    <A1520_3>0</A1520_3>
+    <A1520_4>0</A1520_4>
+    <A1520_5>0</A1520_5>
+    <A1520_6>0</A1520_6>
+    <A1520_7>0</A1520_7>
+    <A1520_8>0</A1520_8>
+    <A1520_9>0</A1520_9>
+    <A1520_10>0</A1520_10>
+    <A1520_11>0</A1520_11>
+    <A1530_3 xsi:nil="true" />
+    <A1530_4 xsi:nil="true" />
+    <A1530_5>0</A1530_5>
+    <A1530_6>0</A1530_6>
+    <A1530_7 xsi:nil="true" />
+    <A1530_8 xsi:nil="true" />
+    <A1530_9 xsi:nil="true" />
+    <A1530_10>0</A1530_10>
+    <A1530_11>0</A1530_11>
+    <A1531_3 xsi:nil="true" />
+    <A1531_4 xsi:nil="true" />
+    <A1531_5>0</A1531_5>
+    <A1531_6>0</A1531_6>
+    <A1531_7 xsi:nil="true" />
+    <A1531_8 xsi:nil="true" />
+    <A1531_9 xsi:nil="true" />
+    <A1531_10>0</A1531_10>
+    <A1531_11>0</A1531_11>
+    <A1532_3 xsi:nil="true" />
+    <A1533_3 xsi:nil="true" />
+    <A1532_4 xsi:nil="true" />
+    <A1532_5>0</A1532_5>
+    <A1532_6>0</A1532_6>
+    <A1532_7 xsi:nil="true" />
+    <A1532_8 xsi:nil="true" />
+    <A1532_9 xsi:nil="true" />
+    <A1532_10>0</A1532_10>
+    <A1532_11>0</A1532_11>
+    <A1533_4 xsi:nil="true" />
+    <A1533_5>0</A1533_5>
+    <A1533_6>0</A1533_6>
+    <A1533_7 xsi:nil="true" />
+    <A1533_8 xsi:nil="true" />
+    <A1533_9 xsi:nil="true" />
+    <A1533_10>0</A1533_10>
+    <A1533_11>0</A1533_11>
+    <A1534_3 xsi:nil="true" />
+    <A1534_4 xsi:nil="true" />
+    <A1534_5>0</A1534_5>
+    <A1534_6>0</A1534_6>
+    <A1534_7 xsi:nil="true" />
+    <A1534_8 xsi:nil="true" />
+    <A1534_9 xsi:nil="true" />
+    <A1534_10>0</A1534_10>
+    <A1534_11>0</A1534_11>
+    <A1535_3 xsi:nil="true" />
+    <A1535_4 xsi:nil="true" />
+    <A1535_5>0</A1535_5>
+    <A1535_6>0</A1535_6>
+    <A1535_7 xsi:nil="true" />
+    <A1535_8 xsi:nil="true" />
+    <A1535_9 xsi:nil="true" />
+    <A1535_10>0</A1535_10>
+    <A1535_11>0</A1535_11>
+    <A1536_3 xsi:nil="true" />
+    <A1536_4 xsi:nil="true" />
+    <A1536_5>0</A1536_5>
+    <A1536_6>0</A1536_6>
+    <A1536_7 xsi:nil="true" />
+    <A1536_8 xsi:nil="true" />
+    <A1536_9 xsi:nil="true" />
+    <A1536_10>0</A1536_10>
+    <A1536_11>0</A1536_11>
+    <A1537_3 xsi:nil="true" />
+    <A1537_4 xsi:nil="true" />
+    <A1537_5>0</A1537_5>
+    <A1537_6>0</A1537_6>
+    <A1537_7 xsi:nil="true" />
+    <A1537_8 xsi:nil="true" />
+    <A1537_9 xsi:nil="true" />
+    <A1537_10>0</A1537_10>
+    <A1537_11>0</A1537_11>
+    <A1538_3 xsi:nil="true" />
+    <A1538_4 xsi:nil="true" />
+    <A1538_5>0</A1538_5>
+    <A1538_6>0</A1538_6>
+    <A1538_7 xsi:nil="true" />
+    <A1538_8 xsi:nil="true" />
+    <A1538_9 xsi:nil="true" />
+    <A1538_10>0</A1538_10>
+    <A1538_11>0</A1538_11>
+    <A1539_3 xsi:nil="true" />
+    <A1539_4 xsi:nil="true" />
+    <A1539_5>0</A1539_5>
+    <A1539_6>0</A1539_6>
+    <A1539_7 xsi:nil="true" />
+    <A1539_8 xsi:nil="true" />
+    <A1539_9 xsi:nil="true" />
+    <A1539_10>0</A1539_10>
+    <A1539_11>0</A1539_11>
+    <A1540_3>0</A1540_3>
+    <A1540_4>0</A1540_4>
+    <A1540_5>0</A1540_5>
+    <A1540_6>0</A1540_6>
+    <A1540_7>0</A1540_7>
+    <A1540_8>0</A1540_8>
+    <A1540_9>0</A1540_9>
+    <A1540_10>0</A1540_10>
+    <A1540_11>0</A1540_11>
+    <A1411_4>0</A1411_4>
+    <OBL>80</OBL>
+    <RAY>001</RAY>
+    <A1539_1 xsi:nil="true" />
+    <KATOTTG>UA80000000000126643</KATOTTG>
+  </DECLARBODY>
+</DECLAR>

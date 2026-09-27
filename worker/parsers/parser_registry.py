@@ -2,7 +2,7 @@ from typing import Dict, Optional
 from .base_parser import BaseFormParser
 from .parser_f1 import ParserF1
 from .parser_f2 import ParserF2
-from .parser_f3 import ParserF3
+from .parser_f3 import ParserF3, ParserF3Indirect
 from .parser_f4 import ParserF4
 from .parser_f1_f2_m import ParserF1F2M
 from .parser_f1_f2_ms import ParserF1F2MS
@@ -26,13 +26,13 @@ class ParserRegistry:
 
         # Префіксний мапінг:
         prefix_map = {
-            "S01001": ParserF1(),     # Ф1 Баланс
-            "S01002": ParserF2(),     # Ф2 Фінрезультати
-            "S01003": ParserF3(),     # Ф3 Рух коштів (прямий)
-            "S01033": ParserF3(),     # Ф3-н Рух коштів (непрямий)
-            "S01040": ParserF4(),     # Ф4 Власний капітал
-            "S01100": ParserF1F2M(),  # 1-м, 2-м Малі підприємства
-            "S01110": ParserF1F2MS(), # 1-мс, 2-мс Мікропідприємства
+            "S01001": ParserF1(),         # Ф1 Баланс
+            "S01002": ParserF2(),         # Ф2 Фінрезультати
+            "S01003": ParserF3(),         # Ф3 Рух коштів (прямий)
+            "S01033": ParserF3Indirect(), # Ф3-н Рух коштів (непрямий)
+            "S01040": ParserF4(),         # Ф4 Власний капітал
+            "S01100": ParserF1F2M(),      # 1-м, 2-м Малі підприємства
+            "S01110": ParserF1F2MS(),     # 1-мс, 2-мс Мікропідприємства
             "S01050": ParserGeneric("S0105009", "Ф5. Примітки до річної звітності"),
             "S01060": ParserGeneric("S0106007", "Ф6. Інформація за сегментами"),
         }
@@ -48,6 +48,7 @@ class ParserRegistry:
 ParserRegistry.register(ParserF1())
 ParserRegistry.register(ParserF2())
 ParserRegistry.register(ParserF3())
+ParserRegistry.register(ParserF3Indirect())
 ParserRegistry.register(ParserF4())
 ParserRegistry.register(ParserF1F2M())
 ParserRegistry.register(ParserF1F2MS())

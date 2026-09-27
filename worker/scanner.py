@@ -28,13 +28,13 @@ class ReportScanner:
     # 32673400_460140032673400S010011510000006122025.XML_2026-06-05 16:47:46.xml
     # або 00290771_230060000290771S010011510000137122025.XML_2026-02-24 06/22/26.xml
     FILENAME_PATTERN = re.compile(
-        r"^(\d{8,10})_.*?(S\d{7})\d+.*?(?:\.XML_|\.xml_)(\d{4}[-/.]\d{2}[-/.]\d{2}\s+[\d:/]+)",
+        r"(?:^|/|\\\\)(\d{8,10})_.*?(S\d{7})\d+.*?(?:\.XML_|\.xml_)(\d{4}[./-]\d{2}[./-]\d{2}\s+\d{2}[:/.-]\d{2}[:/.-]\d{2})",
         re.IGNORECASE
     )
 
     # Альтернативний шаблон (якщо таймстемп відсутній у хвості імені)
     FALLBACK_PATTERN = re.compile(
-        r"^(\d{8,10})_.*?(S\d{7})",
+        r"(?:^|/|\\\\)(\d{8,10})_.*?(S\d{7})",
         re.IGNORECASE
     )
 
@@ -43,17 +43,22 @@ class ReportScanner:
         """
         Повертає кортеж (edrpou, form_code, timestamp).
         Нормалізує ЄДРПОУ до 8 цифр (відкидає ведучі нулі, якщо 10 знаків).
+        Нормалізує таймстемп до канонічного формату YYYY-MM-DD HH:MM:SS.
         """
-        base_name = os.path.basename(filename)
-        match = cls.FILENAME_PATTERN.search(base_name)
+        match = cls.FILENAME_PATTERN.search(filename)
         if match:
             edrpou_raw, form_code, timestamp = match.groups()
             edrpou = cls._clean_edrpou(edrpou_raw)
             # Нормалізуємо таймстемп
-            norm_ts = timestamp.replace("/", ":").replace(".", "-")
+            parts = timestamp.strip().split(None, 1)
+            d = parts[0].replace("/", "-").replace(".", "-")
+            t = "00:00:00"
+            if len(parts) > 1:
+                t = re.sub(r"[/.-]", ":", parts[1])
+            norm_ts = f"{d} {t}"
             return edrpou, form_code.upper(), norm_ts
 
-        fallback = cls.FALLBACK_PATTERN.search(base_name)
+        fallback = cls.FALLBACK_PATTERN.search(filename)
         if fallback:
             edrpou_raw, form_code = fallback.groups()
             edrpou = cls._clean_edrpou(edrpou_raw)

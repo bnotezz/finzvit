@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import urllib.request
@@ -12,11 +13,25 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+def _clean_str(val: Any, max_len: int = 255) -> str:
+    """Очищає рядок від null-байтів та некоректних control-символів PostgreSQL."""
+    if not val:
+        return ""
+    s = str(val).replace("\x00", "").replace("\r", " ").replace("\n", " ").strip()
+    return s[:max_len]
+
+def _clean_digits(val: Any, max_len: int = 10) -> str:
+    if not val:
+        return ""
+    s = re.sub(r"\D", "", str(val))
+    return s[:max_len]
+
 class SupabaseUploader:
     """
-    Завантажувач метаданих компаній у Supabase (таблиця 'companies').
-    Підтримує батч-завантаження (upsert).
-    Працює як через офіційну бібліотеку supabase, так і напряму через urllib.request (zero dependencies).
+    Ультра-компактний та надійний завантажувач реєстру підприємств у Supabase.
+    Зберігає в базі лише мінімум для пошуку (edrpou, name, kved, year),
+    що дозволяє вмістити 435,000+ компаній у ~40 МБ диска (замість 553 МБ).
+    Всі детальні звіти, фінанси та адреси зберігаються в R2.
     """
 
     def __init__(
@@ -41,11 +56,11 @@ class SupabaseUploader:
             if create_client:
                 try:
                     self.client = create_client(self.url, self.key)
-                    logger.info("✅ Supabase клієнт успішно ініціалізовано (через supabase-py).")
+                    logger.info("✅ Supabase клієнт успішно ініціалізовано.")
                 except Exception as e:
-                    logger.warning("Supabase-py ініціалізація не вдалася (%s), перемикання на direct REST HTTP API.", e)
+                    logger.warning("supabase-py ініціалізація не вдалася (%s), перемикання на direct REST HTTP API.", e)
             else:
-                logger.info("✅ Supabase REST API клієнт успішно ініціалізовано (через вбудований urllib).")
+                logger.info("✅ Supabase REST API клієнт успішно ініціалізовано (urllib).")
 
     def upsert_companies(
         self,
@@ -56,7 +71,7 @@ class SupabaseUploader:
         if not companies:
             return True
 
-        # Зберігаємо локальний JSON реєстру
+        # Локальне резервне збереження реєстру
         local_path = os.path.join(self.local_output_dir, "companies_registry.json")
         try:
             os.makedirs(self.local_output_dir, exist_ok=True)
@@ -69,76 +84,79 @@ class SupabaseUploader:
             logger.warning("Реєстр збережено лише локально у: %s", local_path)
             return True
 
-        # Формуємо записи для таблиці companies
+        # Формуємо ультра-легковагові записи
         records = []
         for c in companies:
-            if not c.get("edrpou") or not c.get("name"):
+            raw_edrpou = c.get("edrpou")
+            raw_name = c.get("name")
+            if not raw_edrpou or not raw_name:
                 continue
-            records.append({
-                "edrpou": str(c.get("edrpou")),
-                "name": str(c.get("name")),
-                "kved": c.get("kved"),
-                "kved_name": c.get("kved_name"),
-                "address": c.get("address"),
-                "territory": c.get("territory"),
-                "opf_code": str(c.get("opf_code")) if c.get("opf_code") else None,
-                "opf_name": c.get("opf_name"),
-                "employees": c.get("employees"),
-                "accounting_standard": c.get("accounting_standard"),
-                "available_forms": c.get("available_forms", []),
-                "year": c.get("year", 2025)
-            })
+
+            edrpou = _clean_digits(raw_edrpou, 10)
+            name = _clean_str(raw_name, 255)
+            kved = _clean_str(c.get("kved"), 10) or None
+            
+            try:
+                year = int(c.get("year", 2025))
+            except (ValueError, TypeError):
+                year = 2025
+
+            if edrpou and name:
+                records.append({
+                    "edrpou": edrpou,
+                    "name": name,
+                    "kved": kved,
+                    "year": year
+                })
 
         logger.info("Початок синхронізації %d компаній із Supabase (батчі по %d)...", len(records), batch_size)
 
-        success = True
-        rpc_supported = True
-
+        total_saved = 0
         for i in range(0, len(records), batch_size):
             batch = records[i:i + batch_size]
-            try:
-                # 1. Спочатку пробуємо RPC-функцію з мульти-річним захистом (upsert_company_batch)
-                if rpc_supported:
-                    try:
-                        if self.client:
-                            self.client.rpc("upsert_company_batch", {"companies_data": batch}).execute()
-                        else:
-                            rpc_url = f"{self.url.rstrip('/')}/rest/v1/rpc/upsert_company_batch"
-                            req_data = json.dumps({"companies_data": batch}, ensure_ascii=False).encode("utf-8")
-                            headers = {
-                                "apikey": self.key,
-                                "Authorization": f"Bearer {self.key}",
-                                "Content-Type": "application/json; charset=utf-8",
-                            }
-                            req = urllib.request.Request(rpc_url, data=req_data, headers=headers, method="POST")
-                            with urllib.request.urlopen(req) as resp:
-                                pass
-                    except Exception as rpc_err:
-                        # Якщо RPC функцію ще не створено в БД — перемикаємось на стандартний table upsert
-                        rpc_supported = False
-                        logger.warning("RPC upsert_company_batch недоступний (%s). Перехід на прямий table upsert.", rpc_err)
-
-                # 2. Фолбек: звичайний upsert у таблицю companies
-                if not rpc_supported:
-                    if self.client:
-                        self.client.table("companies").upsert(batch, on_conflict="edrpou").execute()
-                    else:
-                        api_url = f"{self.url.rstrip('/')}/rest/v1/companies?on_conflict=edrpou"
-                        req_data = json.dumps(batch, ensure_ascii=False).encode("utf-8")
-                        headers = {
-                            "apikey": self.key,
-                            "Authorization": f"Bearer {self.key}",
-                            "Content-Type": "application/json; charset=utf-8",
-                            "Prefer": "resolution=merge-duplicates,return=minimal"
-                        }
-                        req = urllib.request.Request(api_url, data=req_data, headers=headers, method="POST")
-                        with urllib.request.urlopen(req) as resp:
-                            pass
-
+            success = self._send_batch(batch)
+            if success:
+                total_saved += len(batch)
                 if pbar:
                     pbar.update(len(batch))
-            except Exception as e:
-                logger.error("Помилка під час upsert батчу %d-%d у Supabase: %s", i + 1, min(i + batch_size, len(records)), e)
-                success = False
+            else:
+                # Якщо весь батч повернув помилку (наприклад 400 Bad Request через один битий символ),
+                # розбиваємо його на мікро-батчі по 50, щоб не втратити решту компаній
+                logger.warning("Розбиття збійного батчу %d-%d на мікро-батчі...", i + 1, min(i + batch_size, len(records)))
+                for sub_i in range(0, len(batch), 50):
+                    sub_batch = batch[sub_i:sub_i + 50]
+                    sub_success = self._send_batch(sub_batch)
+                    if sub_success:
+                        total_saved += len(sub_batch)
+                        if pbar:
+                            pbar.update(len(sub_batch))
+                    else:
+                        # Якщо навіть мікро-батч збійнув, пробуємо поштучно
+                        for single_record in sub_batch:
+                            if self._send_batch([single_record]):
+                                total_saved += 1
+                                if pbar:
+                                    pbar.update(1)
+                            else:
+                                logger.error("Пропущено запис з помилкою валідації: ЄДРПОУ %s", single_record.get("edrpou"))
 
-        return success
+        logger.info("✅ Синхронізовано з Supabase: %d із %d компаній.", total_saved, len(records))
+        return total_saved > 0
+
+    def _send_batch(self, batch: List[Dict[str, Any]]) -> bool:
+        if not batch:
+            return True
+        api_url = f"{self.url.rstrip('/')}/rest/v1/companies?on_conflict=edrpou"
+        req_data = json.dumps(batch, ensure_ascii=False).encode("utf-8")
+        headers = {
+            "apikey": self.key,
+            "Authorization": f"Bearer {self.key}",
+            "Content-Type": "application/json; charset=utf-8",
+            "Prefer": "resolution=merge-duplicates,return=minimal"
+        }
+        try:
+            req = urllib.request.Request(api_url, data=req_data, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.status in (200, 201, 204)
+        except Exception as e:
+            return False

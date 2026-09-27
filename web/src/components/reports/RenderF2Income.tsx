@@ -9,7 +9,7 @@ interface RenderF2IncomeProps {
 }
 
 export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
-  const data = report.data || {};
+  const data = (report as any)?.data || report || {};
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (sectionName: string) => {

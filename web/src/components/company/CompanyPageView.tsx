@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
-import { fetchCompanyMeta, fetchReportData } from '../../lib/api';
-import type { CompanyMeta, ReportData } from '../../lib/types';
+import { fetchCompanyData, fetchReportData } from '../../lib/api';
+import type { CompanyFullData, ReportData } from '../../lib/types';
 import { CompanyHeader } from './CompanyHeader';
 import { KpiCards } from './KpiCards';
 import { ReportContainer } from '../reports/ReportContainer';
@@ -24,7 +24,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     return edrpou || '';
   }, [edrpou]);
 
-  const [company, setCompany] = useState<CompanyMeta | null>(null);
+  const [company, setCompany] = useState<CompanyFullData | null>(null);
   const [balanceReport, setBalanceReport] = useState<ReportData | null>(null);
   const [incomeReport, setIncomeReport] = useState<ReportData | null>(null);
   const [activeReport, setActiveReport] = useState<ReportData | null>(null);
@@ -39,53 +39,51 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     setIsLoading(true);
     setError(null);
 
-    fetchCompanyMeta(effectiveEdrpou)
-      .then(async (meta) => {
+    // Завантажуємо єдиний консолідований JSON компанії за 1 мережевий запит
+    fetchCompanyData(effectiveEdrpou)
+      .then(async (data) => {
         if (!isMounted) return;
-        setCompany(meta);
+        setCompany(data);
 
         // Знаходимо форми Ф1 (Баланс) та Ф2 (Фінрезультати)
-        // Для звичайних підприємств: S0100115 (Ф1), S0100215 (Ф2)
-        // Для малих та мікропідприємств: S0110014 (1-м, 2-м), S0111007 (1-мс, 2-мс)
-        const f1Form = meta.available_forms.find((f) => 
+        const forms = data.available_forms || [];
+        const f1Form = forms.find((f) => 
           f.code.includes('001') || f.code.includes('110') || f.code.includes('111')
         );
-        const f2Form = meta.available_forms.find((f) => 
+        const f2Form = forms.find((f) => 
           f.code.includes('002') || f.code.includes('110') || f.code.includes('111')
         );
 
-        const promises: Promise<any>[] = [];
-
-        if (f1Form && f2Form && f1Form.code === f2Form.code) {
-          // Якщо це об'єднана форма (малі / мікро) — завантажуємо один звіт для обох
-          promises.push(
-            fetchReportData(effectiveEdrpou, f1Form.code)
-              .then((rep) => {
-                if (isMounted) {
-                  setBalanceReport(rep);
-                  setIncomeReport(rep);
-                }
-              })
-              .catch((err) => console.error('Помилка завантаження комбінованого звіту:', err))
-          );
-        } else {
-          if (f1Form) {
-            promises.push(
-              fetchReportData(effectiveEdrpou, f1Form.code)
-                .then((rep) => isMounted && setBalanceReport(rep))
-                .catch((err) => console.error('Помилка завантаження Ф1:', err))
-            );
+        // Якщо звіти вже вбудовані в консолідований документ — встановлюємо їх миттєво з пам'яті
+        if (data.reports) {
+          if (f1Form && data.reports[f1Form.code]) {
+            setBalanceReport(data.reports[f1Form.code]);
           }
-          if (f2Form) {
-            promises.push(
-              fetchReportData(effectiveEdrpou, f2Form.code)
-                .then((rep) => isMounted && setIncomeReport(rep))
-                .catch((err) => console.error('Помилка завантаження Ф2:', err))
-            );
+          if (f2Form && data.reports[f2Form.code]) {
+            setIncomeReport(data.reports[f2Form.code]);
           }
         }
 
-        await Promise.all(promises);
+        // Fallback: якщо це застаріле джерело без вбудованих звітів, довантажуємо окремо
+        const fallbackPromises: Promise<any>[] = [];
+        if (f1Form && (!data.reports || !data.reports[f1Form.code])) {
+          fallbackPromises.push(
+            fetchReportData(effectiveEdrpou, f1Form.code)
+              .then((rep) => isMounted && setBalanceReport(rep))
+              .catch((err) => console.error('Помилка довантаження Ф1:', err))
+          );
+        }
+        if (f2Form && f2Form.code !== f1Form?.code && (!data.reports || !data.reports[f2Form.code])) {
+          fallbackPromises.push(
+            fetchReportData(effectiveEdrpou, f2Form.code)
+              .then((rep) => isMounted && setIncomeReport(rep))
+              .catch((err) => console.error('Помилка довантаження Ф2:', err))
+          );
+        }
+
+        if (fallbackPromises.length > 0) {
+          await Promise.all(fallbackPromises);
+        }
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -200,11 +198,14 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
       {/* 3. Таби та відображення звітів */}
       <ReportContainer
         company={company}
+        initialReports={company.reports}
         onActiveReportChange={(title, rep) => {
           setActiveReportTitle(title);
           setActiveReport(rep);
           if (rep) {
-            const code = rep.meta.form_code.toUpperCase();
+            const rawCode = (rep as any)?.meta?.form_code;
+            const matchingForm = company.available_forms?.find((f) => f.title === title || f.code === rawCode);
+            const code = (rawCode || matchingForm?.code || '').toUpperCase();
             if (code.includes('001')) setBalanceReport(rep);
             if (code.includes('002')) setIncomeReport(rep);
             if (code.includes('110') || code.includes('111')) {

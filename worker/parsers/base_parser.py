@@ -1,3 +1,4 @@
+import re
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
@@ -22,9 +23,28 @@ class BaseFormParser(ABC):
     def parse(self, xml_bytes: bytes, filename: str = "", timestamp: str = "") -> Dict[str, Any]:
         """
         Парсить бінарний XML і повертає стандартизовану структуру даних.
+        Підтримує автодетекцію кодувань (UTF-8, Windows-1251), очистку від null-байтів.
         """
-        # ElementTree автоматично підтримує кодування зазначене у <?xml encoding="..."?>
-        root = ET.fromstring(xml_bytes)
+        if not xml_bytes or not xml_bytes.strip():
+            raise ValueError("Порожній XML-документ")
+
+        # Очищаємо від null-байтів
+        clean_bytes = xml_bytes.replace(b"\x00", b"")
+
+        try:
+            root = ET.fromstring(clean_bytes)
+        except ET.ParseError:
+            # Fallback 1: Спроба декодування як Windows-1251 (поширена для звітів ДПС/Стату)
+            try:
+                decoded = clean_bytes.decode("windows-1251")
+                root = ET.fromstring(decoded.encode("utf-8"))
+            except Exception:
+                # Fallback 2: UTF-8 з відкиданням некоректних байтів
+                try:
+                    decoded = clean_bytes.decode("utf-8", errors="ignore")
+                    root = ET.fromstring(decoded.encode("utf-8"))
+                except Exception:
+                    raise ET.ParseError("Не вдалося розпарсити XML навіть після fallback-декодувань")
         
         head = root.find("DECLARHEAD")
         body = root.find("DECLARBODY")
@@ -149,6 +169,7 @@ class BaseFormParser(ABC):
     def _get_number(self, body: ET.Element, tag: str) -> Optional[float]:
         """
         Допоміжний метод вилучення числового значення тегу, ігнорує xsi:nil="true".
+        Підтримує коми, нерозривні пробіли, бухгалтерські позначення від'ємних значень (150) або 150-.
         """
         el = body.find(tag)
         if el is None:
@@ -159,7 +180,12 @@ class BaseFormParser(ABC):
         if not el.text or not el.text.strip():
             return None
         
-        txt = el.text.strip().replace(" ", "").replace(",", ".")
+        txt = re.sub(r"[\s\xa0\u202f]", "", el.text.strip()).replace(",", ".")
+        if txt.startswith("(") and txt.endswith(")"):
+            txt = "-" + txt[1:-1]
+        elif txt.endswith("-"):
+            txt = "-" + txt[:-1]
+
         try:
             # Якщо ціле число, зберігаємо як int для компактності, інакше float
             val = float(txt)
