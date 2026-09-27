@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   XCircle
 } from 'lucide-react';
-import { formatCurrency, calculateChange } from '../../lib/formatters';
+import { formatCurrency, calculateChange, calcNetIncome } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
 
 interface KpiCardsProps {
@@ -61,16 +61,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
 
   const profitRow = iData['2350'];
   const lossRow = iData['2355'];
-  let netIncomeCurrent: number | null = null;
-  let netIncomePrevious: number | null = null;
-
-  if (profitRow && (profitRow.current !== null || profitRow.previous !== null)) {
-    netIncomeCurrent = profitRow.current ?? null;
-    netIncomePrevious = profitRow.previous ?? null;
-  } else if (lossRow && (lossRow.current !== null || lossRow.previous !== null)) {
-    netIncomeCurrent = lossRow.current !== null ? -lossRow.current : null;
-    netIncomePrevious = lossRow.previous !== null ? -lossRow.previous : null;
-  }
+  const netIncomeCurrent = calcNetIncome(profitRow?.current, lossRow?.current);
+  const netIncomePrevious = calcNetIncome(profitRow?.previous, lossRow?.previous);
 
   // Динаміка основних показників
   const revenueChange = calculateChange(revenuePrevious, revenueCurrent);
@@ -162,14 +154,14 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
   // 4. Коефіцієнт автономії: рядок 1495 / рядок 1900
   const autonomyRatio = r1495 !== null && r1900 ? r1495 / r1900 : null;
 
-  // 5. Рентабельність активів (ROA): рядок 2350 / рядок 1900
-  const roa = netIncomeCurrent !== null && r1900 ? (netIncomeCurrent / r1900) * 100 : null;
+  // 5. Рентабельність активів (ROA): рядок 2350/2355 / рядок 1900
+  const roa = netIncomeCurrent !== null && r1900 && r1900 > 0 ? (netIncomeCurrent / r1900) * 100 : null;
 
-  // 6. Рентабельність власного капіталу (ROE): рядок 2350 / рядок 1495
-  const roe = netIncomeCurrent !== null && r1495 ? (netIncomeCurrent / r1495) * 100 : null;
+  // 6. Рентабельність власного капіталу (ROE): рядок 2350/2355 / рядок 1495
+  const roe = netIncomeCurrent !== null && r1495 && r1495 > 0 ? (netIncomeCurrent / r1495) * 100 : null;
 
-  // 7. Чиста маржа: рядок 2350 / рядок 2000
-  const netMargin = netIncomeCurrent !== null && revenueCurrent ? (netIncomeCurrent / revenueCurrent) * 100 : null;
+  // 7. Чиста маржа: рядок 2350/2355 / рядок 2000
+  const netMargin = netIncomeCurrent !== null && revenueCurrent && revenueCurrent > 0 ? (netIncomeCurrent / revenueCurrent) * 100 : null;
 
   // 8. Коефіцієнт покриття необоротних активів власним капіталом: рядок 1495 / рядок 1095
   const capCoverageRatio = r1495 !== null && r1095 ? r1495 / r1095 : null;
@@ -274,7 +266,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
       intlName: 'Return on Assets',
       value: roa !== null ? `${roa.toFixed(1)}%` : '—',
       rawValue: roa,
-      formula: 'рядок 2350 / рядок 1900',
+      formula: 'рядок 2350/2355 / рядок 1900',
       calcDetails: netIncomeCurrent !== null && r1900 ? `${formatCurrency(netIncomeCurrent)} ₴ / ${formatCurrency(r1900)} ₴` : null,
       description: 'Показує, скільки прибутку приносить кожна одиниця активів компанії.',
       benchmark: 'Добре > 5.0%',
@@ -288,7 +280,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
       intlName: 'Return on Equity',
       value: roe !== null ? `${roe.toFixed(1)}%` : '—',
       rawValue: roe,
-      formula: 'рядок 2350 / рядок 1495',
+      formula: 'рядок 2350/2355 / рядок 1495',
       calcDetails: netIncomeCurrent !== null && r1495 ? `${formatCurrency(netIncomeCurrent)} ₴ / ${formatCurrency(r1495)} ₴` : null,
       description: 'Визначає ефективність використання власного капіталу для отримання чистого прибутку.',
       benchmark: 'Добре > 10.0%',
@@ -302,7 +294,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport 
       intlName: 'Net Profit Margin',
       value: netMargin !== null ? `${netMargin.toFixed(1)}%` : '—',
       rawValue: netMargin,
-      formula: 'рядок 2350 / рядок 2000',
+      formula: 'рядок 2350/2355 / рядок 2000',
       calcDetails: netIncomeCurrent !== null && revenueCurrent ? `${formatCurrency(netIncomeCurrent)} ₴ / ${formatCurrency(revenueCurrent)} ₴` : null,
       description: 'Відображає частку чистого прибутку в загальній виручці від реалізації.',
       benchmark: 'Добре > 5.0%',

@@ -60,17 +60,13 @@ class FinancialCalculator:
         profit_row = i_data.get("2350", {})
         loss_row = i_data.get("2355", {})
 
-        net_income_cur = None
-        net_income_prev = None
+        p_cur = cls._safe_num(profit_row.get("current"))
+        p_prev = cls._safe_num(profit_row.get("previous"))
+        l_cur = cls._safe_num(loss_row.get("current"))
+        l_prev = cls._safe_num(loss_row.get("previous"))
 
-        if profit_row and (profit_row.get("current") is not None or profit_row.get("previous") is not None):
-            net_income_cur = cls._safe_num(profit_row.get("current"))
-            net_income_prev = cls._safe_num(profit_row.get("previous"))
-        elif loss_row and (loss_row.get("current") is not None or loss_row.get("previous") is not None):
-            cur_loss = cls._safe_num(loss_row.get("current"))
-            prev_loss = cls._safe_num(loss_row.get("previous"))
-            net_income_cur = -cur_loss if cur_loss is not None else None
-            net_income_prev = -prev_loss if prev_loss is not None else None
+        net_income_cur = cls.calculate_net_income(p_cur, l_cur)
+        net_income_prev = cls.calculate_net_income(p_prev, l_prev)
 
         # Розрахунок 7 ключових фінансових показників (у тис. ₴)
         main_metrics = {
@@ -138,13 +134,15 @@ class FinancialCalculator:
         # 4. Коефіцієнт автономії: 1495 / 1900
         autonomy_ratio = (r1495_end / r1900) if (r1495_end is not None and r1900 and r1900 > 0) else None
 
-        # 5. ROA: (2350 / 1900) * 100
-        roa = ((net_income_cur / r1900) * 100) if (net_income_cur is not None and r1900 and r1900 > 0) else None
+        # 5. ROA: (рядок 2350/2355 / Баланс) * 100
+        # Загальні активи: рядок 1900 (Пасиви) або 1300 (Активи)
+        total_assets = r1900 if (r1900 is not None and r1900 > 0) else r1300_end
+        roa = ((net_income_cur / total_assets) * 100) if (net_income_cur is not None and total_assets and total_assets > 0) else None
 
-        # 6. ROE: (2350 / 1495) * 100
+        # 6. ROE: (рядок 2350/2355 / рядок 1495) * 100
         roe = ((net_income_cur / r1495_end) * 100) if (net_income_cur is not None and r1495_end and r1495_end > 0) else None
 
-        # 7. Чиста маржа: (2350 / 2000) * 100
+        # 7. Чиста маржа: (рядок 2350/2355 / рядок 2000) * 100
         net_margin = ((net_income_cur / revenue_cur) * 100) if (net_income_cur is not None and revenue_cur and revenue_cur > 0) else None
 
         # 8. Покриття необоротних активів власним капіталом: 1495 / 1095
@@ -190,7 +188,7 @@ class FinancialCalculator:
                 "name": "Рентабельність активів (ROA)",
                 "intl_name": "Return on Assets",
                 "category": "Рентабельність",
-                "formula": "(рядок 2350 / рядок 1900) × 100%",
+                "formula": "(рядок 2350/2355 / рядок 1900) × 100%",
                 "value": roa,
                 "benchmark": "> 5% (вище середнього)",
             },
@@ -198,7 +196,7 @@ class FinancialCalculator:
                 "name": "Рентабельність власного капіталу (ROE)",
                 "intl_name": "Return on Equity",
                 "category": "Рентабельність",
-                "formula": "(рядок 2350 / рядок 1495) × 100%",
+                "formula": "(рядок 2350/2355 / рядок 1495) × 100%",
                 "value": roe,
                 "benchmark": "> 15% (ефективне використання капіталу)",
             },
@@ -206,7 +204,7 @@ class FinancialCalculator:
                 "name": "Чиста маржа (Net Margin)",
                 "intl_name": "Net Profit Margin",
                 "category": "Рентабельність",
-                "formula": "(рядок 2350 / рядок 2000) × 100%",
+                "formula": "(рядок 2350/2355 / рядок 2000) × 100%",
                 "value": net_margin,
                 "benchmark": "> 5-10%",
             },
@@ -234,6 +232,31 @@ class FinancialCalculator:
             "main_metrics": main_metrics,
             "ratios": ratios,
         }
+
+    @classmethod
+    def calculate_net_income(cls, profit_val: Optional[float], loss_val: Optional[float]) -> Optional[float]:
+        """
+        Розраховує чистий фінансовий результат (прибуток / збиток).
+        Формула: рядок 2350 (прибуток) - рядок 2355 (збиток).
+        Якщо в 2355 вже міститься від'ємне число, воно додається: 2350 + 2355.
+        Якщо був збиток, поле 2350 порожнє/None, а значення міститься в 2355 (результат < 0).
+        """
+        if profit_val is None and loss_val is None:
+            return None
+
+        p = profit_val if profit_val is not None else 0.0
+
+        if loss_val is not None:
+            l_effect = loss_val if loss_val < 0 else -loss_val
+        else:
+            l_effect = 0.0
+
+        if profit_val is None and loss_val is not None:
+            return l_effect
+        if profit_val is not None and loss_val is None:
+            return p
+
+        return p + l_effect
 
     @staticmethod
     def calculate_change_pct(previous: Optional[float], current: Optional[float]) -> Optional[float]:

@@ -184,5 +184,81 @@ class TestFinancialIndicators(unittest.TestCase):
         self.assertEqual(FinancialCalculator.calculate_change_pct(0, 0), 0.0)
         self.assertIsNone(FinancialCalculator.calculate_change_pct(None, 100))
 
+    # --------------------------------------------------------------------------
+    # 6. ТЕСТУВАННЯ ОБРОБКИ РЯДКА 2350 (ПРИБУТОК) ТА 2355 (ЗБИТОК)
+    # --------------------------------------------------------------------------
+    def test_calculate_net_income_combinations(self):
+        calc = FinancialCalculator.calculate_net_income
+
+        # 1. Тільки прибуток (2350)
+        self.assertEqual(calc(1000.0, None), 1000.0)
+        self.assertEqual(calc(91059.0, None), 91059.0)
+
+        # 2. Тільки збиток (2355 додатне число в XML)
+        self.assertEqual(calc(None, 450.0), -450.0)
+
+        # 3. Тільки збиток (2355 від'ємне число в XML, наприклад -450)
+        self.assertEqual(calc(None, -450.0), -450.0)
+
+        # 4. Рядок 2350 нуль, у 2355 збиток
+        self.assertEqual(calc(0.0, 300.0), -300.0)
+        self.assertEqual(calc(0.0, -300.0), -300.0)
+
+        # 5. Обидва поля заповнені (2350 - 2355)
+        self.assertEqual(calc(1000.0, 200.0), 800.0)
+        self.assertEqual(calc(1000.0, -200.0), 800.0)
+
+        # 6. Обидва порожні
+        self.assertIsNone(calc(None, None))
+
+        # 7. Обидва нулі
+        self.assertEqual(calc(0.0, 0.0), 0.0)
+
+    def test_kpis_calculation_with_net_loss(self):
+        """
+        Тестування підприємства зі збитком (поле 2350 порожнє, а збиток у полі 2355).
+        Перевірка, що ROA, ROE та Чиста маржа коректно розраховуються з від'ємними значеннями.
+        """
+        loss_company = {
+            "edrpou": "99999999",
+            "name": 'ТОВ "Збиткове підприємство"',
+            "reports": {
+                "S0100115": {
+                    "data": {
+                        "1300": {"begin": 1800000, "end": 2000000}, # Активи = 2 млн
+                        "1900": {"begin": 1800000, "end": 2000000}, # Баланс = 2 млн
+                        "1495": {"begin": 1100000, "end": 1000000}, # Власний капітал = 1 млн
+                    }
+                },
+                "S0100215": {
+                    "data": {
+                        "2000": {"current": 5000000, "previous": 4500000}, # Виручка = 5 млн
+                        # 2350 порожнє або відсутнє!
+                        "2355": {"current": 200000, "previous": None},     # Збиток = 200 тис. ₴
+                    }
+                }
+            }
+        }
+
+        kpi = FinancialCalculator.calculate_company_kpis(loss_company)
+        mm = kpi["main_metrics"]
+        r = kpi["ratios"]
+
+        # Чистий результат повинен бути -200,000 тис. ₴
+        self.assertEqual(mm["net_income"]["current"], -200000.0)
+        self.assertIsNone(mm["net_income"]["previous"])
+
+        # ROA: (-200,000 / 2,000,000) * 100 = -10.0%
+        self.assertAlmostEqual(r["roa"]["value"], -10.0, places=2)
+        self.assertIn("2350/2355", r["roa"]["formula"])
+
+        # ROE: (-200,000 / 1,000,000) * 100 = -20.0%
+        self.assertAlmostEqual(r["roe"]["value"], -20.0, places=2)
+        self.assertIn("2350/2355", r["roe"]["formula"])
+
+        # Чиста маржа: (-200,000 / 5,000,000) * 100 = -4.0%
+        self.assertAlmostEqual(r["net_margin"]["value"], -4.0, places=2)
+        self.assertIn("2350/2355", r["net_margin"]["formula"])
+
 if __name__ == "__main__":
     unittest.main()

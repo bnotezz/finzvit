@@ -97,3 +97,45 @@ export function formatDate(raw: string | null | undefined): string {
   }
   return clean;
 }
+
+/**
+ * Розраховує чистий фінансовий результат (прибуток або збиток)
+ * на основі рядків 2350 (прибуток) та 2355 (збиток).
+ * Якщо був збиток, рядок 2350 порожній/0, а значення міститься в 2355.
+ * Логіка: 2350 - 2355 (або додавання, якщо значення в 2355 вже містить мінус).
+ */
+export function calcNetIncome(
+  profitVal: number | string | null | undefined,
+  lossVal: number | string | null | undefined
+): number | null {
+  if (
+    (profitVal === null || profitVal === undefined || profitVal === "") &&
+    (lossVal === null || lossVal === undefined || lossVal === "")
+  ) {
+    return null;
+  }
+
+  const p = profitVal !== null && profitVal !== undefined && profitVal !== ""
+    ? (typeof profitVal === "string" ? parseFloat(profitVal.replace(/\s+/g, "").replace(",", ".")) : Number(profitVal))
+    : null;
+
+  const l = lossVal !== null && lossVal !== undefined && lossVal !== ""
+    ? (typeof lossVal === "string" ? parseFloat(lossVal.replace(/\s+/g, "").replace(",", ".")) : Number(lossVal))
+    : null;
+
+  const validP = p !== null && !isNaN(p);
+  const validL = l !== null && !isNaN(l);
+
+  if (validP && !validL) {
+    return p;
+  }
+  if (!validP && validL) {
+    return l < 0 ? l : -l;
+  }
+  if (validP && validL) {
+    const lossEffect = l < 0 ? l : -l;
+    return p + lossEffect;
+  }
+
+  return null;
+}

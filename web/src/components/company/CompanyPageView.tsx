@@ -5,7 +5,7 @@ import type { CompanyFullData, ReportData } from '../../lib/types';
 import { CompanyHeader } from './CompanyHeader';
 import { ReportContainer } from '../reports/ReportContainer';
 import { SearchBar } from '../search/SearchBar';
-import { formatCurrency } from '../../lib/formatters';
+import { formatCurrency, calcNetIncome } from '../../lib/formatters';
 
 interface CompanyPageViewProps {
   edrpou: string;
@@ -151,11 +151,16 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     }
     const bData = (balanceReport as any)?.data || balanceReport || {};
     const iData = (incomeReport as any)?.data || incomeReport || {};
+    const netProfit = calcNetIncome(iData['2350']?.current, iData['2355']?.current);
+    const revenue = iData['2000']?.current ?? null;
+    const netMargin = (netProfit !== null && revenue && revenue > 0)
+      ? Number(((netProfit / revenue) * 100).toFixed(1))
+      : null;
     return {
-      revenue: iData['2000']?.current,
-      netProfit: iData['2350']?.current ?? (iData['2355'] ? -Math.abs(iData['2355'].current) : null),
-      netMargin: null,
-      assets: bData['1300']?.end,
+      revenue,
+      netProfit,
+      netMargin,
+      assets: bData['1300']?.end ?? bData['1900']?.end ?? null,
     };
   }, [company, balanceReport, incomeReport]);
 
@@ -271,7 +276,9 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
             )}
             {quickKpi.netProfit !== null && quickKpi.netProfit !== undefined && (
               <div className="flex items-center gap-1.5">
-                <span className="text-zinc-500 uppercase text-[11px]">Прибуток:</span>
+                <span className="text-zinc-500 uppercase text-[11px]">
+                  {Number(quickKpi.netProfit) >= 0 ? 'Прибуток:' : 'Збиток:'}
+                </span>
                 <span className={`font-semibold ${Number(quickKpi.netProfit) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {formatCurrency(quickKpi.netProfit)} тис. ₴
                 </span>
@@ -286,7 +293,9 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
             {quickKpi.netMargin !== null && quickKpi.netMargin !== undefined && (
               <div className="hidden lg:flex items-center gap-1.5">
                 <span className="text-zinc-500 uppercase text-[11px]">Маржинальність:</span>
-                <span className="text-emerald-400 font-semibold">{quickKpi.netMargin}%</span>
+                <span className={`font-semibold ${Number(quickKpi.netMargin) >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {Number(quickKpi.netMargin) > 0 ? `+${quickKpi.netMargin}%` : `${quickKpi.netMargin}%`}
+                </span>
               </div>
             )}
           </div>
