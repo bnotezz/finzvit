@@ -5,6 +5,9 @@
 -- Зменшує розмір бази з 553 MB до ~40 MB (економія 85% диска)
 -- ==============================================================================
 
+-- 0. Видаляємо застарілу функцію пакетного апсерту, оскільки схема колонок оптимізована
+DROP FUNCTION IF EXISTS public.upsert_company_batch(JSONB);
+
 -- 1. Видаляємо важкий згенерований стовпчик fts_document та його GIN індекс (~220 MB)
 DROP INDEX IF EXISTS public.idx_companies_fts;
 ALTER TABLE public.companies DROP COLUMN IF EXISTS fts_document;
@@ -26,7 +29,7 @@ DROP COLUMN IF EXISTS updated_at;
 -- 3. Залишаємо виключно мінімальну компактну структуру для пошуку (лише ~70 байт на рядок)
 ALTER TABLE public.companies
 ALTER COLUMN edrpou TYPE VARCHAR(10),
-ALTER COLUMN name TYPE VARCHAR(255),
+ALTER COLUMN name TYPE TEXT,
 ALTER COLUMN kved TYPE VARCHAR(10),
 ALTER COLUMN year TYPE SMALLINT;
 
@@ -40,13 +43,17 @@ DROP INDEX IF EXISTS public.idx_companies_name_trgm;
 CREATE INDEX IF NOT EXISTS idx_companies_name_trgm ON public.companies USING gin (name gin_trgm_ops);
 
 -- 5. Оновлюємо пошукову RPC функцію
+-- УВАГА: Оскільки тип рядка повернення (OUT параметри / RETURNS TABLE) змінився, 
+-- PostgreSQL вимагає явного DROP FUNCTION перед створенням нової функції.
+DROP FUNCTION IF EXISTS public.search_companies(TEXT, INTEGER);
+
 CREATE OR REPLACE FUNCTION public.search_companies(
     search_query TEXT,
     lim INTEGER DEFAULT 10
 )
 RETURNS TABLE (
     edrpou VARCHAR(10),
-    name VARCHAR(255),
+    name TEXT,
     kved VARCHAR(10),
     similarity REAL
 )
@@ -99,5 +106,6 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.search_companies(TEXT, INTEGER) TO anon, authenticated;
 
--- 6. Очищення дискового простору PostgreSQL
-VACUUM FULL public.companies;
+-- Примітка щодо VACUUM FULL:
+-- Команда VACUUM не може виконуватись всередині транзакційного блоку міграції (BEGIN...COMMIT).
+-- За потреби звільнення місця на диску виконайте `VACUUM FULL public.companies;` вручну в SQL Editor у кабінеті Supabase.
