@@ -255,7 +255,32 @@ export default {
       }
     }
 
-    // 2. Обробка статичних ассетів та SPA-сторінок фронтенду
+    // 2. Обробка динамічних маршрутів сторінки компанії (/company/:edrpou)
+    if (url.pathname.startsWith('/company/')) {
+      if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
+        const assetRes = await env.ASSETS.fetch(request);
+        if (assetRes.status !== 404) {
+          return assetRes;
+        }
+
+        // Якщо окремого статичного HTML для цього ЄДРПОУ немає в dist:
+        // Віддаємо універсальну HTML-оболонку сторінки компанії (/company/32673400/index.html)
+        const shellUrl = new URL('/company/32673400/', request.url);
+        const shellRes = await env.ASSETS.fetch(shellUrl.toString());
+        if (shellRes.ok) {
+          return new Response(shellRes.body, {
+            status: 200,
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'public, max-age=3600',
+            },
+          });
+        }
+        return assetRes;
+      }
+    }
+
+    // 3. Обробка решти статичних ассетів та 404-сторінки
     if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
       return env.ASSETS.fetch(request);
     }
