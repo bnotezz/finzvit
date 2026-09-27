@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Disallow non-production/internal paths if any
+Disallow: /api/internal/
+
+# Sitemap
+Sitemap: https://finzvit.bnotezz.workers.dev/sitemap.xml

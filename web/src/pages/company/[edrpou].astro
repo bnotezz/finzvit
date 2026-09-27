@@ -12,8 +12,37 @@ export function getStaticPaths() {
 }
 
 const { edrpou } = Astro.params;
+
+const sampleNames: Record<string, { name: string; industry: string }> = {
+  '32673400': { name: 'ТзОВ "Кормотех"', industry: 'Виробництво готових кормів для тварин' },
+  '31316718': { name: 'ТОВ "Нова Пошта"', industry: 'Поштова та кур\'єрська діяльність' },
+  '00290771': { name: 'АТ "Фармак"', industry: 'Виробництво фармацевтичних препаратів' },
+};
+
+const companyInfo = (edrpou && sampleNames[edrpou]) || null;
+const displayName = companyInfo ? companyInfo.name : `Компанія ${edrpou}`;
+const pageTitle = `${displayName} (ЄДРПОУ ${edrpou}) — Фінансова звітність та аналітика | FinZvit`;
+const pageDescription = `Офіційна фінансова звітність ${displayName} (код ЄДРПОУ ${edrpou}) за 2025 рік. Баланс (Ф1), звіт про фінрезультати (Ф2), рух коштів (Ф3), власний капітал (Ф4) та розрахунок показників KPI за даними Держстату та ДПС України.`;
+const canonical = `https://finzvit.bnotezz.workers.dev/company/${edrpou}/`;
+const keywords = `${displayName}, ${edrpou}, фінансова звітність ${edrpou}, баланс ${displayName}, виручка ${displayName}, прибуток, форма 1, форма 2, відкриті дані`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Corporation',
+  'name': displayName,
+  'taxID': edrpou,
+  'url': canonical,
+  'description': pageDescription,
+  'knowsAbout': ['Фінансова звітність', 'Баланс', 'Звіт про фінансові результати', 'НП(С)БО', 'МСФЗ'],
+};
 ---
 
-<Layout title={`Компанія ${edrpou} — FinZvit`}>
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  keywords={keywords}
+  canonicalUrl={canonical}
+  jsonLd={jsonLd}
+>
   <CompanyPageView client:only="react" edrpou={edrpou || ''} />
 </Layout>

@@ -100,6 +100,52 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     };
   }, [effectiveEdrpou]);
 
+  // Динамічне оновлення SEO-метатегів та Schema.org при завантаженні даних компанії
+  useEffect(() => {
+    if (!company) return;
+
+    const pageTitle = `${company.name} (ЄДРПОУ ${company.edrpou}) — Фінансова звітність | FinZvit`;
+    document.title = pageTitle;
+
+    const desc = `Офіційна фінансова звітність ${company.name} (код ЄДРПОУ ${company.edrpou}) за ${company.year || 2025} рік: Баланс (Ф1), фінансові результати (Ф2), дохід, чистий прибуток, активи та аналітика.`;
+
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', desc);
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', desc);
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', window.location.href);
+
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', pageTitle);
+
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', desc);
+
+    let scriptEl = document.getElementById('company-jsonld') as HTMLScriptElement | null;
+    if (!scriptEl) {
+      scriptEl = document.createElement('script');
+      scriptEl.id = 'company-jsonld';
+      scriptEl.type = 'application/ld+json';
+      document.head.appendChild(scriptEl);
+    }
+    scriptEl.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Corporation',
+      name: company.name,
+      taxID: company.edrpou,
+      description: desc,
+      url: window.location.href,
+      address: company.address || undefined,
+      numberOfEmployees: company.employees ? { '@type': 'QuantitativeValue', value: company.employees } : undefined,
+    });
+  }, [company]);
+
   // Експорт активного звіту у CSV
   const handleExportCsv = () => {
     if (!activeReport || !company) return;

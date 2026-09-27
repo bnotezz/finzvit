@@ -1,0 +1,37 @@
+{
+  "name": "FinZvit — Фінансова звітність підприємств України",
+  "short_name": "FinZvit",
+  "description": "Офіційна фінансова звітність юридичних осіб України (Баланс, Фінрезультати, Рух коштів, Власний капітал) за даними data.gov.ua.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07080B",
+  "theme_color": "#10B981",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

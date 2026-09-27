@@ -4,26 +4,97 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  keywords?: string;
+  ogType?: 'website' | 'article' | 'business.business';
+  ogImage?: string;
+  canonicalUrl?: string;
+  jsonLd?: Record<string, any> | Array<Record<string, any>>;
 }
 
 const {
-  title = 'FinZvit — Переглядач фінансової звітності',
-  description = 'Публічний переглядач фінансової звітності підприємств України за офіційними формами держстатистики та ДПС (data.gov.ua).',
+  title = 'FinZvit — Відкрита фінансова звітність підприємств України',
+  description = 'Офіційна фінансова звітність юридичних осіб України за даними ДПС та Держстату (data.gov.ua). Баланс (Ф1), звіт про фінрезультати (Ф2), рух коштів (Ф3), капітал (Ф4) та показники KPI.',
+  keywords = 'фінансова звітність, баланс підприємства, форма 1, звіт про прибутки та збитки, форма 2, рух коштів, форма 3, ЄДРПОУ, відкриті дані, data.gov.ua, аналітика компаній України',
+  ogType = 'website',
+  ogImage = '/og-image.png',
+  canonicalUrl,
+  jsonLd,
 } = Astro.props;
+
+const siteUrl = 'https://finzvit.bnotezz.workers.dev';
+const effectiveCanonical = canonicalUrl || new URL(Astro.url.pathname, siteUrl).toString();
+const effectiveOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+
+const defaultJsonLd = jsonLd || {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  'name': 'FinZvit',
+  'url': siteUrl,
+  'description': description,
+  'applicationCategory': 'BusinessApplication',
+  'operatingSystem': 'All',
+  'inLanguage': 'uk-UA',
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'UAH',
+  },
+};
 ---
 
 <!doctype html>
 <html lang="uk" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    
+    <!-- Primary SEO Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="FinZvit" />
+    <link rel="canonical" href={effectiveCanonical} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#10B981" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FinZvit" />
+    <meta name="application-name" content="FinZvit" />
+
+    <!-- Favicons & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- OpenGraph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={effectiveCanonical} />
+    <meta property="og:site_name" content="FinZvit" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={effectiveOgImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:locale" content="uk_UA" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={effectiveCanonical} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={effectiveOgImage} />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify(defaultJsonLd)} />
+
+    <!-- Typography (Inter & Geist Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -32,14 +103,16 @@ const {
     <header class="border-b border-white/5 bg-[#07080B]/80 backdrop-blur-xl sticky top-0 z-50 no-print">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="/" class="flex items-center gap-3 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 p-[1px] shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-all">
-            <div class="w-full h-full bg-zinc-950 rounded-[11px] flex items-center justify-center text-accent font-mono font-bold text-lg">
-              ₴
-            </div>
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="FinZvit Logo"
+            class="w-9 h-9 rounded-xl shadow-lg shadow-emerald-500/15 group-hover:scale-105 transition-all"
+            width="36"
+            height="36"
+          />
           <div class="flex flex-col">
             <span class="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
-              FinZvit
+              <span>Fin<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Zvit</span></span>
               <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 2025 РІК
               </span>
