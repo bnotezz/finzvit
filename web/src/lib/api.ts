@@ -38,15 +38,33 @@ export async function searchCompanies(query: string, limit = 8): Promise<Company
   }
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status = 500) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
+export const CACHE_VERSION = 'v3';
+
 /**
  * Завантажує єдиний повний документ компанії зі всіма її звітами та реквізитами (/{year}/{edrpou}.json)
  * Забезпечує завантаження всієї фінансової звітності за 1 надшвидкий мережевий запит.
  */
 export async function fetchCompanyData(edrpou: string, year = 2025): Promise<CompanyFullData> {
-  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json`;
+  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json?v=${CACHE_VERSION}`;
   const res = await fetch(url);
   if (!res.ok) {
-    throw new Error(`Компанію з ЄДРПОУ ${edrpou} не знайдено або звітність за ${year} рік відсутня.`);
+    if (res.status === 404) {
+      throw new ApiError(`Для підприємства з кодом ЄДРПОУ «${edrpou}» відсутня подана фінансова звітність за ${year} рік у відкритому реєстрі.`, 404);
+    }
+    throw new ApiError(`Помилка сервера (${res.status}): не вдалося завантажити звітність.`, res.status);
   }
-  return res.json();
+  try {
+    return await res.json();
+  } catch (err: any) {
+    throw new ApiError(`Помилка обробки формату даних звітності (${err?.message || 'некоректний JSON'})`, 500);
+  }
 }

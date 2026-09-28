@@ -5,6 +5,7 @@ export interface Env {
   R2_BUCKET?: {
     get: (key: string) => Promise<{
       body: ReadableStream;
+      arrayBuffer: () => Promise<ArrayBuffer>;
       httpEtag: string;
       writeHttpMetadata: (headers: Headers) => void;
       httpMetadata?: {
@@ -28,10 +29,27 @@ interface MemoryCacheItem {
 // (де системний Cloudflare Cache API офіційно відключений платформою)
 const memoryCache = new Map<string, MemoryCacheItem>();
 const MAX_MEMORY_ITEMS = 500;
+let lastPurgedVersion: string | null = null;
 
 export default {
   async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const url = new URL(request.url);
+
+    // Безпечне глобальне версіонування кешу (через CACHE_VERSION у wrangler.jsonc / Dashboard)
+    const cacheVersion = env.CACHE_VERSION || 'v1';
+
+    // Автоматичне глобальне очищення Cloudflare Workers Cache та локального ізоляту при зміні версії
+    if (lastPurgedVersion !== cacheVersion) {
+      lastPurgedVersion = cacheVersion;
+      memoryCache.clear();
+      if (ctx?.cache && typeof ctx.cache.purge === 'function') {
+        try {
+          ctx.waitUntil(ctx.cache.purge({ purgeEverything: true }));
+        } catch (e) {
+          console.warn('ctx.cache.purge error:', e);
+        }
+      }
+    }
 
     // 1. Обробка запитів до фінансових даних (/data/...)
     if (url.pathname.startsWith('/data/')) {
@@ -52,9 +70,6 @@ export default {
       const acceptEncoding = request.headers.get('Accept-Encoding') || '';
       const acceptsGzip = acceptEncoding.includes('gzip') || acceptEncoding.includes('*');
 
-      // Безпечне глобальне версіонування кешу (через CACHE_VERSION у wrangler.jsonc / Dashboard)
-      const cacheVersion = env.CACHE_VERSION || 'v1';
-
       // 1.1. Перевірка in-memory кешу ізоляту воркера
       const memCached = memoryCache.get(key);
       if (memCached && memCached.version === cacheVersion) {
@@ -62,7 +77,7 @@ export default {
         headers.set('etag', memCached.etag);
         headers.set('Content-Type', 'application/json; charset=utf-8');
         headers.set('Access-Control-Allow-Origin', '*');
-        headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+        headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable, no-transform');
         if (memCached.cacheTag) headers.set('Cache-Tag', memCached.cacheTag);
         headers.set('X-FinZvit-Source', 'r2-unified');
         headers.set('Vary', 'Accept-Encoding');
@@ -76,7 +91,10 @@ export default {
 
         if (acceptsGzip) {
           headers.set('Content-Encoding', 'gzip');
-          return new Response(memCached.bytes, { headers });
+          return new Response(memCached.bytes, {
+            headers,
+            encodeBody: 'manual',
+          } as any);
         } else {
           headers.delete('Content-Encoding');
           const decompressed = new Response(memCached.bytes).body!.pipeThrough(new DecompressionStream('gzip'));
@@ -140,7 +158,7 @@ export default {
             headers.set('etag', unifiedObj.httpEtag);
             headers.set('Content-Type', 'application/json; charset=utf-8');
             headers.set('Access-Control-Allow-Origin', '*');
-            headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+            headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable, no-transform');
             headers.set('Cache-Tag', cacheTag);
             headers.set('X-FinZvit-Source', 'r2-unified');
             headers.set('Vary', 'Accept-Encoding');
@@ -165,7 +183,10 @@ export default {
             if (cache && ctx?.waitUntil) {
               const cacheHeaders = new Headers(headers);
               cacheHeaders.set('Content-Encoding', 'gzip');
-              const toCache = new Response(rawBytes, { headers: cacheHeaders });
+              const toCache = new Response(rawBytes, {
+                headers: cacheHeaders,
+                encodeBody: 'manual',
+              } as any);
               ctx.waitUntil(cache.put(cacheKey, toCache));
             }
 
@@ -176,7 +197,10 @@ export default {
 
             if (acceptsGzip) {
               headers.set('Content-Encoding', 'gzip');
-              return new Response(rawBytes, { headers });
+              return new Response(rawBytes, {
+                headers,
+                encodeBody: 'manual',
+              } as any);
             } else {
               headers.delete('Content-Encoding');
               const decompressed = new Response(rawBytes).body!.pipeThrough(new DecompressionStream('gzip'));
@@ -192,7 +216,7 @@ export default {
             headers.set('etag', directObj.httpEtag);
             headers.set('Content-Type', 'application/json; charset=utf-8');
             headers.set('Access-Control-Allow-Origin', '*');
-            headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+            headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400, no-transform');
             headers.set('X-FinZvit-Cache', 'MISS');
             headers.set('X-FinZvit-Cache-Version', cacheVersion);
 
@@ -208,7 +232,10 @@ export default {
               headers.set('Vary', 'Accept-Encoding');
               if (acceptsGzip) {
                 headers.set('Content-Encoding', 'gzip');
-                return new Response(rawBytes, { headers });
+                return new Response(rawBytes, {
+                  headers,
+                  encodeBody: 'manual',
+                } as any);
               } else {
                 headers.delete('Content-Encoding');
                 const decompressed = new Response(rawBytes).body!.pipeThrough(new DecompressionStream('gzip'));

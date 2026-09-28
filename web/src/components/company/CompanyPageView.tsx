@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, ArrowLeft, AlertCircle, BarChart3, Building2, HelpCircle, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowLeft, AlertCircle, BarChart3, Building2, HelpCircle, ArrowRight, RotateCcw } from 'lucide-react';
 import { fetchCompanyData } from '../../lib/api';
 import type { CompanyFullData, ReportData } from '../../lib/types';
 import { CompanyHeader } from './CompanyHeader';
@@ -32,6 +32,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   const [activeTabOverride, setActiveTabOverride] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   useEffect(() => {
     if (!effectiveEdrpou) return;
@@ -39,6 +40,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     let isMounted = true;
     setIsLoading(true);
     setError(null);
+    setErrorStatus(null);
 
     // Завантажуємо єдиний консолідований JSON компанії за 1 мережевий запит
     fetchCompanyData(effectiveEdrpou)
@@ -69,6 +71,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         if (!isMounted) return;
         console.error('Помилка завантаження компанії:', err);
         setError(err.message || 'Не вдалося завантажити дані компанії.');
+        setErrorStatus(err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500)));
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -198,8 +201,81 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     );
   }
 
-  // Адекватний та інформативний 404 екран, коли звітність чи компанію не знайдено
+  // Адекватний та інформативний екран, коли звітність не знайдено (404) або виникла помилка
   if (error || !company) {
+    const isNotFound = errorStatus === 404 || (!error && !company);
+
+    if (isNotFound) {
+      return (
+        <div className="max-w-2xl mx-auto py-16 px-4 text-center space-y-8 animate-in fade-in duration-300">
+          <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mx-auto shadow-xl shadow-amber-500/5">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
+              <span className="text-amber-400 font-semibold">404</span>
+              <span>•</span>
+              <span>ЄДРПОУ {effectiveEdrpou || 'не вказано'}</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Фінансову звітність не знайдено
+            </h2>
+            <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
+              {error || `Для підприємства з кодом ЄДРПОУ «${effectiveEdrpou}» відсутня подана фінансова звітність за 2025 рік у відкритому реєстрі.`}
+            </p>
+          </div>
+
+          {/* Діагностичні причини */}
+          <div className="p-5 rounded-2xl border border-white/5 bg-zinc-950/60 text-left space-y-3 text-xs text-zinc-400">
+            <div className="font-semibold text-zinc-300 flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-accent" />
+              <span>Можливі причини відсутності даних:</span>
+            </div>
+            <ul className="space-y-2 pl-6 list-disc text-zinc-400 leading-relaxed">
+              <li>
+                <strong className="text-zinc-300">Звітність не подавалась:</strong> юридична особа могла не подати річну звітність до органів Держстату або ДПС.
+              </li>
+              <li>
+                <strong className="text-zinc-300">Фізична особа-підприємець (ФОП):</strong> ФОПи подають податкові декларації, а не балансові форми підприємств (Ф1, Ф2 тощо).
+              </li>
+              <li>
+                <strong className="text-zinc-300">Помилка в коді:</strong> код ЄДРПОУ української юридичної особи складається рівно з 8 цифр.
+              </li>
+            </ul>
+          </div>
+
+          {/* Пошук іншого підприємства прямо на сторінці 404 */}
+          <div className="pt-2 space-y-3">
+            <div className="text-xs text-zinc-500 font-mono uppercase tracking-wider">
+              Спробуйте знайти інше підприємство:
+            </div>
+            <div className="w-full max-w-xl mx-auto">
+              <SearchBar size="large" autoFocus={false} />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/5 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white text-xs font-medium transition-all"
+            >
+              <ArrowLeft className="w-4 h-4 text-zinc-400" />
+              <span>На головну сторінку</span>
+            </a>
+            <a
+              href="/company/32673400"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent text-xs font-medium transition-all"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Зразок: Кормотех (32673400)</span>
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Якщо це системна помилка або помилка обробки формату (а НЕ відсутність звітності)
     return (
       <div className="max-w-2xl mx-auto py-16 px-4 text-center space-y-8 animate-in fade-in duration-300">
         <div className="w-16 h-16 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 mx-auto shadow-xl shadow-rose-500/5">
@@ -208,62 +284,42 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
 
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
-            <span>404</span>
+            <span className="text-rose-400 font-semibold">Помилка завантаження</span>
             <span>•</span>
             <span>ЄДРПОУ {effectiveEdrpou || 'не вказано'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            Фінансову звітність не знайдено
+            Не вдалося відобразити звітність
           </h2>
           <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
-            {error || `Для підприємства з кодом ЄДРПОУ «${effectiveEdrpou}» відсутня подана фінансова звітність за 2025 рік у відкритому реєстрі.`}
+            {error || 'Виникла помилка під час обробки та завантаження фінансової звітності.'}
           </p>
         </div>
 
-        {/* Діагностичні причини */}
-        <div className="p-5 rounded-2xl border border-white/5 bg-zinc-950/60 text-left space-y-3 text-xs text-zinc-400">
-          <div className="font-semibold text-zinc-300 flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-accent" />
-            <span>Можливі причини відсутності даних:</span>
-          </div>
-          <ul className="space-y-2 pl-6 list-disc text-zinc-400 leading-relaxed">
-            <li>
-              <strong className="text-zinc-300">Звітність не подавалась:</strong> юридична особа могла не подати річну звітність до органів Держстату або ДПС.
-            </li>
-            <li>
-              <strong className="text-zinc-300">Фізична особа-підприємець (ФОП):</strong> ФОПи подають податкові декларації, а не балансові форми підприємств (Ф1, Ф2 тощо).
-            </li>
-            <li>
-              <strong className="text-zinc-300">Помилка в коді:</strong> код ЄДРПОУ української юридичної особи складається рівно з 8 цифр.
-            </li>
-          </ul>
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold shadow-lg shadow-accent/20 transition-all cursor-pointer"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Спробувати знову</span>
+          </button>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white text-xs font-medium transition-all"
+          >
+            <ArrowLeft className="w-4 h-4 text-zinc-400" />
+            <span>На головну</span>
+          </a>
         </div>
 
-        {/* Пошук іншого підприємства прямо на сторінці 404 */}
-        <div className="pt-2 space-y-3">
+        <div className="pt-4 border-t border-white/5 space-y-3">
           <div className="text-xs text-zinc-500 font-mono uppercase tracking-wider">
             Спробуйте знайти інше підприємство:
           </div>
           <div className="w-full max-w-xl mx-auto">
             <SearchBar size="large" autoFocus={false} />
           </div>
-        </div>
-
-        <div className="pt-4 border-t border-white/5 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white text-xs font-medium transition-all"
-          >
-            <ArrowLeft className="w-4 h-4 text-zinc-400" />
-            <span>На головну сторінку</span>
-          </a>
-          <a
-            href="/company/32673400"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent text-xs font-medium transition-all"
-          >
-            <Building2 className="w-4 h-4" />
-            <span>Зразок: Кормотех (32673400)</span>
-          </a>
         </div>
       </div>
     );
