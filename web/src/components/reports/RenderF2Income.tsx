@@ -70,14 +70,14 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
                 <tr
                   key={idx}
                   onClick={() => toggleSection(row.name)}
-                  className="bg-zinc-900/90 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
+                  className="bg-zinc-900/90 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none print:bg-transparent"
                 >
-                  <td colSpan={5} className="py-3 px-4 font-semibold text-white">
+                  <td colSpan={5} className="py-3 px-4 font-semibold text-white print:text-black">
                     <div className="flex items-center gap-2">
                       {isCollapsed ? (
-                        <ChevronRight className="w-4 h-4 text-accent" />
+                        <ChevronRight className="w-4 h-4 text-accent shrink-0 print:hidden" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-accent" />
+                        <ChevronDown className="w-4 h-4 text-accent shrink-0 print:hidden" />
                       )}
                       <span>{row.name}</span>
                     </div>
@@ -139,9 +139,9 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
                 {/* Зміна (об'єднана: абсолютна + %) */}
                 <td className="py-2.5 px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
                   {change.absolute !== null ? (
-                    <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1">
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1 print:flex-row print:items-center print:whitespace-nowrap">
                       <span
-                        className={`font-medium ${
+                        className={`font-medium whitespace-nowrap print:whitespace-nowrap ${
                           change.direction === 'positive'
                             ? 'text-emerald-400 print:text-black'
                             : change.direction === 'negative'

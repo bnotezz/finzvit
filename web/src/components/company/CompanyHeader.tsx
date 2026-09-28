@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building, MapPin, Users, Calendar, CheckCircle2, Copy, Check, Printer, Download, Share2 } from 'lucide-react';
 import type { CompanyMeta } from '../../lib/types';
 
@@ -14,6 +14,13 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({
   onExportCsv,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [siteUrl, setSiteUrl] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSiteUrl(window.location.host || window.location.hostname);
+    }
+  }, []);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -31,12 +38,17 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({
       <div className="hidden print:block mb-3 text-black">
         {/* Вотермарк сервісу у верхньому колонтитулі */}
         <div className="flex items-center justify-between border-b-2 border-black pb-1 mb-2 text-[8.5pt]">
-          <div className="flex items-center gap-1.5 font-bold tracking-tight">
+          <div className="flex items-center gap-2 font-bold tracking-tight">
             <span className="text-[10pt] uppercase tracking-wide">FinZvit</span>
             <span className="font-normal text-[8pt]">· Відкрита фінансова звітність підприємств України</span>
+            {activeReportTitle && (
+              <span className="font-semibold text-[8pt] text-neutral-800 ml-2 pl-2 border-l border-black">
+                {activeReportTitle}
+              </span>
+            )}
           </div>
           <div className="font-mono text-[8pt] text-neutral-600">
-            finzvit.com.ua
+            {siteUrl || 'finzvit.com.ua'}
           </div>
         </div>
 
@@ -79,6 +91,21 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({
               <span>{company.year || 2025} рік · <span className="italic">Одиниця виміру: тис. гривень</span></span>
             </div>
           </div>
+
+          {/* Форма звітності у бланку */}
+          {activeReportTitle && (
+            <div className="border-t border-black/40 pt-1 mt-1 flex items-center justify-between text-[7.5pt]">
+              <div>
+                <span className="font-semibold">Форма звітності: </span>
+                <span className="font-bold uppercase">{activeReportTitle}</span>
+              </div>
+              {company.accounting_standard && (
+                <div className="text-neutral-600 font-mono">
+                  Стандарт: {company.accounting_standard}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

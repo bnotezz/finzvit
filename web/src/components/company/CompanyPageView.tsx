@@ -101,11 +101,12 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     };
   }, [effectiveEdrpou]);
 
-  // Динамічне оновлення SEO-метатегів та Schema.org при завантаженні даних компанії
+  // Динамічне оновлення SEO-метатегів, Schema.org та назви PDF при друку
   useEffect(() => {
     if (!company) return;
 
-    const pageTitle = `${company.name} (ЄДРПОУ ${company.edrpou}) — Фінансова звітність | FinZvit`;
+    const repSuffix = activeReportTitle ? ` — ${activeReportTitle}` : ' — Фінансова звітність';
+    const pageTitle = `${company.name} (ЄДРПОУ ${company.edrpou})${repSuffix} | FinZvit`;
     document.title = pageTitle;
 
     const desc = `Офіційна фінансова звітність ${company.name} (код ЄДРПОУ ${company.edrpou}) за ${company.year || 2025} рік: Баланс (Ф1), фінансові результати (Ф2), дохід, чистий прибуток, активи та аналітика.`;
@@ -148,7 +149,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
       address: company.address || undefined,
       numberOfEmployees: company.employees ? { '@type': 'QuantitativeValue', value: company.employees } : undefined,
     });
-  }, [company]);
+  }, [company, activeReportTitle]);
 
   // Експорт активного звіту у CSV
   const handleExportCsv = () => {

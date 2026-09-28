@@ -61,7 +61,7 @@ export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/95 text-zinc-400 font-medium">
-              <th className="py-3 px-4 min-w-[240px] sticky left-0 bg-zinc-900 z-10 border-r border-zinc-800/80">
+              <th className="py-3 px-4 min-w-[240px] sticky left-0 bg-zinc-900 z-10 border-r border-zinc-800/80 print:static print:table-cell print:shadow-none print:border-none print:min-w-0 print:bg-transparent">
                 Стаття звіту
               </th>
               <th className="py-3 px-2 w-14 text-center font-mono border-r border-zinc-800/40">
@@ -96,7 +96,7 @@ export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
                 >
                   {/* Фіксована перша колонка назви */}
                   <td
-                    className={`py-2.5 px-4 sticky left-0 z-10 border-r border-zinc-800/80 ${
+                    className={`py-2.5 px-4 sticky left-0 z-10 border-r border-zinc-800/80 print:static print:table-cell print:shadow-none print:border-none print:bg-transparent ${
                       isFinal
                         ? 'bg-zinc-900 text-accent font-bold'
                         : isTotal

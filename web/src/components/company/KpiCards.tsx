@@ -596,18 +596,18 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
             return (
               <div
                 key={i}
-                className="rounded-2xl border border-border-card bg-surface-card p-4 shadow-lg relative overflow-hidden backdrop-blur-md flex flex-col justify-between hover:border-zinc-700 transition-colors"
+                className="kpi-card rounded-2xl border border-border-card bg-surface-card p-4 shadow-lg relative overflow-hidden backdrop-blur-md flex flex-col justify-between hover:border-zinc-700 transition-colors print:border-black print:p-3 print:bg-transparent print:shadow-none"
               >
                 <div className="flex items-start justify-between text-zinc-400 text-xs gap-2">
-                  <span className="font-medium tracking-wide text-zinc-300">{card.title}</span>
-                  <div className="w-7 h-7 rounded-lg bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center shrink-0">
+                  <span className="font-medium tracking-wide text-zinc-300 print:text-black">{card.title}</span>
+                  <div className="w-7 h-7 rounded-lg bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center shrink-0 print:hidden">
                     <Icon className="w-3.5 h-3.5 text-accent" />
                   </div>
                 </div>
 
                 <div className="my-2.5">
                   <div
-                    className={`text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums ${
+                    className={`text-xl sm:text-2xl font-bold font-mono tracking-tight tabular-nums print:text-black ${
                       card.isNetIncome
                         ? card.value !== null && card.value >= 0
                           ? 'text-emerald-400'
@@ -617,14 +617,14 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
                   >
                     {formatCurrency(card.value)}
                   </div>
-                  <div className="text-[11px] text-zinc-500 font-mono mt-0.5">{card.unit}</div>
+                  <div className="text-[11px] text-zinc-500 font-mono mt-0.5 print:text-neutral-700">{card.unit}</div>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-zinc-500 font-mono">{card.rowNote}</span>
+                <div className="pt-2 border-t border-zinc-800/60 print:border-black/30 flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-zinc-500 font-mono print:text-neutral-700">{card.rowNote}</span>
                   {card.change.pct !== null ? (
                     <div
-                      className={`flex items-center gap-1 font-mono text-[11px] font-medium ${
+                      className={`flex items-center gap-1 font-mono text-[11px] font-medium print:text-black ${
                         card.change.direction === 'positive'
                           ? 'text-emerald-400'
                           : card.change.direction === 'negative'
@@ -633,14 +633,14 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
                       }`}
                     >
                       {card.change.direction === 'positive' ? (
-                        <TrendingUp className="w-3 h-3" />
+                        <TrendingUp className="w-3 h-3 print:hidden" />
                       ) : card.change.direction === 'negative' ? (
-                        <TrendingDown className="w-3 h-3" />
+                        <TrendingDown className="w-3 h-3 print:hidden" />
                       ) : null}
                       <span>{card.change.text}</span>
                     </div>
                   ) : (
-                    <span className="text-zinc-600 font-mono text-[11px]">—</span>
+                    <span className="text-zinc-600 font-mono text-[11px] print:text-black">—</span>
                   )}
                 </div>
               </div>
@@ -650,21 +650,21 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
       </div>
 
       {/* 2. БЛОК ФІНАНСОВОЇ АНАЛІТИКИ ТА КОЕФІЦІЄНТІВ (Збалансована система показників BSC) */}
-      <div className="rounded-2xl border border-border-card bg-surface-card p-5 shadow-2xl backdrop-blur-md space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800">
+      <div className="kpi-container rounded-2xl border border-border-card bg-surface-card p-5 shadow-2xl backdrop-blur-md space-y-5 print:border-black print:p-3 print:bg-transparent print:shadow-none">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800 print:border-black/30">
           <div>
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-accent" />
-              <h3 className="text-base font-bold text-white tracking-tight">
+              <Activity className="w-4 h-4 text-accent print:hidden" />
+              <h3 className="text-base font-bold text-white print:text-black tracking-tight">
                 Фінансовий аналіз та система показників (BSC)
               </h3>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-zinc-400 print:text-neutral-700 mt-1">
               Комплексна оцінка ліквідності, платоспроможності, рентабельності, ділової активності та персоналу за методикою НП(С)БО
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto no-print">
             <button
               type="button"
               onClick={() => setShowFormulas(!showFormulas)}
@@ -711,15 +711,15 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
             return (
               <div
                 key={item.id}
-                className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 flex flex-col justify-between space-y-3 hover:border-zinc-700/80 transition-colors"
+                className="kpi-item rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 flex flex-col justify-between space-y-3 hover:border-zinc-700/80 transition-colors print:bg-transparent print:border-black print:p-3 print:shadow-none"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="font-semibold text-white text-xs leading-snug">
+                      <div className="font-semibold text-white print:text-black text-xs leading-snug">
                         {item.name}
                       </div>
-                      <div className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                      <div className="text-[10px] text-zinc-500 print:text-neutral-700 font-mono mt-0.5">
                         {item.intlName}
                       </div>
                     </div>
@@ -727,7 +727,7 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
                     {/* Статус індикатор */}
                     {item.status !== 'none' && (
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border shrink-0 ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border shrink-0 print:bg-transparent print:border-black print:text-black ${
                           isOptimal
                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                             : isNormal
@@ -736,9 +736,9 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
                         }`}
                       >
                         {isOptimal || isNormal ? (
-                          <CheckCircle2 className="w-3 h-3" />
+                          <CheckCircle2 className="w-3 h-3 print:hidden" />
                         ) : (
-                          <AlertTriangle className="w-3 h-3" />
+                          <AlertTriangle className="w-3 h-3 print:hidden" />
                         )}
                         <span>{item.statusText}</span>
                       </span>
@@ -746,28 +746,28 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ balanceReport, incomeReport,
                   </div>
 
                   <div className="mt-3 flex items-baseline justify-between">
-                    <div className="text-2xl font-bold font-mono text-white tracking-tight tabular-nums">
+                    <div className="text-2xl font-bold font-mono text-white print:text-black tracking-tight tabular-nums">
                       {item.value}
                     </div>
-                    <div className="text-[11px] text-zinc-400 font-mono">
+                    <div className="text-[11px] text-zinc-400 print:text-neutral-700 font-mono">
                       {item.benchmark}
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-zinc-800/60 text-xs">
-                  <p className="text-zinc-400 text-[11px] leading-relaxed">
+                <div className="space-y-2 pt-2 border-t border-zinc-800/60 print:border-black/30 text-xs">
+                  <p className="text-zinc-400 print:text-neutral-700 text-[11px] leading-relaxed">
                     {item.description}
                   </p>
 
                   {showFormulas && item.formula && (
-                    <div className="p-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-[11px] space-y-1 font-mono text-zinc-400">
-                      <div className="text-zinc-500 text-[10px] uppercase tracking-wider">
+                    <div className="p-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-[11px] space-y-1 font-mono text-zinc-400 print:bg-transparent print:border-black print:text-black">
+                      <div className="text-zinc-500 print:text-neutral-700 text-[10px] uppercase tracking-wider font-semibold">
                         Формула за статтями:
                       </div>
-                      <div className="text-zinc-300">{item.formula}</div>
+                      <div className="text-zinc-300 print:text-black">{item.formula}</div>
                       {item.calcDetails && (
-                        <div className="text-accent text-[10px] pt-0.5 border-t border-zinc-800/80">
+                        <div className="text-accent print:text-black text-[10px] pt-0.5 border-t border-zinc-800/80 print:border-black/30">
                           {item.calcDetails}
                         </div>
                       )}

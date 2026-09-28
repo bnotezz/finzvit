@@ -61,7 +61,7 @@
 /* Оптимізація друку: Офіційний формат звітності А4 (ДКУД / НП(С)БО) */
 @page {
   size: A4 portrait;
-  margin: 8mm 8mm 10mm 8mm;
+  margin: 14mm 12mm 14mm 12mm;
 }
 
 @media print {
@@ -89,10 +89,17 @@
   header,
   footer,
   button,
-  input,
-  .sticky {
+  input {
     display: none !important;
+  }
+
+  /* Скидаємо фіксацію елементів для друку (не приховувати sticky стовпчики) */
+  .sticky {
     position: static !important;
+    left: auto !important;
+    top: auto !important;
+    box-shadow: none !important;
+    background: transparent !important;
   }
 
   .print-only {
@@ -123,19 +130,28 @@
     box-shadow: none !important;
   }
 
-  /* Фонові кольори для друку - прозорі або білі */
+  /* Фонові кольори для друку - прозорі або білі для ВСІХ блоків */
+  [class*="bg-"],
   .bg-surface,
-  .bg-surface-card,
-  .bg-zinc-950,
-  .bg-zinc-900,
-  .bg-zinc-900\/40,
-  .bg-zinc-900\/60,
-  .bg-zinc-900\/70,
-  .bg-zinc-900\/80,
-  .bg-zinc-900\/90,
-  .bg-zinc-900\/95,
-  .bg-zinc-800 {
+  .bg-surface-card {
     background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  /* KPI специфіка: блокові фони та іконки приховуються при друку */
+  .kpi-container svg,
+  .kpi-card svg,
+  .kpi-item svg {
+    display: none !important;
+  }
+
+  .kpi-card,
+  .kpi-item {
+    background: transparent !important;
+    border: 1px solid #000000 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-shadow: none !important;
   }
 
   /* Усі тексти чітко чорні */
@@ -182,7 +198,7 @@
   }
 
   thead tr {
-    background-color: #f1f5f9 !important;
+    background-color: #f8fafc !important;
     border-bottom: 1.5px solid #000000 !important;
   }
 
@@ -208,7 +224,6 @@
     vertical-align: middle !important;
     min-width: 0 !important;
     max-width: none !important;
-    word-break: break-word !important;
   }
 
   tr {
@@ -219,27 +234,38 @@
   /* Розподіл колонок для стандартних 5-колонкових форм (Ф1, Ф2, Ф3, Ф1-м, Ф2-м) */
   .fin-table th:nth-child(1),
   .fin-table td:nth-child(1) {
-    width: 48% !important;
+    width: 44% !important;
     text-align: left !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
   }
   .fin-table th:nth-child(2),
   .fin-table td:nth-child(2) {
-    width: 9% !important;
+    width: 8% !important;
     text-align: center !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
   }
   .fin-table th:nth-child(3),
   .fin-table td:nth-child(3) {
-    width: 14% !important;
+    width: 15% !important;
     text-align: right !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
   }
   .fin-table th:nth-child(4),
   .fin-table td:nth-child(4) {
-    width: 14% !important;
+    width: 15% !important;
     text-align: right !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
   }
   .fin-table th:nth-child(5),
   .fin-table td:nth-child(5) {
-    width: 15% !important;
+    width: 18% !important;
     text-align: right !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
   }
 }

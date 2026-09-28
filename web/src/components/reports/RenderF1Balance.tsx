@@ -209,38 +209,38 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">
               {/* Стаття звіту: закріплена зліва (sticky) на мобільному */}
-              <th className="sticky left-0 z-20 bg-zinc-900/95 py-2.5 sm:py-3 px-3 sm:px-4 min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none">
+              <th className="sticky left-0 z-20 bg-zinc-900/95 py-2.5 sm:py-3 px-3 sm:px-4 min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none print:static print:table-cell print:shadow-none print:border-none print:min-w-0 print:max-w-none">
                 Стаття звіту
               </th>
 
               {/* Код рядка: тільки на десктопі, на мобільному виводиться під назвою */}
-              <th className="hidden sm:table-cell py-3 px-3 w-16 text-center font-mono">
+              <th className="hidden sm:table-cell print:table-cell py-3 px-3 w-16 text-center font-mono">
                 Код
               </th>
 
               {/* На початок */}
-              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px]">
-                <span className="sm:hidden">Початок</span>
-                <span className="hidden sm:inline">На початок (тис. ₴)</span>
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px] print:min-w-0">
+                <span className="sm:hidden print:hidden">Початок</span>
+                <span className="hidden sm:inline print:inline">На початок (тис. ₴)</span>
               </th>
 
               {/* На кінець */}
-              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px]">
-                <span className="sm:hidden">Кінець</span>
-                <span className="hidden sm:inline">На кінець (тис. ₴)</span>
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[140px] print:min-w-0">
+                <span className="sm:hidden print:hidden">Кінець</span>
+                <span className="hidden sm:inline print:inline">На кінець (тис. ₴)</span>
               </th>
 
               {/* Об'єднана зміна (+/–, %) */}
-              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[130px]">
-                <span className="sm:hidden">Зміна</span>
-                <span className="hidden sm:inline">Зміна (+/–, %)</span>
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[130px] print:min-w-0">
+                <span className="sm:hidden print:hidden">Зміна</span>
+                <span className="hidden sm:inline print:inline">Зміна (+/–, %)</span>
               </th>
             </tr>
 
             {/* Офіційні номери колонок згідно з бланком ДКУД 1801001 */}
             <tr className="border-b border-zinc-800 bg-zinc-900/60 text-zinc-500 text-[11px] font-mono text-center">
               <th className="py-1 px-3 text-left">1</th>
-              <th className="hidden sm:table-cell py-1 px-2">2</th>
+              <th className="hidden sm:table-cell print:table-cell py-1 px-2">2</th>
               <th className="py-1 px-3 text-right">3</th>
               <th className="py-1 px-3 text-right">4</th>
               <th className="py-1 px-3 text-right">5</th>
@@ -258,21 +258,21 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                   <tr
                     key={idx}
                     onClick={() => toggleSection(row.name)}
-                    className="bg-zinc-900/95 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
+                    className="bg-zinc-900/95 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none print:bg-transparent"
                   >
-                    <td colSpan={5} className="py-2.5 px-3 sm:px-4 font-semibold text-white">
-                      <div className="sticky left-3 sm:left-4 inline-flex items-center justify-between w-full max-w-[calc(100vw-48px)] sm:max-w-none pr-2">
+                    <td colSpan={5} className="py-2.5 px-3 sm:px-4 font-semibold text-white print:text-black">
+                      <div className="sticky left-3 sm:left-4 print:static inline-flex items-center justify-between w-full max-w-[calc(100vw-48px)] sm:max-w-none pr-2 print:w-full">
                         <div className="flex items-center gap-2">
                           {isCollapsed ? (
-                            <ChevronRight className="w-4 h-4 text-accent shrink-0" />
+                            <ChevronRight className="w-4 h-4 text-accent shrink-0 print:hidden" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-accent shrink-0" />
+                            <ChevronDown className="w-4 h-4 text-accent shrink-0 print:hidden" />
                           )}
-                          <span className="text-xs sm:text-sm font-semibold truncate sm:whitespace-normal">
+                          <span className="text-xs sm:text-sm font-semibold truncate sm:whitespace-normal print:whitespace-normal">
                             {row.name}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0 ml-2">
+                        <span className="text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 shrink-0 ml-2 print:bg-transparent print:text-black print:border-black">
                           {row.section}
                         </span>
                       </div>
@@ -314,24 +314,24 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                 >
                   {/* Назва статті: sticky зліва на мобільному */}
                   <td
-                    className={`sticky left-0 z-10 ${stickyBgClass} sm:bg-transparent py-2 sm:py-2.5 px-3 sm:px-4 border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none`}
+                    className={`sticky left-0 z-10 ${stickyBgClass} sm:bg-transparent py-2 sm:py-2.5 px-3 sm:px-4 border-r border-zinc-800/80 sm:border-r-0 shadow-[2px_0_6px_rgba(0,0,0,0.3)] sm:shadow-none min-w-[155px] max-w-[180px] sm:min-w-[280px] sm:max-w-none print:static print:table-cell print:shadow-none print:border-none print:min-w-0 print:max-w-none print:bg-transparent`}
                   >
                     <div
                       className={`flex flex-col ${
-                        row.level === 2 ? 'pl-2.5 sm:pl-5 text-zinc-400' : ''
+                        row.level === 2 ? 'pl-2.5 sm:pl-5 text-zinc-400 print:text-neutral-700' : ''
                       }`}
                     >
                       <div className="flex items-start gap-1.5">
                         {isTotalRow && !isMainBalance && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1 sm:mt-1.5"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1 sm:mt-1.5 print:bg-black"></span>
                         )}
                         <span
                           className={`leading-snug break-words ${
                             isMainBalance
-                              ? 'text-accent text-sm sm:text-base tracking-wide font-bold'
+                              ? 'text-accent text-sm sm:text-base tracking-wide font-bold print:text-black'
                               : isTotalRow
-                              ? 'text-white'
-                              : ''
+                              ? 'text-white print:text-black'
+                              : 'print:text-black'
                           }`}
                         >
                           {row.name}
@@ -340,7 +340,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
 
                       {/* Код рядка на мобільному відображається під назвою */}
                       {row.code && (
-                        <span className="text-[10px] font-mono text-zinc-500 sm:hidden mt-0.5">
+                        <span className="text-[10px] font-mono text-zinc-500 sm:hidden print:hidden mt-0.5">
                           #{row.code}
                         </span>
                       )}
@@ -348,7 +348,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                   </td>
 
                   {/* Код рядка на десктопі */}
-                  <td className="hidden sm:table-cell py-2.5 px-3 text-center font-mono text-xs text-zinc-500">
+                  <td className="hidden sm:table-cell print:table-cell py-2.5 px-3 text-center font-mono text-xs text-zinc-500 print:text-black">
                     {row.code || ''}
                   </td>
 
@@ -369,7 +369,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                   {/* Зміна (об'єднана: абсолютна + %) */}
                   <td className="py-2 sm:py-2.5 px-2.5 sm:px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
                     {change.absolute !== null ? (
-                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1">
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1 print:flex-row print:items-center print:whitespace-nowrap">
                         <span
                           className={`font-medium ${
                             change.direction === 'positive'
