@@ -94,6 +94,44 @@ class TestFinancialIndicators(unittest.TestCase):
         # 9. Коефіцієнт заборгованості (1695 / 1300) = 1,615,356 / 2,718,728 ≈ 0.59
         self.assertAlmostEqual(r["debt_ratio"]["value"], 0.594, places=2)
 
+        # 10. Забезпеченість власними оборотними коштами ((1195 - 1695) / 1195) = 381,940 / 1,997,296 ≈ 0.191
+        self.assertAlmostEqual(r["working_capital_ratio"]["value"], 0.191, places=2)
+
+        # 11. Коефіцієнт придатності основних засобів (1010 / 1011) = 579,146 / 993,652 ≈ 0.583
+        self.assertAlmostEqual(r["fixed_assets_condition"]["value"], 0.583, places=2)
+
+        # 12. Коефіцієнт маневреності власного капіталу ((1195 - 1695) / 1495) = 381,940 / 1,043,641 ≈ 0.366
+        self.assertAlmostEqual(r["equity_maneuverability"]["value"], 0.366, places=2)
+
+        # 13. Фінансовий леверидж ((1595 + 1695) / 1495) = (59,731 + 1,615,356) / 1,043,641 ≈ 1.605
+        self.assertAlmostEqual(r["financial_leverage"]["value"], 1.605, places=2)
+
+        # 14. Валова маржа ((2000 - 2050) / 2000 * 100) = 1,541,766 / 6,249,313 * 100 ≈ 24.67%
+        self.assertAlmostEqual(r["gross_margin"]["value"], 24.671, places=2)
+
+        # 15. Рентабельність виробництва (1,541,766 / 4,707,547 * 100) ≈ 32.75%
+        self.assertAlmostEqual(r["production_profitability"]["value"], 32.751, places=2)
+
+        # 16. Оборотність дебіторки (6,249,313 / 803,970) ≈ 7.77 об. (46.96 дн.)
+        self.assertAlmostEqual(r["receivables_turnover"]["value"], 7.773, places=2)
+        self.assertAlmostEqual(r["receivables_days"]["value"], 46.958, places=1)
+
+        # 17. Оборотність кредиторки (6,249,313 / 657,733) ≈ 9.50 об. (38.42 дн.)
+        self.assertAlmostEqual(r["payables_turnover"]["value"], 9.501, places=2)
+        self.assertAlmostEqual(r["payables_days"]["value"], 38.416, places=1)
+
+        # 18. Фондовіддача (6,249,313 / 579,146) ≈ 10.79
+        self.assertAlmostEqual(r["fixed_asset_turnover"]["value"], 10.79, places=1)
+
+        # 19. Покриття виробничих витрат (4,707,547 / 6,249,313 * 100) ≈ 75.33%
+        self.assertAlmostEqual(r["cost_coverage"]["value"], 75.329, places=2)
+
+        # 20. Продуктивність праці (6,249,313 / 999 працівників) ≈ 6,255.57 тис. ₴
+        self.assertAlmostEqual(r["revenue_per_employee"]["value"], 6255.568, places=1)
+
+        # 21. Прибутковість персоналу (91,059 / 999 працівників) ≈ 91.15 тис. ₴
+        self.assertAlmostEqual(r["profit_per_employee"]["value"], 91.15, places=1)
+
     # --------------------------------------------------------------------------
     # 3. ТЕСТУВАННЯ ОСНОВНИХ ПОКАЗНИКІВ НОВА ПОШТА
     # --------------------------------------------------------------------------

@@ -107,7 +107,7 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
   // Вибір контенту залежно від обраного табу
   const renderReportContent = () => {
     if (activeFormCode === 'KPI') {
-      return <KpiCards balanceReport={balanceReport} incomeReport={incomeReport} />;
+      return <KpiCards balanceReport={balanceReport} incomeReport={incomeReport} company={company} />;
     }
 
     if (!currentReport) {
