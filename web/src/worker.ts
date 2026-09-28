@@ -26,9 +26,29 @@ export default {
         });
       }
 
-      // Перевірка Cloudflare Edge Cache API (HIT)
+      // Підтримка примусового очищення кешу для конкретного ключа на workers.dev
       const cache = typeof caches !== 'undefined' && (caches as any).default ? (caches as any).default : null;
-      if (cache && request.method === 'GET') {
+      const isPurge = request.method === 'PURGE' || url.searchParams.get('purge') === '1';
+
+      if (cache && isPurge) {
+        await cache.delete(request);
+        const cleanUrl = new URL(request.url);
+        cleanUrl.searchParams.delete('purge');
+        await cache.delete(cleanUrl.toString());
+        return new Response(JSON.stringify({ success: true, message: `Кеш для '${key}' успішно скинуто.` }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        });
+      }
+
+      // Перевірка Cloudflare Edge Cache API (HIT)
+      // Якщо клієнт передав Cache-Control: no-cache (Ctrl+Shift+R у браузері або curl -H "Cache-Control: no-cache") —
+      // обходимо старий кеш, щоб зчитати свіжі дані з R2 та оновити кеш
+      const clientNoCache = request.headers.get('Cache-Control')?.includes('no-cache') || 
+                            request.headers.get('Pragma')?.includes('no-cache') ||
+                            url.searchParams.has('nocache');
+
+      if (cache && request.method === 'GET' && !clientNoCache) {
         try {
           const cachedResponse = await cache.match(request);
           if (cachedResponse) {
