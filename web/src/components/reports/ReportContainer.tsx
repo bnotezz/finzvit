@@ -9,6 +9,7 @@ import { RenderF5Notes } from './RenderF5Notes';
 import { RenderMicroReport } from './RenderMicroReport';
 import { RenderGenericReport } from './RenderGenericReport';
 import { KpiCards } from '../company/KpiCards';
+import { CompanyReportNav } from '../company/CompanyReportNav';
 
 interface ReportContainerProps {
   company: CompanyMeta & { reports?: Record<string, any> };
@@ -17,6 +18,12 @@ interface ReportContainerProps {
   incomeReport?: ReportData | null;
   activeTabOverride?: string;
   onActiveReportChange?: (reportTitle: string, reportData: ReportData | null) => void;
+  // Мультирічність та навігація по роках
+  selectedYear: number;
+  availableYears: number[];
+  supportedYears: readonly number[];
+  onYearChange: (year: number) => void;
+  isYearLoading?: boolean;
 }
 
 // Канонічний порядок офіційних форм звітності України:
@@ -45,6 +52,11 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
   incomeReport,
   activeTabOverride,
   onActiveReportChange,
+  selectedYear,
+  availableYears,
+  supportedYears,
+  onYearChange,
+  isYearLoading = false,
 }) => {
   const rawForms = company.available_forms || [];
 
@@ -67,12 +79,19 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
     }
   }, [activeTabOverride]);
 
-  // Синхронізація попередньо завантажених звітів
+  // Якщо поточна форма відсутня у новому році, перемикаємо на першу доступну форму або KPI
   useEffect(() => {
-    const reps = initialReports || company.reports;
-    if (reps && Object.keys(reps).length > 0) {
-      setLoadedReports(reps);
+    if (activeFormCode === 'KPI') return;
+    const formExists = sortedForms.some((f) => f.code === activeFormCode);
+    if (!formExists) {
+      setActiveFormCode(sortedForms[0]?.code || 'KPI');
     }
+  }, [sortedForms]);
+
+  // Синхронізація звітів при зміні компанії або року
+  useEffect(() => {
+    const reps = initialReports || company.reports || {};
+    setLoadedReports(reps);
   }, [initialReports, company.reports]);
 
   // Активація обраного звіту при зміні активного табу
@@ -91,15 +110,6 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
     onActiveReportChange?.(formTitle, rep);
   }, [activeFormCode, loadedReports, sortedForms]);
 
-  if (sortedForms.length === 0 && !balanceReport && !incomeReport) {
-    return (
-      <div className="p-8 text-center rounded-2xl border border-zinc-800 bg-surface-card">
-        <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-        <p className="text-zinc-400 text-sm">Звітів для цієї компанії не знайдено.</p>
-      </div>
-    );
-  }
-
   const currentReport = loadedReports[activeFormCode];
   const activeForm = sortedForms.find((f) => f.code === activeFormCode);
   const formTitle = activeForm?.title || activeFormCode;
@@ -114,7 +124,7 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
       return (
         <div className="p-8 text-center rounded-2xl border border-zinc-800 bg-surface-card">
           <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-          <p className="text-zinc-400 text-sm">Звіт форми {formTitle} відсутній у наборі даних цієї компанії.</p>
+          <p className="text-zinc-400 text-sm">Звіт форми {formTitle} відсутній у наборі даних за {selectedYear} рік.</p>
         </div>
       );
     }
@@ -138,52 +148,53 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
           report={currentReport}
           formTitle={formTitle}
           formCode={activeFormCode}
-          year={company.year}
+          year={company.year || selectedYear}
         />
       );
     }
   };
 
+  if (sortedForms.length === 0 && !balanceReport && !incomeReport) {
+    return (
+      <div className="space-y-4">
+        <CompanyReportNav
+          selectedYear={selectedYear}
+          availableYears={availableYears}
+          supportedYears={supportedYears}
+          onSelectYear={onYearChange}
+          isYearLoading={isYearLoading}
+          forms={[]}
+          activeFormCode=""
+          onSelectForm={setActiveFormCode}
+          hasKpi={false}
+        />
+        <div className="p-8 text-center rounded-2xl border border-zinc-800 bg-surface-card">
+          <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+          <p className="text-zinc-400 text-sm">Фінансових звітів за {selectedYear} рік для цієї компанії не знайдено.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {/* Навігація за табами зі строгим порядком (Ф1 -> Ф2 -> Ф3 -> Ф4 -> Ф5 -> KPI) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-white/5 no-print">
-        {sortedForms.map((form) => {
-          const isActive = form.code === activeFormCode;
-          return (
-            <button
-              key={form.code}
-              type="button"
-              onClick={() => setActiveFormCode(form.code)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 border cursor-pointer select-none ${
-                isActive
-                  ? 'bg-accent/15 border-accent/40 text-accent shadow-sm'
-                  : 'bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-white border-zinc-800/80'
-              }`}
-            >
-              <FileText className={`w-4 h-4 ${isActive ? 'text-accent' : 'text-zinc-500'}`} />
-              <span>{form.title}</span>
-            </button>
-          );
-        })}
+      {/* Дворівнева навігація: Рівень 1 - Роки, Рівень 2 - Форми звітності */}
+      <CompanyReportNav
+        selectedYear={selectedYear}
+        availableYears={availableYears}
+        supportedYears={supportedYears}
+        onSelectYear={onYearChange}
+        isYearLoading={isYearLoading}
+        forms={sortedForms}
+        activeFormCode={activeFormCode}
+        onSelectForm={setActiveFormCode}
+        hasKpi={true}
+      />
 
-        {/* Окрема вкладка для аналітичних KPI показників */}
-        <button
-          type="button"
-          onClick={() => setActiveFormCode('KPI')}
-          className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 border cursor-pointer select-none ml-auto ${
-            activeFormCode === 'KPI'
-              ? 'bg-accent/20 border-accent text-accent shadow-md shadow-accent/10'
-              : 'bg-zinc-900/40 hover:bg-zinc-800 text-zinc-400 hover:text-white border-zinc-800/80'
-          }`}
-        >
-          <BarChart3 className={`w-4 h-4 ${activeFormCode === 'KPI' ? 'text-accent' : 'text-zinc-500'}`} />
-          <span>Показники (KPI)</span>
-        </button>
+      {/* Відображення активного звіту або вкладки KPI з індикацією оновлення року */}
+      <div className={`transition-opacity duration-200 ${isYearLoading ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        {renderReportContent()}
       </div>
-
-      {/* Відображення активного звіту або вкладки KPI */}
-      {renderReportContent()}
     </div>
   );
 };

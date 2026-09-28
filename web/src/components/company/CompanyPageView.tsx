@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2, ArrowLeft, AlertCircle, BarChart3, Building2, HelpCircle, ArrowRight, RotateCcw } from 'lucide-react';
-import { fetchCompanyData } from '../../lib/api';
+import { fetchCompanyData, checkAvailableYears, SUPPORTED_YEARS } from '../../lib/api';
 import type { CompanyFullData, ReportData } from '../../lib/types';
 import { CompanyHeader } from './CompanyHeader';
 import { ReportContainer } from '../reports/ReportContainer';
@@ -25,6 +25,25 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     return edrpou || '';
   }, [edrpou]);
 
+  // Зчитування початкового року з URL-параметра (?year=2024), за замовчуванням найновіший підтримуваний (2025)
+  const getInitialYear = (): number => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const y = params.get('year');
+      if (y && /^\d{4}$/.test(y)) {
+        const parsed = parseInt(y, 10);
+        if ((SUPPORTED_YEARS as readonly number[]).includes(parsed)) {
+          return parsed;
+        }
+      }
+    }
+    return SUPPORTED_YEARS[0];
+  };
+
+  const [selectedYear, setSelectedYear] = useState<number>(getInitialYear);
+  const [availableYears, setAvailableYears] = useState<number[]>([SUPPORTED_YEARS[0]]);
+  const [isYearLoading, setIsYearLoading] = useState(false);
+
   const [company, setCompany] = useState<CompanyFullData | null>(null);
   const [balanceReport, setBalanceReport] = useState<ReportData | null>(null);
   const [incomeReport, setIncomeReport] = useState<ReportData | null>(null);
@@ -35,71 +54,149 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
+  // Оновлення параметра query string (?year=...) без перезавантаження сторінки
+  const updateUrlYear = useCallback((year: number) => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (year === SUPPORTED_YEARS[0]) {
+      url.searchParams.delete('year');
+    } else {
+      url.searchParams.set('year', String(year));
+    }
+    window.history.pushState(null, '', url.pathname + url.search);
+  }, []);
+
+  // Виділення звітів Ф1 та Ф2 з отриманого консолідованого документу
+  const applyCompanyReports = useCallback((data: CompanyFullData) => {
+    setCompany(data);
+
+    const forms = data.available_forms || [];
+    const f1Form = forms.find((f) => {
+      const c = (f.code || '').toUpperCase();
+      return c.startsWith('S01001') || c.startsWith('S01100') || c.startsWith('S01110');
+    });
+    const f2Form = forms.find((f) => {
+      const c = (f.code || '').toUpperCase();
+      return c.startsWith('S01002') || c.startsWith('S01100') || c.startsWith('S01110');
+    });
+
+    if (data.reports) {
+      if (f1Form && data.reports[f1Form.code]) {
+        const raw = data.reports[f1Form.code];
+        const rep = raw?.balance ? { ...raw, data: raw.balance } : (raw?.data ? raw : { data: raw });
+        setBalanceReport(rep);
+      } else {
+        setBalanceReport(null);
+      }
+      if (f2Form && data.reports[f2Form.code]) {
+        const raw = data.reports[f2Form.code];
+        const rep = raw?.income ? { ...raw, data: raw.income } : (raw?.data ? raw : { data: raw });
+        setIncomeReport(rep);
+      } else {
+        setIncomeReport(null);
+      }
+    } else {
+      setBalanceReport(null);
+      setIncomeReport(null);
+    }
+  }, []);
+
+  // Завантаження даних конкретного звітного року
+  const loadYearData = useCallback(async (targetYear: number, isInitial = false) => {
+    if (!effectiveEdrpou) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (isInitial) {
+      setIsLoading(true);
+    } else {
+      setIsYearLoading(true);
+    }
+    setError(null);
+    setErrorStatus(null);
+
+    try {
+      const data = await fetchCompanyData(effectiveEdrpou, targetYear);
+      applyCompanyReports(data);
+    } catch (err: any) {
+      console.error(`Помилка завантаження компанії за ${targetYear} рік:`, err);
+      const status = err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500));
+
+      // Розумний fallback: якщо 2025 повернув 404 при першому заході без явного ?year, перевіряємо 2024
+      if (isInitial && targetYear === SUPPORTED_YEARS[0] && status === 404) {
+        try {
+          const avail = await checkAvailableYears(effectiveEdrpou);
+          setAvailableYears(avail);
+          const alternateYear = avail.find((y) => y !== targetYear);
+          if (alternateYear) {
+            setSelectedYear(alternateYear);
+            updateUrlYear(alternateYear);
+            const altData = await fetchCompanyData(effectiveEdrpou, alternateYear);
+            applyCompanyReports(altData);
+            return;
+          }
+        } catch {
+          // Якщо альтернативний рік не знайдено, переходимо до штатної обробки помилки
+        }
+      }
+
+      setError(err.message || 'Не вдалося завантажити дані компанії.');
+      setErrorStatus(status);
+      if (status === 404) {
+        document.title = `Підприємство ЄДРПОУ ${effectiveEdrpou} не знайдено (${targetYear}) | FinZvit`;
+      } else {
+        document.title = `Помилка завантаження ЄДРПОУ ${effectiveEdrpou} | FinZvit`;
+      }
+    } finally {
+      setIsLoading(false);
+      setIsYearLoading(false);
+    }
+  }, [effectiveEdrpou, applyCompanyReports, updateUrlYear]);
+
+  // Первинне завантаження та виявлення доступних років для компанії
   useEffect(() => {
     if (!effectiveEdrpou) {
       setIsLoading(false);
       return;
     }
 
-    let isMounted = true;
-    setIsLoading(true);
-    setError(null);
-    setErrorStatus(null);
-
-    // Попередньо оновлюємо заголовок вкладки під час завантаження
     document.title = `ЄДРПОУ ${effectiveEdrpou} — Фінансова звітність | FinZvit`;
 
-    // Завантажуємо єдиний консолідований JSON компанії за 1 мережевий запит
-    fetchCompanyData(effectiveEdrpou)
-      .then(async (data) => {
-        if (!isMounted) return;
-        setCompany(data);
-
-        // Знаходимо форми Ф1 (Баланс) та Ф2 (Фінрезультати)
-        const forms = data.available_forms || [];
-        const f1Form = forms.find((f) => {
-          const c = (f.code || '').toUpperCase();
-          return c.startsWith('S01001') || c.startsWith('S01100') || c.startsWith('S01110');
-        });
-        const f2Form = forms.find((f) => {
-          const c = (f.code || '').toUpperCase();
-          return c.startsWith('S01002') || c.startsWith('S01100') || c.startsWith('S01110');
-        });
-
-        // Встановлюємо звіти безпосередньо з єдиного консолідованого документу
-        if (data.reports) {
-          if (f1Form && data.reports[f1Form.code]) {
-            const raw = data.reports[f1Form.code];
-            const rep = raw?.balance ? { ...raw, data: raw.balance } : (raw?.data ? raw : { data: raw });
-            setBalanceReport(rep);
-          }
-          if (f2Form && data.reports[f2Form.code]) {
-            const raw = data.reports[f2Form.code];
-            const rep = raw?.income ? { ...raw, data: raw.income } : (raw?.data ? raw : { data: raw });
-            setIncomeReport(rep);
-          }
-        }
+    // Паралельно опитуємо наявність звітів за всі підтримувані роки (HEAD-запити без тіла)
+    checkAvailableYears(effectiveEdrpou)
+      .then((years) => {
+        setAvailableYears(years);
       })
       .catch((err) => {
-        if (!isMounted) return;
-        console.error('Помилка завантаження компанії:', err);
-        setError(err.message || 'Не вдалося завантажити дані компанії.');
-        const status = err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500));
-        setErrorStatus(status);
-        if (status === 404) {
-          document.title = `Підприємство ЄДРПОУ ${effectiveEdrpou} не знайдено | FinZvit`;
-        } else {
-          document.title = `Помилка завантаження ЄДРПОУ ${effectiveEdrpou} | FinZvit`;
-        }
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
+        console.warn('Не вдалося перевірити доступні роки:', err);
       });
 
-    return () => {
-      isMounted = false;
+    const initYear = getInitialYear();
+    setSelectedYear(initYear);
+    loadYearData(initYear, true);
+  }, [effectiveEdrpou, loadYearData]);
+
+  // Обробник натискання кнопок Назад/Вперед у браузері
+  useEffect(() => {
+    const handlePopState = () => {
+      const y = getInitialYear();
+      if (y !== selectedYear) {
+        setSelectedYear(y);
+        loadYearData(y, false);
+      }
     };
-  }, [effectiveEdrpou]);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedYear, loadYearData]);
+
+  // Перемикання року користувачем
+  const handleYearChange = (newYear: number) => {
+    if (newYear === selectedYear || isYearLoading) return;
+    setSelectedYear(newYear);
+    updateUrlYear(newYear);
+    loadYearData(newYear, false);
+  };
 
   // Динамічне оновлення SEO-метатегів, Schema.org та назви PDF при друку
   useEffect(() => {
@@ -109,13 +206,14 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     const pageTitle = `${company.name} (ЄДРПОУ ${company.edrpou})${repSuffix} | FinZvit`;
     document.title = pageTitle;
 
-    const desc = `Офіційна фінансова звітність ${company.name} (код ЄДРПОУ ${company.edrpou}) за ${company.year || 2025} рік: Баланс (Ф1), фінансові результати (Ф2), дохід, чистий прибуток, активи та аналітика.`;
+    const curYear = company.year || selectedYear;
+    const desc = `Офіційна фінансова звітність ${company.name} (код ЄДРПОУ ${company.edrpou}) за ${curYear} рік: Баланс (Ф1), фінансові результати (Ф2), дохід, чистий прибуток, активи та аналітика.`;
 
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', desc);
 
     const metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (metaKeywords) metaKeywords.setAttribute('content', `${company.name}, ${company.edrpou}, фінансова звітність ${company.edrpou}, баланс ${company.name}, прибуток, виручка, відкриті дані, звітність 2025`);
+    if (metaKeywords) metaKeywords.setAttribute('content', `${company.name}, ${company.edrpou}, фінансова звітність ${company.edrpou}, баланс ${company.name}, прибуток, виручка, відкриті дані, звітність ${curYear}`);
 
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', pageTitle);
@@ -149,18 +247,19 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
       address: company.address || undefined,
       numberOfEmployees: company.employees ? { '@type': 'QuantitativeValue', value: company.employees } : undefined,
     });
-  }, [company, activeReportTitle]);
+  }, [company, activeReportTitle, selectedYear]);
 
   // Експорт активного звіту у CSV
   const handleExportCsv = () => {
     if (!activeReport || !company) return;
 
+    const curYear = company.year || selectedYear;
     const data = (activeReport as any)?.data || activeReport || {};
     let csvContent = '\uFEFF'; // UTF-8 BOM для Excel
     csvContent += `Звіт: ${activeReportTitle || (activeReport as any)?.meta?.form_name || 'Фінансовий звіт'}\n`;
     csvContent += `Підприємство: ${company.name}\n`;
     csvContent += `ЄДРПОУ: ${company.edrpou}\n`;
-    csvContent += `Період: ${company.year || 2025} рік\n\n`;
+    csvContent += `Період: ${curYear} рік\n\n`;
 
     if (data.balance || data.income) {
       // Спрощена звітність 1-м, 2-м
@@ -206,7 +305,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `FinZvit_${company.edrpou}_${company.year || 2025}.csv`);
+    link.setAttribute('download', `FinZvit_${company.edrpou}_${curYear}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -289,14 +388,38 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
               <span className="text-amber-400 font-semibold">404</span>
               <span>•</span>
               <span>ЄДРПОУ {effectiveEdrpou || 'не вказано'}</span>
+              <span>•</span>
+              <span className="text-zinc-300">{selectedYear} рік</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Фінансову звітність не знайдено
             </h2>
             <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
-              {error || `Для підприємства з кодом ЄДРПОУ «${effectiveEdrpou}» відсутня подана фінансова звітність за 2025 рік у відкритому реєстрі.`}
+              {error || `Для підприємства з кодом ЄДРПОУ «${effectiveEdrpou}» відсутня подана фінансова звітність за ${selectedYear} рік у відкритому реєстрі.`}
             </p>
           </div>
+
+          {/* Якщо є інші доступні роки для цього підприємства */}
+          {availableYears.filter((y) => y !== selectedYear).length > 0 && (
+            <div className="p-4 rounded-2xl bg-zinc-900/90 border border-accent/30 text-left flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+              <div>
+                <div className="text-xs font-semibold text-white">Доступні інші звітні періоди:</div>
+                <div className="text-[11px] text-zinc-400">Для цього підприємства знайдено звітність у базі за інші роки</div>
+              </div>
+              <div className="flex items-center gap-2">
+                {availableYears.filter((y) => y !== selectedYear).map((y) => (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => handleYearChange(y)}
+                    className="px-3.5 py-1.5 rounded-xl bg-accent text-zinc-950 text-xs font-bold hover:bg-accent/90 transition-all cursor-pointer shadow-md shadow-accent/20"
+                  >
+                    Переглянути {y} рік
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Діагностичні причини */}
           <div className="p-5 rounded-2xl border border-white/5 bg-zinc-950/60 text-left space-y-3 text-xs text-zinc-400">
@@ -472,6 +595,11 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         balanceReport={balanceReport}
         incomeReport={incomeReport}
         activeTabOverride={activeTabOverride}
+        selectedYear={selectedYear}
+        availableYears={availableYears}
+        supportedYears={SUPPORTED_YEARS}
+        onYearChange={handleYearChange}
+        isYearLoading={isYearLoading}
         onActiveReportChange={(title, rep) => {
           setActiveReportTitle(title);
           setActiveReport(rep);

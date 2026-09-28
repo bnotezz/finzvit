@@ -49,6 +49,37 @@ export class ApiError extends Error {
 
 export const CACHE_VERSION = 'v3';
 
+// Список офіційно підтримуваних років у сховищі R2 (у порядку від найновішого)
+export const SUPPORTED_YEARS = [2025, 2024] as const;
+export type SupportedYear = typeof SUPPORTED_YEARS[number];
+
+/**
+ * Перевіряє наявність звітності для конкретного року через легкий HEAD-запит (< 1 мс).
+ */
+export async function checkCompanyYearAvailable(edrpou: string, year: number): Promise<boolean> {
+  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json?v=${CACHE_VERSION}`;
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Перевіряє всі підтримувані роки для компанії паралельно та повертає список наявних років.
+ */
+export async function checkAvailableYears(edrpou: string): Promise<number[]> {
+  const results = await Promise.all(
+    SUPPORTED_YEARS.map(async (y) => {
+      const ok = await checkCompanyYearAvailable(edrpou, y);
+      return { year: y, ok };
+    })
+  );
+  const found = results.filter((r) => r.ok).map((r) => r.year);
+  return found.length > 0 ? found : [2025];
+}
+
 /**
  * Завантажує єдиний повний документ компанії зі всіма її звітами та реквізитами (/{year}/{edrpou}.json)
  * Забезпечує завантаження всієї фінансової звітності за 1 надшвидкий мережевий запит.
