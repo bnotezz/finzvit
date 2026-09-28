@@ -46,12 +46,14 @@ try:
     from .parsers import ParserRegistry
     from .scanner import ReportScanner
     from .meta_builder import CompanyMetaBuilder
+    from .financial_calc import FinancialCalculator
     from .uploaders import R2Uploader, SupabaseUploader, CloudflareCachePurge
 except (ImportError, ValueError):
     from progress import ProgressBar
     from parsers import ParserRegistry
     from scanner import ReportScanner
     from meta_builder import CompanyMetaBuilder
+    from financial_calc import FinancialCalculator
     from uploaders import R2Uploader, SupabaseUploader, CloudflareCachePurge
 
 def process_reports(
@@ -152,15 +154,28 @@ def process_reports(
             last_updated=last_ts
         )
 
+        # Розраховуємо та вбудовуємо фінансові KPI
+        kpis = FinancialCalculator.calculate_company_kpis(unified_json)
+        if kpis:
+            unified_json["financial_kpi"] = kpis
+
+        # Розраховуємо вагу масштабу підприємства для пріоритетного показу в пошуку
+        weight = FinancialCalculator.calculate_company_weight(
+            company_info=comp_info,
+            available_forms=forms,
+            reports=reports
+        )
+
         file_key = f"{year}/{edrpou}.json"
         upload_items.append((file_key, unified_json))
 
-        # Легкий запис для Supabase
+        # Легкий запис для Supabase з вагою ранжування
         companies_registry_meta.append({
             "edrpou": edrpou,
             "name": comp_info.get("name"),
             "kved": comp_info.get("kved"),
-            "year": year
+            "year": year,
+            "weight": weight
         })
         pbar_build.update(1)
     pbar_build.close()

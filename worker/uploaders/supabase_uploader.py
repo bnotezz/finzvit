@@ -107,12 +107,18 @@ class SupabaseUploader:
             except (ValueError, TypeError):
                 year = 2025
 
+            try:
+                weight = int(c.get("weight", 0))
+            except (ValueError, TypeError):
+                weight = 0
+
             if edrpou and name:
                 records.append({
                     "edrpou": edrpou,
                     "name": name,
                     "kved": kved,
-                    "year": year
+                    "year": year,
+                    "weight": weight
                 })
 
         logger.info("Початок синхронізації %d компаній із Supabase (батчі по %d)...", len(records), batch_size)

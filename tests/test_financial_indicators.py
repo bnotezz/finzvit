@@ -345,5 +345,46 @@ class TestFinancialIndicators(unittest.TestCase):
         # Чиста маржа: 328 / 2000 * 100 = 16.4%
         self.assertAlmostEqual(r["net_margin"]["value"], 16.4, places=1)
 
+    def test_calculate_company_weight_ranking(self):
+        """Перевірка розрахунку вагового коефіцієнта (weight) для сортування компаній у пошуку."""
+        # 1. Велике підприємство (повний комплект Ф1-Ф5, 1000 працівників, 5 млрд виручки)
+        large_company_info = {"employees": 1000}
+        large_forms = [
+            {"code": "S0100115"}, {"code": "S0100215"}, 
+            {"code": "S0100311"}, {"code": "S0104010"}, {"code": "S0105009"}
+        ]
+        large_reports = {
+            "S0100215": {"income": {"2000": {"current": 5_000_000.0}}}  # 5 млрд грн
+        }
+        w_large = FinancialCalculator.calculate_company_weight(large_company_info, large_forms, large_reports)
+
+        # 2. Мале підприємство (форма S0110014, 20 працівників, 5 млн виручки)
+        small_company_info = {"employees": 20}
+        small_forms = [{"code": "S0110014"}]
+        small_reports = {
+            "S0110014": {"income": {"2000": {"current": 5_000.0}}}
+        }
+        w_small = FinancialCalculator.calculate_company_weight(small_company_info, small_forms, small_reports)
+
+        # 3. Мікропідприємство (форма S0111007, 1 працівник, без виручки)
+        micro_company_info = {"employees": 1}
+        micro_forms = [{"code": "S0111007"}]
+        micro_reports = {}
+        w_micro = FinancialCalculator.calculate_company_weight(micro_company_info, micro_forms, micro_reports)
+
+        # 4. Неактивне підприємство (без форм)
+        w_empty = FinancialCalculator.calculate_company_weight({}, [], {})
+
+        # Перевірка строгої ієрархії ваг: Large >> Small >> Micro >> Empty
+        self.assertGreater(w_large, w_small)
+        self.assertGreater(w_small, w_micro)
+        self.assertGreater(w_micro, w_empty)
+
+        # Велике підприємство повинно мати понад 100,000 балів
+        self.assertGreaterEqual(w_large, 100_000)
+        # Пусте підприємство повинно мати 0
+        self.assertEqual(w_empty, 0)
+
 if __name__ == "__main__":
     unittest.main()
+

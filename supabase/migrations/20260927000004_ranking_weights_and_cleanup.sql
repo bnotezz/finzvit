@@ -1,40 +1,28 @@
 -- ==============================================================================
--- FinZvit Supabase Database Schema
--- Реєстр компаній та оптимізований повнотекстовий/триграмний пошук
+-- FinZvit Supabase Database Migration
+-- 20260927000004_ranking_weights_and_cleanup.sql
+-- Дата створення: 2026-09-28 19:46:32
+-- Опис: Очищення дублюючих колонок років (latest_year, "lastYear", available_years),
+--       додавання вагового коефіцієнта масштабу компанії (weight),
+--       створення тригера захисту даних найсвіжішого року від затирання старішими періодами,
+--       та оновлення функції search_companies для пріоритетного показу великих компаній.
 -- ==============================================================================
 
--- 1. Увімкнення розширень для пошуку
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE EXTENSION IF NOT EXISTS unaccent;
+-- 1. Видалення застарілих дублюючих колонок
+ALTER TABLE public.companies 
+DROP COLUMN IF EXISTS latest_year,
+DROP COLUMN IF EXISTS "lastYear",
+DROP COLUMN IF EXISTS available_years;
 
--- 2. Створення ультра-компактної таблиці компаній (лише ~74 байти на рядок)
--- Усі важкі деталі (адреси, форми, звіти) зберігаються у Cloudflare R2
-CREATE TABLE IF NOT EXISTS public.companies (
-    edrpou VARCHAR(10) COLLATE "C" PRIMARY KEY,
-    name TEXT NOT NULL,
-    kved VARCHAR(10),
-    year SMALLINT DEFAULT 2025,
-    weight INTEGER DEFAULT 0
-);
+-- 2. Додавання числового рангу масштабу підприємства (~4 байти на рядок, ~1.7 МБ на всю Україну)
+ALTER TABLE public.companies 
+ADD COLUMN IF NOT EXISTS weight INTEGER DEFAULT 0;
 
--- 3. Налаштування мінімальних індексів (жодного зайвого дублювання):
---  - Primary key `companies_pkey` завдяки COLLATE "C" напряму обслуговує префіксний пошук (LIKE '123%')
---  - Триграмний GIN-індекс для блискавичного пошуку за назвою через ILIKE (5-15 мс)
-CREATE INDEX IF NOT EXISTS idx_companies_name_trgm 
-ON public.companies USING gin (name gin_trgm_ops);
-
--- 4. Налаштування Row Level Security (RLS)
-ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
-
--- Публічний доступ тільки на читання для всіх відвідувачів
-DROP POLICY IF EXISTS "Public read access for companies" ON public.companies;
-CREATE POLICY "Public read access for companies"
-ON public.companies
-FOR SELECT
-TO anon, authenticated
-USING (true);
-
--- 5. Тригер захисту даних найсвіжішого року від перезапису старішими періодами
+-- 3. Тригер захисту найсвіжіших даних від перезапису при завантаженні старіших років
+-- Гарантує:
+--  - Якщо імпортуються дані за старіший рік (NEW.year < OLD.year),
+--    актуальна назва, квед, рік та вага залишаються з найсвіжішого періоду.
+--  - Якщо в базі вага ще була 0, а у старішому періоді вона є, вага встановлюється.
 CREATE OR REPLACE FUNCTION public.protect_company_latest_data()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -56,7 +44,7 @@ BEFORE UPDATE ON public.companies
 FOR EACH ROW
 EXECUTE FUNCTION public.protect_company_latest_data();
 
--- 6. RPC функція для автокомпліту та ранжованого пошуку
+-- 4. Оновлення пошукової функції search_companies з урахуванням ваги підприємства
 DROP FUNCTION IF EXISTS public.search_companies(TEXT, INTEGER);
 
 CREATE OR REPLACE FUNCTION public.search_companies(
@@ -82,7 +70,7 @@ BEGIN
         RETURN;
     END IF;
 
-    -- 6.1. Пошук за кодом ЄДРПОУ
+    -- 4.1. Пошук за кодом або префіксом ЄДРПОУ
     is_numeric := cleaned_query ~ '^[0-9]+$';
 
     IF is_numeric THEN
@@ -95,12 +83,14 @@ BEGIN
         FROM public.companies c
         WHERE c.edrpou LIKE cleaned_query || '%'
         ORDER BY 
+            -- Точний збіг повного коду завжди йде на 1 місці
             CASE WHEN c.edrpou = cleaned_query THEN 1 ELSE 0 END DESC,
+            -- При збігу префіксу (наприклад 326...) більші підприємства йдуть першими
             c.weight DESC,
             c.edrpou ASC
         LIMIT lim;
     ELSE
-        -- 6.2. Швидкий пошук за назвою через GIN-триграмний індекс
+        -- 4.2. Пошук за назвою через GIN-триграмний індекс
         RETURN QUERY
         WITH matched AS (
             SELECT 
@@ -120,6 +110,7 @@ BEGIN
             m.sim AS similarity
         FROM matched m
         ORDER BY 
+            -- Близькі за точністю збіги сортуються за масштабом підприємства (weight DESC)
             round(m.sim::numeric, 2) DESC,
             m.weight DESC,
             length(m.name) ASC
@@ -128,5 +119,4 @@ BEGIN
 END;
 $$;
 
--- Надання прав на виклик функції
 GRANT EXECUTE ON FUNCTION public.search_companies(TEXT, INTEGER) TO anon, authenticated;

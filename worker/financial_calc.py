@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 class FinancialCalculator:
     """
@@ -478,3 +478,87 @@ class FinancialCalculator:
             return float(val)
         except (ValueError, TypeError):
             return None
+
+    @classmethod
+    def calculate_company_weight(
+        cls,
+        company_info: Optional[Dict[str, Any]] = None,
+        available_forms: Optional[List[Dict[str, Any]]] = None,
+        reports: Optional[Dict[str, Any]] = None
+    ) -> int:
+        """
+        Розраховує ваговий коефіцієнт (weight) масштабу підприємства для ранжування в пошуку.
+        Великі та середні компанії з повними звітами, значною кількістю працівників та високою
+        виручкою отримують вищий рейтинг перед мікрофірмами та неактивними підприємствами.
+        """
+        weight = 0
+        company_info = company_info or {}
+        available_forms = available_forms or []
+        reports = reports or {}
+
+        form_codes = {f.get("code", "").upper().strip() for f in available_forms if isinstance(f, dict)}
+
+        # 1. За типом поданої звітності (офіційна класифікація за Законом України «Про бухоблік»)
+        has_full_f1 = any(c.startswith("S01001") for c in form_codes)
+        has_full_f2 = any(c.startswith("S01002") for c in form_codes)
+        has_full_extended = any(
+            c.startswith("S01003") or c.startswith("S01033") or 
+            c.startswith("S01040") or c.startswith("S01050") 
+            for c in form_codes
+        )
+        has_small = any(c.startswith("S01100") for c in form_codes)
+        has_micro = any(c.startswith("S01110") for c in form_codes)
+
+        if has_full_f1 and has_full_f2 and has_full_extended:
+            weight += 100_000   # Повний комплект великого підприємства (Ф1, Ф2, Ф3, Ф4, Ф5)
+        elif has_full_f1 and has_full_f2:
+            weight += 50_000    # Середні підприємства (повні Ф1 + Ф2)
+        elif has_small:
+            weight += 10_000    # Малі підприємства (Ф1-м, Ф2-м)
+        elif has_micro:
+            weight += 2_000     # Мікропідприємства (Ф1-мс, Ф2-мс)
+        elif form_codes:
+            weight += 500
+
+        # Бонус за кожну окрему подану форму
+        weight += min(len(form_codes), 10) * 1_000
+
+        # 2. За кількістю працівників
+        raw_emp = company_info.get("employees")
+        try:
+            employees = int(raw_emp) if raw_emp is not None else 0
+        except (ValueError, TypeError):
+            employees = 0
+
+        if employees > 0:
+            weight += min(employees, 10_000) * 10
+
+        # 3. За виручкою (рядок 2000 у Ф2 або малих формах)
+        revenue = 0.0
+        for rep in reports.values():
+            data = rep.get("data", rep) if isinstance(rep, dict) else rep
+            if isinstance(data, dict):
+                inc = data.get("income", data)
+                if isinstance(inc, dict) and "2000" in inc:
+                    r2000 = inc["2000"]
+                    val = r2000.get("current") if isinstance(r2000, dict) else r2000
+                    try:
+                        if val is not None:
+                            revenue = max(revenue, abs(float(val)))
+                    except (ValueError, TypeError):
+                        pass
+
+        # Виручка в тис. грн:
+        if revenue >= 10_000_000:       # >= 10 млрд грн
+            weight += 100_000
+        elif revenue >= 1_000_000:      # >= 1 млрд грн
+            weight += 50_000
+        elif revenue >= 100_000:        # >= 100 млн грн
+            weight += 20_000
+        elif revenue >= 10_000:         # >= 10 млн грн
+            weight += 5_000
+        elif revenue > 0:
+            weight += 1_000
+
+        return weight
+
