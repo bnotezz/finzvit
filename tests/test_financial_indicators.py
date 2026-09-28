@@ -260,5 +260,52 @@ class TestFinancialIndicators(unittest.TestCase):
         self.assertAlmostEqual(r["net_margin"]["value"], -4.0, places=2)
         self.assertIn("2350/2355", r["net_margin"]["formula"])
 
+    def test_micro_company_kpis_s0110014(self):
+        """Перевірка розрахунку KPI для малого підприємства з комбінованою формою S0110014."""
+        micro_company = {
+            "edrpou": "40008320",
+            "name": "ПП \"ТЕСТ-МІКРО\"",
+            "year": 2025,
+            "reports": {
+                "S0110014": {
+                    "balance": {
+                        "1095": {"begin": 500.0, "end": 600.0},
+                        "1100": {"begin": 200.0, "end": 250.0},
+                        "1165": {"begin": 100.0, "end": 150.0},
+                        "1195": {"begin": 400.0, "end": 500.0},
+                        "1300": {"begin": 900.0, "end": 1100.0},
+                        "1495": {"begin": 600.0, "end": 700.0},
+                        "1595": {"begin": 100.0, "end": 100.0},
+                        "1695": {"begin": 200.0, "end": 300.0},
+                        "1900": {"begin": 900.0, "end": 1100.0},
+                    },
+                    "income": {
+                        "2000": {"current": 2000.0, "previous": 1800.0},
+                        "2280": {"current": 2000.0, "previous": 1800.0},
+                        "2285": {"current": 1600.0, "previous": 1500.0},
+                        "2290": {"current": 400.0, "previous": 300.0},
+                        "2300": {"current": 72.0, "previous": 54.0},
+                        "2350": {"current": 328.0, "previous": 246.0},
+                    }
+                }
+            }
+        }
+
+        kpi = FinancialCalculator.calculate_company_kpis(micro_company)
+        mm = kpi["main_metrics"]
+        r = kpi["ratios"]
+
+        self.assertEqual(mm["revenue"]["current"], 2000.0)
+        self.assertEqual(mm["net_income"]["current"], 328.0)
+        self.assertEqual(mm["assets"]["current"], 1100.0)
+        self.assertEqual(mm["equity"]["current"], 700.0)
+
+        # ROA: 328 / 1100 * 100 = 29.82%
+        self.assertAlmostEqual(r["roa"]["value"], 29.82, places=1)
+        # ROE: 328 / 700 * 100 = 46.86%
+        self.assertAlmostEqual(r["roe"]["value"], 46.86, places=1)
+        # Чиста маржа: 328 / 2000 * 100 = 16.4%
+        self.assertAlmostEqual(r["net_margin"]["value"], 16.4, places=1)
+
 if __name__ == "__main__":
     unittest.main()

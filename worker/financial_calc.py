@@ -17,7 +17,7 @@ class FinancialCalculator:
         b_data = rep_b.get("data", rep_b) if isinstance(rep_b, dict) else {}
         if not b_data:
             # Шукаємо комбіновані форми малих підприємств
-            for micro_code in ["S0110014", "S0111007"]:
+            for micro_code in ["S0110014", "S0110013", "S0111007", "S0111006"]:
                 m_rep = reports.get(micro_code, {})
                 m_data = m_rep.get("data", m_rep) if isinstance(m_rep, dict) else {}
                 if isinstance(m_data, dict) and "balance" in m_data:
@@ -28,7 +28,7 @@ class FinancialCalculator:
         rep_i = reports.get("S0100215", {})
         i_data = rep_i.get("data", rep_i) if isinstance(rep_i, dict) else {}
         if not i_data:
-            for micro_code in ["S0110014", "S0111007"]:
+            for micro_code in ["S0110014", "S0110013", "S0111007", "S0111006"]:
                 m_rep = reports.get(micro_code, {})
                 m_data = m_rep.get("data", m_rep) if isinstance(m_rep, dict) else {}
                 if isinstance(m_data, dict) and "income" in m_data:

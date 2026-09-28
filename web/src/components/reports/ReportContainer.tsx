@@ -26,14 +26,15 @@ interface ReportContainerProps {
 // 4: Звіт про власний капітал (Ф4)
 // 5: Примітки до річної звітності (Ф5)
 const getFormOrder = (code: string): number => {
-  const c = (code || '').toUpperCase();
-  if (c.includes('001')) return 1; // Ф1 Баланс
-  if (c.includes('002')) return 2; // Ф2 Фінрезультати
-  if (c.includes('110') || c.includes('100')) return 2.1; // 1-м / 2-м
-  if (c.includes('111')) return 2.2; // 1-мс / 2-мс
-  if (c.includes('003') || c.includes('033') || c.includes('335')) return 3; // Ф3 / Ф3-н Рух коштів
-  if (c.includes('040')) return 4; // Ф4 Власний капітал
-  if (c.includes('050') || c.includes('105')) return 5; // Ф5 Примітки
+  const c = (code || '').toUpperCase().trim();
+  if (c.startsWith('S01001')) return 1; // Ф1 Баланс
+  if (c.startsWith('S01002')) return 2; // Ф2 Фінрезультати
+  if (c.startsWith('S01100')) return 3; // 1-м / 2-м Малі
+  if (c.startsWith('S01110')) return 4; // 1-мс / 2-мс Мікро
+  if (c.startsWith('S01003') || c.startsWith('S01033')) return 5; // Ф3 / Ф3-н Рух коштів
+  if (c.startsWith('S01040')) return 6; // Ф4 Власний капітал
+  if (c.startsWith('S01050')) return 7; // Ф5 Примітки
+  if (c.startsWith('S01060')) return 8; // Ф6 Сегменти
   return 10;
 };
 
@@ -118,19 +119,19 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
       );
     }
 
-    const code = activeFormCode.toUpperCase();
-    if (code.includes('001')) {
+    const code = activeFormCode.toUpperCase().trim();
+    if (code.startsWith('S01001')) {
       return <RenderF1Balance report={currentReport} />;
-    } else if (code.includes('002')) {
+    } else if (code.startsWith('S01002')) {
       return <RenderF2Income report={currentReport} />;
-    } else if (code.includes('003') || code.includes('335') || code.includes('033')) {
-      return <RenderF3CashFlow report={currentReport} />;
-    } else if (code.includes('040')) {
-      return <RenderF4Equity report={currentReport} />;
-    } else if (code.includes('050') || code.includes('105')) {
-      return <RenderF5Notes report={currentReport} />;
-    } else if (code.includes('100') || code.includes('111')) {
+    } else if (code.startsWith('S01100') || code.startsWith('S01110')) {
       return <RenderMicroReport report={currentReport} />;
+    } else if (code.startsWith('S01003') || code.startsWith('S01033')) {
+      return <RenderF3CashFlow report={currentReport} />;
+    } else if (code.startsWith('S01040')) {
+      return <RenderF4Equity report={currentReport} />;
+    } else if (code.startsWith('S01050')) {
+      return <RenderF5Notes report={currentReport} />;
     } else {
       return (
         <RenderGenericReport

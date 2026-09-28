@@ -65,11 +65,13 @@ class TestCompanyMetaBuilder(unittest.TestCase):
         self.assertEqual(meta["available_forms"][0]["date_filled"], "20.02.2026")
 
     def test_canonical_form_sorting(self):
-        """Форми повинні сортуватися у правильній послідовності: Ф1 -> Ф2 -> Ф3/Ф3-н -> Ф4 -> Ф5."""
+        """Форми повинні сортуватися у правильній послідовності: Ф1 -> Ф2 -> Ф1-м/2-м -> Ф1-мс/2-мс -> Ф3/Ф3-н -> Ф4 -> Ф5."""
         forms = [
             {"form_code": "S0105009", "form_name": "Ф5. Примітки"},
             {"form_code": "S0104010", "form_name": "Ф4. Капітал"},
             {"form_code": "S0103355", "form_name": "Ф3-н. Рух коштів"},
+            {"form_code": "S0111007", "form_name": "Ф1-мс, 2-мс"},
+            {"form_code": "S0110014", "form_name": "Ф1-м, 2-м"},
             {"form_code": "S0100215", "form_name": "Ф2. Фінрезультати"},
             {"form_code": "S0100115", "form_name": "Ф1. Баланс"},
         ]
@@ -78,7 +80,7 @@ class TestCompanyMetaBuilder(unittest.TestCase):
         meta = CompanyMetaBuilder.build_company_meta(reports)
         sorted_codes = [f["code"] for f in meta["available_forms"]]
 
-        expected = ["S0100115", "S0100215", "S0103355", "S0104010", "S0105009"]
+        expected = ["S0100115", "S0100215", "S0110014", "S0111007", "S0103355", "S0104010", "S0105009"]
         self.assertEqual(sorted_codes, expected)
 
     def test_build_unified_company_json_structure_and_serialization(self):

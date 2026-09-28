@@ -18,7 +18,8 @@ export function formatCurrency(
   }
 
   const isDeduction = options?.isDeduction ?? false;
-  const decimals = options?.decimals ?? 0;
+  const hasDecimals = Math.abs(num % 1) > 0.001;
+  const decimals = options?.decimals ?? (hasDecimals ? 1 : 0);
 
   // Форматування з пробілами
   const parts = Math.abs(num).toFixed(decimals).split(".");

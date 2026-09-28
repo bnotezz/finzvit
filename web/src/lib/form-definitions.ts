@@ -287,24 +287,41 @@ export const F4_EQUITY_ROWS = [
 // СПРОЩЕНІ ФОРМИ ДЛЯ МАЛИХ ТА МІКРОПІДПРИЄМСТВ
 // ==============================================================================
 export const F1M_BALANCE_ROWS: StatementRowDef[] = [
+  // --- АКТИВ: I. Необоротні активи ---
   { section: 'АКТИВ', name: 'I. Необоротні активи', code: null, level: 0 },
+  { section: 'АКТИВ', name: 'Нематеріальні активи', code: '1000', level: 1 },
+  { section: 'АКТИВ', name: 'первісна вартість', code: '1001', level: 2 },
+  { section: 'АКТИВ', name: 'накопичена амортизація', code: '1002', level: 2, isDeduction: true },
+  { section: 'АКТИВ', name: 'Незавершені капітальні інвестиції', code: '1005', level: 1 },
   { section: 'АКТИВ', name: 'Основні засоби', code: '1010', level: 1 },
   { section: 'АКТИВ', name: 'первісна вартість', code: '1011', level: 2 },
   { section: 'АКТИВ', name: 'знос', code: '1012', level: 2, isDeduction: true },
+  { section: 'АКТИВ', name: 'Довгострокові біологічні активи', code: '1020', level: 1 },
+  { section: 'АКТИВ', name: 'Довгострокові фінансові інвестиції', code: '1030', level: 1 },
   { section: 'АКТИВ', name: 'Інші необоротні активи', code: '1090', level: 1 },
   { section: 'АКТИВ', name: 'Усього за розділом I', code: '1095', level: 1, isTotal: true },
 
+  // --- АКТИВ: II. Оборотні активи ---
   { section: 'АКТИВ', name: 'II. Оборотні активи', code: null, level: 0 },
   { section: 'АКТИВ', name: 'Запаси', code: '1100', level: 1 },
+  { section: 'АКТИВ', name: 'у тому числі готова продукція', code: '1103', level: 2 },
   { section: 'АКТИВ', name: 'Поточні біологічні активи', code: '1110', level: 1 },
   { section: 'АКТИВ', name: 'Дебіторська заборгованість за продукцію, товари, роботи, послуги', code: '1125', level: 1 },
   { section: 'АКТИВ', name: 'Дебіторська заборгованість за розрахунками з бюджетом', code: '1135', level: 1 },
+  { section: 'АКТИВ', name: 'у тому числі з податку на прибуток', code: '1136', level: 2 },
   { section: 'АКТИВ', name: 'Інша поточна дебіторська заборгованість', code: '1155', level: 1 },
+  { section: 'АКТИВ', name: 'Поточні фінансові інвестиції', code: '1160', level: 1 },
   { section: 'АКТИВ', name: 'Гроші та їх еквіваленти', code: '1165', level: 1 },
+  { section: 'АКТИВ', name: 'Витрати майбутніх періодів', code: '1170', level: 1 },
   { section: 'АКТИВ', name: 'Інші оборотні активи', code: '1190', level: 1 },
   { section: 'АКТИВ', name: 'Усього за розділом II', code: '1195', level: 1, isTotal: true },
-  { section: 'АКТИВ', name: 'Баланс (Актив)', code: '1300', level: 0, isTotal: true },
 
+  // --- АКТИВ: III. Необоротні активи на продаж & Баланс ---
+  { section: 'АКТИВ', name: 'III. Необоротні активи, утримувані для продажу, та групи вибуття', code: null, level: 0 },
+  { section: 'АКТИВ', name: 'Необоротні активи, утримувані для продажу, та групи вибуття', code: '1200', level: 1 },
+  { section: 'АКТИВ', name: 'БАЛАНС (АКТИВ)', code: '1300', level: 0, isTotal: true, isFinal: true },
+
+  // --- ПАСИВ: I. Власний капітал ---
   { section: 'ПАСИВ', name: 'I. Власний капітал', code: null, level: 0 },
   { section: 'ПАСИВ', name: 'Зареєстрований (пайовий) капітал', code: '1400', level: 1 },
   { section: 'ПАСИВ', name: 'Додатковий капітал', code: '1410', level: 1 },
@@ -313,30 +330,39 @@ export const F1M_BALANCE_ROWS: StatementRowDef[] = [
   { section: 'ПАСИВ', name: 'Неоплачений капітал', code: '1425', level: 1, isDeduction: true },
   { section: 'ПАСИВ', name: 'Усього за розділом I', code: '1495', level: 1, isTotal: true },
 
-  { section: 'ПАСИВ', name: 'II. Довгострокові зобов\'язання', code: '1595', level: 1, isTotal: true },
+  // --- ПАСИВ: II. Довгострокові зобов\'язання ---
+  { section: 'ПАСИВ', name: 'II. Довгострокові зобов\'язання, цільове фінансування та забезпечення', code: null, level: 0 },
+  { section: 'ПАСИВ', name: 'Довгострокові зобов\'язання, цільове фінансування та забезпечення', code: '1595', level: 1, isTotal: true },
 
+  // --- ПАСИВ: III. Поточні зобов\'язання ---
   { section: 'ПАСИВ', name: 'III. Поточні зобов\'язання', code: null, level: 0 },
   { section: 'ПАСИВ', name: 'Короткострокові кредити банків', code: '1600', level: 1 },
-  { section: 'ПАСИВ', name: 'Поточна кредиторська заборгованість: за товари, роботи, послуги', code: '1615', level: 1 },
-  { section: 'ПАСИВ', name: 'за розрахунками з бюджетом', code: '1620', level: 1 },
-  { section: 'ПАСИВ', name: 'за розрахунками зі страхування', code: '1625', level: 1 },
-  { section: 'ПАСИВ', name: 'за розрахунками з оплати праці', code: '1630', level: 1 },
+  { section: 'ПАСИВ', name: 'Поточна кредиторська заборгованість: за довгостроковими зобов\'язаннями', code: '1610', level: 1 },
+  { section: 'ПАСИВ', name: 'товари, роботи, послуги', code: '1615', level: 1 },
+  { section: 'ПАСИВ', name: 'розрахунками з бюджетом', code: '1620', level: 1 },
+  { section: 'ПАСИВ', name: 'у тому числі з податку на прибуток', code: '1621', level: 2 },
+  { section: 'ПАСИВ', name: 'розрахунками зі страхування', code: '1625', level: 1 },
+  { section: 'ПАСИВ', name: 'розрахунками з оплати праці', code: '1630', level: 1 },
+  { section: 'ПАСИВ', name: 'Доходи майбутніх періодів', code: '1665', level: 1 },
   { section: 'ПАСИВ', name: 'Інші поточні зобов\'язання', code: '1690', level: 1 },
   { section: 'ПАСИВ', name: 'Усього за розділом III', code: '1695', level: 1, isTotal: true },
-  { section: 'ПАСИВ', name: 'Баланс (Пасив)', code: '1900', level: 0, isTotal: true },
+
+  // --- ПАСИВ: IV. Зобов\'язання за необоротними активами для продажу & Баланс ---
+  { section: 'ПАСИВ', name: 'IV. Зобов\'язання, пов\'язані з необоротними активами, утримуваними для продажу, та групами вибуття', code: null, level: 0 },
+  { section: 'ПАСИВ', name: 'Зобов\'язання, пов\'язані з необоротними активами, утримуваними для продажу, та групами вибуття', code: '1700', level: 1 },
+  { section: 'ПАСИВ', name: 'БАЛАНС (ПАСИВ)', code: '1900', level: 0, isTotal: true, isFinal: true },
 ];
 
 export const F2M_INCOME_ROWS: StatementRowDef[] = [
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Чистий дохід від реалізації продукції (товарів, робіт, послуг)', code: '2000', level: 1 },
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Інші операційні доходи', code: '2120', level: 1 },
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Інші доходи', code: '2240', level: 1 },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Разом доходи', code: '2280', level: 1, isTotal: true },
+  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Разом доходи (2000 + 2120 + 2240)', code: '2280', level: 1, isTotal: true },
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Собівартість реалізованої продукції (товарів, робіт, послуг)', code: '2050', level: 1, isDeduction: true },
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Інші операційні витрати', code: '2180', level: 1, isDeduction: true },
   { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Інші витрати', code: '2270', level: 1, isDeduction: true },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Разом витрати', code: '2285', level: 1, isDeduction: true, isTotal: true },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Фінансовий результат до оподаткування: прибуток', code: '2290', level: 1, isTotal: true },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Фінансовий результат до оподаткування: збиток', code: '2295', level: 1, isDeduction: true },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Податок на прибуток', code: '2300', level: 1 },
-  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Чистий прибуток (збиток)', code: '2350', level: 1, isTotal: true },
+  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Разом витрати (2050 + 2180 + 2270)', code: '2285', level: 1, isDeduction: true, isTotal: true },
+  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Фінансовий результат до оподаткування (2280 – 2285)', code: '2290', level: 1, isTotal: true },
+  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Податок на прибуток', code: '2300', level: 1, isDeduction: true },
+  { section: 'ФІНАНСОВІ РЕЗУЛЬТАТИ', name: 'Чистий прибуток (збиток) (2290 – 2300)', code: '2350', level: 1, isTotal: true, isFinal: true },
 ];

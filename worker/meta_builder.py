@@ -48,15 +48,15 @@ class CompanyMetaBuilder:
             })
 
         def form_sort_key(f):
-            c = f.get("code") or ""
-            if "001" in c: return 1
-            if "002" in c: return 2
-            if "100" in c: return 3
-            if "111" in c: return 4
-            if "003" in c or "033" in c: return 5
-            if "040" in c: return 6
-            if "050" in c: return 7
-            if "060" in c: return 8
+            c = (f.get("code") or "").upper().strip()
+            if c.startswith("S01001"): return 1
+            if c.startswith("S01002"): return 2
+            if c.startswith("S01100"): return 3
+            if c.startswith("S01110"): return 4
+            if c.startswith("S01003") or c.startswith("S01033"): return 5
+            if c.startswith("S01040"): return 6
+            if c.startswith("S01050"): return 7
+            if c.startswith("S01060"): return 8
             return 9
 
         available_forms.sort(key=form_sort_key)
@@ -111,15 +111,15 @@ class CompanyMetaBuilder:
         Усуває надлишкове дублювання реквізитів підприємства та службових заголовків у кожній формі.
         """
         def form_sort_key(f):
-            c = f.get("code", "")
-            if "001" in c: return 1
-            if "002" in c: return 2
-            if "100" in c: return 3
-            if "111" in c: return 4
-            if "003" in c or "033" in c: return 5
-            if "040" in c: return 6
-            if "050" in c: return 7
-            if "060" in c: return 8
+            c = (f.get("code") or "").upper().strip()
+            if c.startswith("S01001"): return 1
+            if c.startswith("S01002"): return 2
+            if c.startswith("S01100"): return 3
+            if c.startswith("S01110"): return 4
+            if c.startswith("S01003") or c.startswith("S01033"): return 5
+            if c.startswith("S01040"): return 6
+            if c.startswith("S01050"): return 7
+            if c.startswith("S01060"): return 8
             return 9
 
         company_fields = [

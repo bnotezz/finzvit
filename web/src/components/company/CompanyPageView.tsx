@@ -6,6 +6,7 @@ import { CompanyHeader } from './CompanyHeader';
 import { ReportContainer } from '../reports/ReportContainer';
 import { SearchBar } from '../search/SearchBar';
 import { formatCurrency, calcNetIncome } from '../../lib/formatters';
+import { F1M_BALANCE_ROWS, F2M_INCOME_ROWS } from '../../lib/form-definitions';
 
 interface CompanyPageViewProps {
   edrpou: string;
@@ -50,20 +51,26 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
 
         // Знаходимо форми Ф1 (Баланс) та Ф2 (Фінрезультати)
         const forms = data.available_forms || [];
-        const f1Form = forms.find((f) => 
-          f.code.includes('001') || f.code.includes('110') || f.code.includes('111')
-        );
-        const f2Form = forms.find((f) => 
-          f.code.includes('002') || f.code.includes('110') || f.code.includes('111')
-        );
+        const f1Form = forms.find((f) => {
+          const c = (f.code || '').toUpperCase();
+          return c.startsWith('S01001') || c.startsWith('S01100') || c.startsWith('S01110');
+        });
+        const f2Form = forms.find((f) => {
+          const c = (f.code || '').toUpperCase();
+          return c.startsWith('S01002') || c.startsWith('S01100') || c.startsWith('S01110');
+        });
 
         // Встановлюємо звіти безпосередньо з єдиного консолідованого документу
         if (data.reports) {
           if (f1Form && data.reports[f1Form.code]) {
-            setBalanceReport(data.reports[f1Form.code]);
+            const raw = data.reports[f1Form.code];
+            const rep = raw?.balance ? { ...raw, data: raw.balance } : (raw?.data ? raw : { data: raw });
+            setBalanceReport(rep);
           }
           if (f2Form && data.reports[f2Form.code]) {
-            setIncomeReport(data.reports[f2Form.code]);
+            const raw = data.reports[f2Form.code];
+            const rep = raw?.income ? { ...raw, data: raw.income } : (raw?.data ? raw : { data: raw });
+            setIncomeReport(rep);
           }
         }
       })
@@ -139,22 +146,45 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     csvContent += `ЄДРПОУ: ${company.edrpou}\n`;
     csvContent += `Період: ${company.year || 2025} рік\n\n`;
 
-    csvContent += `Код рядка,Початок / Попередній,Кінець / Звітний\n`;
-
-    Object.entries(data).forEach(([code, vals]: [string, any]) => {
-      if (typeof vals === 'object' && vals !== null) {
-        if ('begin' in vals || 'end' in vals) {
-          csvContent += `"${code}","${vals.begin ?? ''}","${vals.end ?? ''}"\n`;
-        } else if ('previous' in vals || 'current' in vals) {
-          csvContent += `"${code}","${vals.previous ?? ''}","${vals.current ?? ''}"\n`;
-        } else {
-          const colVals = Object.entries(vals).map(([k, v]) => `${k}:${v}`).join('; ');
-          csvContent += `"${code}","${colVals}",""\n`;
-        }
-      } else {
-        csvContent += `"${code}","${vals ?? ''}",""\n`;
+    if (data.balance || data.income) {
+      // Спрощена звітність 1-м, 2-м
+      if (data.balance) {
+        csvContent += `ФОРМА № 1-м. БАЛАНС (ДКУД 1801006)\n`;
+        csvContent += `Код рядка,Назва статті,На початок року,На кінець звітного періоду\n`;
+        F1M_BALANCE_ROWS.forEach((row) => {
+          if (!row.code) return;
+          const vals = data.balance[row.code];
+          csvContent += `"${row.code}","${row.name}","${vals?.begin ?? ''}","${vals?.end ?? ''}"\n`;
+        });
+        csvContent += `\n`;
       }
-    });
+      if (data.income) {
+        csvContent += `ФОРМА № 2-м. ЗВІТ ПРО ФІНАНСОВІ РЕЗУЛЬТАТИ (ДКУД 1801007)\n`;
+        csvContent += `Код рядка,Назва статті,За звітний період,За аналогічний період попереднього року\n`;
+        F2M_INCOME_ROWS.forEach((row) => {
+          if (!row.code) return;
+          const vals = data.income[row.code];
+          csvContent += `"${row.code}","${row.name}","${vals?.current ?? ''}","${vals?.previous ?? ''}"\n`;
+        });
+      }
+    } else {
+      csvContent += `Код рядка,Початок / Попередній,Кінець / Звітний\n`;
+
+      Object.entries(data).forEach(([code, vals]: [string, any]) => {
+        if (typeof vals === 'object' && vals !== null) {
+          if ('begin' in vals || 'end' in vals) {
+            csvContent += `"${code}","${vals.begin ?? ''}","${vals.end ?? ''}"\n`;
+          } else if ('previous' in vals || 'current' in vals) {
+            csvContent += `"${code}","${vals.previous ?? ''}","${vals.current ?? ''}"\n`;
+          } else {
+            const colVals = Object.entries(vals).map(([k, v]) => `${k}:${v}`).join('; ');
+            csvContent += `"${code}","${colVals}",""\n`;
+          }
+        } else {
+          csvContent += `"${code}","${vals ?? ''}",""\n`;
+        }
+      });
+    }
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -177,8 +207,10 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         assets: kpi.assets?.current,
       };
     }
-    const bData = (balanceReport as any)?.data || balanceReport || {};
-    const iData = (incomeReport as any)?.data || incomeReport || {};
+    const rawB = (balanceReport as any)?.data || balanceReport || {};
+    const bData = rawB.balance || rawB;
+    const rawI = (incomeReport as any)?.data || incomeReport || {};
+    const iData = rawI.income || rawI;
     const netProfit = calcNetIncome(iData['2350']?.current, iData['2355']?.current);
     const revenue = iData['2000']?.current ?? null;
     const netMargin = (netProfit !== null && revenue && revenue > 0)
@@ -408,11 +440,13 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
             const rawCode = (rep as any)?.meta?.form_code;
             const matchingForm = company.available_forms?.find((f) => f.title === title || f.code === rawCode);
             const code = (rawCode || matchingForm?.code || '').toUpperCase();
-            if (code.includes('001')) setBalanceReport(rep);
-            if (code.includes('002')) setIncomeReport(rep);
-            if (code.includes('110') || code.includes('111')) {
-              setBalanceReport(rep);
-              setIncomeReport(rep);
+            if (code.startsWith('S01001')) setBalanceReport(rep);
+            if (code.startsWith('S01002')) setIncomeReport(rep);
+            if (code.startsWith('S01100') || code.startsWith('S01110')) {
+              const bRep = rep?.balance ? { ...rep, data: rep.balance } : rep;
+              const iRep = rep?.income ? { ...rep, data: rep.income } : rep;
+              setBalanceReport(bRep);
+              setIncomeReport(iRep);
             }
           }
         }}
