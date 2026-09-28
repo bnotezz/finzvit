@@ -7,6 +7,11 @@ import unittest
 from unittest.mock import MagicMock, patch
 from concurrent.futures import ThreadPoolExecutor
 
+try:
+    import boto3
+except ImportError:
+    boto3 = None
+
 from worker.uploaders.r2_uploader import R2Uploader
 
 class TestR2Uploader(unittest.TestCase):
@@ -21,6 +26,7 @@ class TestR2Uploader(unittest.TestCase):
             self.assertFalse(uploader.is_configured())
             self.assertIsNone(uploader.get_client())
 
+    @unittest.skipIf(boto3 is None, "boto3 is not installed")
     @patch("boto3.session.Session")
     def test_thread_local_isolation(self, mock_session_cls):
         # Кожен виклик Session() повертає новий Mock-сесію та новий Mock-клієнт
@@ -55,6 +61,7 @@ class TestR2Uploader(unittest.TestCase):
         # Всі 8 потоків повинні отримати різні інстанси (потоко-ізольовані)
         self.assertEqual(len(set(client_ids)), 8)
 
+    @unittest.skipIf(boto3 is None, "boto3 is not installed")
     @patch("boto3.session.Session")
     def test_upload_json(self, mock_session_cls):
         mock_client = MagicMock()
@@ -84,6 +91,7 @@ class TestR2Uploader(unittest.TestCase):
         parsed_body = json.loads(decompressed_bytes.decode("utf-8"))
         self.assertEqual(parsed_body, sample_data)
 
+    @unittest.skipIf(boto3 is None, "boto3 is not installed")
     @patch("boto3.session.Session")
     def test_upload_raw(self, mock_session_cls):
         mock_client = MagicMock()
@@ -108,6 +116,7 @@ class TestR2Uploader(unittest.TestCase):
         self.assertEqual(call_kwargs["ContentEncoding"], "gzip")
         self.assertEqual(gzip.decompress(call_kwargs["Body"]), raw_data)
 
+    @unittest.skipIf(boto3 is None, "boto3 is not installed")
     @patch("boto3.session.Session")
     def test_upload_batch_parallel(self, mock_session_cls):
         mock_client = MagicMock()
