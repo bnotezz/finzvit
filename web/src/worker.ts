@@ -90,7 +90,7 @@ export default {
             }
           }
         } else {
-          // 2. Будь-який інший прямий ключ в R2 (наприклад companies_registry.json)
+          // 2. Будь-який інший прямий ключ в R2
           const directObj = await env.R2_BUCKET.get(key);
           if (directObj) {
             const headers = new Headers();

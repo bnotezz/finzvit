@@ -98,13 +98,13 @@ class TestR2Uploader(unittest.TestCase):
             bucket_name="test-bucket"
         )
 
-        raw_data = b'{"registry": [1, 2, 3]}'
-        res = uploader.upload_raw("companies_registry.json", raw_data, compress=True)
+        raw_data = b'{"status": "ok"}'
+        res = uploader.upload_raw("metadata.json", raw_data, compress=True)
         self.assertTrue(res)
 
         mock_client.put_object.assert_called_once()
         call_kwargs = mock_client.put_object.call_args[1]
-        self.assertEqual(call_kwargs["Key"], "companies_registry.json")
+        self.assertEqual(call_kwargs["Key"], "metadata.json")
         self.assertEqual(call_kwargs["ContentEncoding"], "gzip")
         self.assertEqual(gzip.decompress(call_kwargs["Body"]), raw_data)
 

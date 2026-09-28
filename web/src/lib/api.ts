@@ -5,47 +5,35 @@ import type { CompanySearchResult, CompanyFullData } from './types';
 const R2_PUBLIC_URL = import.meta.env.PUBLIC_R2_URL || '/data';
 
 /**
- * Швидкий пошук компаній:
- * 1. Якщо налаштовано Supabase — через RPC search_companies.
- * 2. Інакше fallback на локальний реєстр /data/companies_registry.json.
+ * Швидкий пошук компаній через Supabase RPC search_companies.
+ * Використовує триграмні індекси (pg_trgm) для миттєвого автокомпліту (< 15ms).
  */
 export async function searchCompanies(query: string, limit = 8): Promise<CompanySearchResult[]> {
   const clean = query.trim();
   if (!clean) return [];
 
-  // Спробуємо через Supabase RPC
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.rpc('search_companies', {
-        search_query: clean,
-        lim: limit,
-      });
-
-      if (!error && data && Array.isArray(data)) {
-        return data as CompanySearchResult[];
-      }
-    } catch (err) {
-      console.warn('Помилка пошуку через Supabase, перемикаємось на fallback:', err);
-    }
+  if (!supabase) {
+    console.error('Клієнт Supabase не ініціалізовано. Перевірте змінні середовища PUBLIC_SUPABASE_URL та PUBLIC_SUPABASE_PUBLISHABLE_KEY.');
+    return [];
   }
 
-  // Fallback: локальний реєстр
   try {
-    const res = await fetch('/data/companies_registry.json');
-    if (!res.ok) return [];
-    const companies: CompanySearchResult[] = await res.json();
+    const { data, error } = await supabase.rpc('search_companies', {
+      search_query: clean,
+      lim: limit,
+    });
 
-    const isNumeric = /^\d+$/.test(clean);
-    return companies
-      .filter((c) => {
-        if (isNumeric) {
-          return c.edrpou.startsWith(clean);
-        }
-        return c.name.toLowerCase().includes(clean.toLowerCase());
-      })
-      .slice(0, limit);
+    if (error) {
+      console.error('Помилка пошуку через Supabase RPC search_companies:', error.message || error);
+      return [];
+    }
+
+    if (data && Array.isArray(data)) {
+      return data as CompanySearchResult[];
+    }
+    return [];
   } catch (err) {
-    console.error('Не вдалося завантажити реєстр:', err);
+    console.error('Мережева помилка пошуку через Supabase:', err);
     return [];
   }
 }

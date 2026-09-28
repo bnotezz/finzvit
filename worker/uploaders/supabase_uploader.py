@@ -38,7 +38,8 @@ class SupabaseUploader:
         self,
         supabase_url: Optional[str] = None,
         supabase_key: Optional[str] = None,
-        local_output_dir: str = "output"
+        local_output_dir: str = "output",
+        save_local: bool = False
     ):
         self.url = supabase_url or os.getenv("SUPABASE_URL")
         self.key = (
@@ -48,6 +49,7 @@ class SupabaseUploader:
             or os.getenv("SUPABASE_KEY")
         )
         self.local_output_dir = local_output_dir
+        self.save_local = save_local
         self.client: Optional[Client] = None
 
         if not self.url or not self.key:
@@ -71,17 +73,21 @@ class SupabaseUploader:
         if not companies:
             return True
 
-        # Локальне резервне збереження реєстру
-        local_path = os.path.join(self.local_output_dir, "companies_registry.json")
-        try:
-            os.makedirs(self.local_output_dir, exist_ok=True)
-            with open(local_path, "w", encoding="utf-8") as f:
-                json.dump(companies, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error("Не вдалося зберегти локальний реєстр: %s", e)
+        # Локальне резервне збереження реєстру лише за запитом --save-local
+        if self.save_local:
+            local_path = os.path.join(self.local_output_dir, "companies_registry.json")
+            try:
+                os.makedirs(self.local_output_dir, exist_ok=True)
+                with open(local_path, "w", encoding="utf-8") as f:
+                    json.dump(companies, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                logger.error("Не вдалося зберегти локальний реєстр: %s", e)
 
         if not self.url or not self.key:
-            logger.warning("Реєстр збережено лише локально у: %s", local_path)
+            if self.save_local:
+                logger.warning("Реєстр збережено лише локально у: %s", os.path.join(self.local_output_dir, "companies_registry.json"))
+            else:
+                logger.warning("Supabase не налаштовано, дані не збережено.")
             return True
 
         # Формуємо ультра-легковагові записи

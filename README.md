@@ -26,8 +26,8 @@
 | **Стилізація** | **Tailwind CSS 4.3.3** + `@tailwindcss/vite` | Новітній рушій стилізації без застарілих конфігів |
 | **Іконки та графіка** | **Lucide React 1.48.0** | Сучасний набір векторних іконок інтерфейсу |
 | **Data Worker** | Python 3.11+, lxml, httpx, boto3, supabase-py | Потокове розпакування ZIP, дедуплікація версій, парсинг XML, розрахунок KPI, R2/Supabase |
-| **База даних / Пошук** | Supabase (PostgreSQL 15+ / `@supabase/supabase-js 2.117.2`) | Легкий реєстр компаній, автокомпліт, швидкий пошук за ЄДРПОУ/назвою |
-| **Сховище даних** | Cloudflare R2 + Edge Worker (`wrangler`) | Єдиний ультра-оптимізований JSON `{year}/{edrpou}.json` (-36% ваги, без зайвих метаданих), проксі з кешуванням |
+| **База даних / Пошук** | Supabase (PostgreSQL 15+ / `@supabase/supabase-js 2.117.2`) | Легкий реєстр компаній, миттєвий автокомпліт через RPC `search_companies` та `pg_trgm` |
+| **Сховище даних** | Cloudflare R2 + Edge Worker (`wrangler`) | Pre-compressed Gzip JSON `{year}/{edrpou}.json` (-82% розміру, ~800 МБ замість ~5 ГБ на 435k компаній), Zero-CPU Edge Streaming |
 
 ---
 
@@ -100,21 +100,22 @@ npm run build
 ```
 *(Збірка займає ~1 секунду завдяки Astro 7 та Tailwind 4)*.
 
-### 3. Запуск автоматизованих тестів:
+### 3. Запуск автоматизованих тестів та QA:
 ```bash
-python3 -m unittest discover -v tests
+./scripts/qa.sh
 ```
-*(Виконує 54 тести: парсинг усіх 5 форм, бухгалтерські рівності актив=пасив, розрахунок KPI, стійкість до битих даних та порівняння з еталонними CSV)*.
+*(Виконує 62 тести: парсинг усіх 5 форм, бухгалтерські рівності актив=пасив, розрахунок KPI з урахуванням 2350/2355, стійкість до битих даних, стиснення R2 Gzip та збірку Astro вебу без жодної помилки)*.
 
-### 4. Data Worker (підготовка даних):
+### 4. Data Worker (підготовка та завантаження даних):
 ```bash
-python3 worker/run_worker.py --input sample/fin_zvit_2025_sample.zip --year 2025 --output web/public/data
+python3 worker/run_worker.py --input sample/fin_zvit_2025_sample.zip --year 2025
 ```
 
 ---
 
 ## 📑 Детальна документація
 
+- [🚀 Інструкція з повного розгортання проєкту (DEPLOYMENT_GUIDE.md)](docs/DEPLOYMENT_GUIDE.md)
 - [Вимоги до системи (REQUIREMENTS.md)](docs/REQUIREMENTS.md)
 - [Архітектура та проектування (ARCHITECTURE.md)](docs/ARCHITECTURE.md)
 - [Фінансова аналітика та коефіцієнти (FINANCIAL_METRICS_AND_RATIOS.md)](docs/FINANCIAL_METRICS_AND_RATIOS.md)

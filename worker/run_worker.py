@@ -86,7 +86,7 @@ def process_reports(
             max_workers=threads
         )
 
-    supabase = SupabaseUploader(local_output_dir=output_dir)
+    supabase = SupabaseUploader(local_output_dir=output_dir, save_local=save_local)
     cf_cache = CloudflareCachePurge()
 
     # Сховища в пам'яті:
@@ -179,13 +179,6 @@ def process_reports(
             pbar_r2 = ProgressBar(total=len(upload_items), prefix="R2 Upload", unit="file")
             r2.upload_batch_parallel(upload_items, pbar=pbar_r2)
             pbar_r2.close()
-
-            # Завантаження єдиного стисненого реєстру компаній для глобального пошуку
-            if companies_registry_meta:
-                import json as _json
-                reg_bytes = _json.dumps(companies_registry_meta, ensure_ascii=False, separators=(',', ':')).encode("utf-8")
-                logger.info("☁️ Завантаження стисненого реєстру companies_registry.json у Cloudflare R2 (%d компаній)...", len(companies_registry_meta))
-                r2.upload_raw("companies_registry.json", reg_bytes, compress=True, cache_control="public, max-age=86400, s-maxage=86400")
         elif save_local:
             import json as _json
             logger.info("💾 Збереження %d файлів на локальний диск (%s)...", len(upload_items), output_dir)
