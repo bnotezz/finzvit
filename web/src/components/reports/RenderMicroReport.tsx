@@ -12,6 +12,7 @@ import {
 import { F1M_BALANCE_ROWS, F2M_INCOME_ROWS } from '../../lib/form-definitions';
 import { formatCurrency, calculateChange } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
+import { MobileTreeCardView, type MobileReportRowItem } from './MobileTreeCardView';
 
 interface RenderMicroReportProps {
   report: ReportData;
@@ -75,6 +76,29 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
     });
   }, [searchTerm, onlyFilled, balanceData]);
 
+  // Мобільна структура для Балансу (Ф1-м)
+  const mobileBalanceRows = useMemo<MobileReportRowItem[]>(() => {
+    return filteredBalanceRows.map((row) => {
+      const isMainBalance = row.code === '1300' || row.code === '1900';
+      const rowVals = row.code ? balanceData[row.code] : null;
+      return {
+        code: row.code,
+        name: row.name,
+        level: row.level,
+        section: row.section,
+        isTotal: row.isTotal,
+        isDeduction: row.isDeduction,
+        isMainHighlight: isMainBalance,
+        val1Label: 'Поч',
+        val1: rowVals?.begin ?? null,
+        val2Label: 'Кін',
+        val2: rowVals?.end ?? null,
+        val1FullLabel: 'На початок року',
+        val2FullLabel: 'На кінець періоду',
+      };
+    });
+  }, [filteredBalanceRows, balanceData]);
+
   // Фільтрація рядків Фінрезультатів (Ф2-м)
   const filteredIncomeRows = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -93,6 +117,28 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
       return true;
     });
   }, [searchTerm, onlyFilled, incomeData]);
+
+  // Мобільна структура для Фінрезультатів (Ф2-м)
+  const mobileIncomeRows = useMemo<MobileReportRowItem[]>(() => {
+    return filteredIncomeRows.map((row) => {
+      const isNetProfit = row.code === '2350';
+      const rowVals = row.code ? incomeData[row.code] : null;
+      return {
+        code: row.code,
+        name: row.name,
+        level: row.level,
+        isTotal: row.isTotal,
+        isDeduction: row.isDeduction,
+        isMainHighlight: isNetProfit,
+        val1Label: 'Попер',
+        val1: rowVals?.previous ?? null,
+        val2Label: 'Звіт',
+        val2: rowVals?.current ?? null,
+        val1FullLabel: 'За попередній рік',
+        val2FullLabel: 'За звітний період',
+      };
+    });
+  }, [filteredIncomeRows, incomeData]);
 
   return (
     <div className="space-y-6">
@@ -173,7 +219,7 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
 
       {/* 1. ФОРМА № 1-м. БАЛАНС (Код за ДКУД 1801006) */}
       {(activeSection === 'all' || activeSection === 'balance') && (
-        <div className="overflow-x-auto rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md">
+        <div className="rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md overflow-hidden">
           {/* Заголовок офіційної форми */}
           <div className="p-4 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -218,7 +264,14 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
             )}
           </div>
 
-          <table className="fin-table w-full text-left border-collapse text-sm">
+          {/* Мобільний деревоподібний перегляд (Tree / Card View) */}
+          <div className="md:hidden print:hidden p-3 space-y-2">
+            <MobileTreeCardView rows={mobileBalanceRows} />
+          </div>
+
+          {/* Десктопна та друкована таблиця */}
+          <div className="hidden md:block print:block overflow-x-auto">
+            <table className="fin-table w-full text-left border-collapse text-sm">
             <thead>
               <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 text-xs font-medium">
                 <th className="py-3 px-4 w-1/2">Актив / Пасив (Назва статті)</th>
@@ -336,12 +389,13 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
       {/* 2. ФОРМА № 2-м. ЗВІТ ПРО ФІНАНСОВІ РЕЗУЛЬТАТИ (Код за ДКУД 1801007) */}
       {(activeSection === 'all' || activeSection === 'income') && (
-        <div className="overflow-x-auto rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md">
+        <div className="rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md overflow-hidden">
           {/* Заголовок офіційної форми */}
           <div className="p-4 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -379,7 +433,14 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
             )}
           </div>
 
-          <table className="fin-table w-full text-left border-collapse text-sm">
+          {/* Мобільний деревоподібний перегляд (Tree / Card View) */}
+          <div className="md:hidden print:hidden p-3 space-y-2">
+            <MobileTreeCardView rows={mobileIncomeRows} />
+          </div>
+
+          {/* Десктопна та друкована таблиця */}
+          <div className="hidden md:block print:block overflow-x-auto">
+            <table className="fin-table w-full text-left border-collapse text-sm">
             <thead>
               <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 text-xs font-medium">
                 <th className="py-3 px-4 w-1/2">Назва статті</th>
@@ -484,6 +545,7 @@ export const RenderMicroReport: React.FC<RenderMicroReportProps> = ({ report }) 
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

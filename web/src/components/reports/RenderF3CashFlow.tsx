@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { F3_CASHFLOW_ROWS } from '../../lib/form-definitions';
 import { formatCurrency, calculateChange } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
+import { MobileTreeCardView, type MobileReportRowItem } from './MobileTreeCardView';
 
 interface RenderF3CashFlowProps {
   report: ReportData;
@@ -33,6 +34,29 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report, year
       return vals && (vals.current !== null || vals.previous !== null);
     });
   }, [data, onlyFilled]);
+
+  // Мобільна структура для деревоподібного перегляду
+  const mobileRows = useMemo<MobileReportRowItem[]>(() => {
+    return filteredRows.map((row) => {
+      const isMainResult = row.code === '3195' || row.code === '3295' || row.code === '3395' || row.code === '3405';
+      const rowCode = row.code;
+      const rowValues = rowCode ? data[rowCode] : null;
+      return {
+        code: row.code,
+        name: row.name,
+        level: row.level,
+        isTotal: row.isTotal,
+        isDeduction: row.isDeduction,
+        isMainHighlight: isMainResult,
+        val1Label: 'Попер',
+        val1: rowValues?.previous ?? null,
+        val2Label: 'Звіт',
+        val2: rowValues?.current ?? null,
+        val1FullLabel: 'За попередній рік',
+        val2FullLabel: 'За звітний період',
+      };
+    });
+  }, [filteredRows, data]);
 
   // Підрахунок заповнених рядків
   const filledCount = useMemo(() => {
@@ -80,8 +104,17 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report, year
         </button>
       </div>
 
+      {/* Мобільний деревоподібний перегляд (Tree / Card View) */}
+      <div className="md:hidden print:hidden p-3 space-y-2">
+        <MobileTreeCardView
+          rows={mobileRows}
+          collapsedSections={collapsedSections}
+          onToggleSection={toggleSection}
+        />
+      </div>
+
       {/* Таблиця грошових потоків */}
-      <div className="overflow-x-auto">
+      <div className="hidden md:block print:block overflow-x-auto">
         <table className="fin-table w-full text-left border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">

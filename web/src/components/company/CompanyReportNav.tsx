@@ -11,7 +11,8 @@ import {
   HelpCircle,
   FileText,
   Loader2,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 import type { AvailableForm } from '../../lib/types';
 
@@ -361,67 +362,99 @@ export const CompanyReportNav: React.FC<CompanyReportNavProps> = ({
             />
           </button>
 
-          {/* Випадне меню (Dropdown Popover) */}
+          {/* Мобільний вибір форми (Bottom Sheet Drawer) */}
           {mobileSelectOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 z-50 rounded-2xl bg-zinc-900/98 border border-zinc-700 shadow-2xl p-1.5 space-y-1 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-100 max-h-[60vh] overflow-y-auto">
-              <div className="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-zinc-500 border-b border-zinc-800">
-                Оберіть розділ або форму:
-              </div>
+            <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+              {/* Затемнення фону */}
+              <div
+                className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+                onClick={() => setMobileSelectOpen(false)}
+                aria-hidden="true"
+              />
 
-              {navItems.map((item) => {
-                const isSelected = item.code === activeFormCode;
-                const Icon = item.icon;
-                const isKpi = item.code === 'KPI';
+              {/* Нижня шторка (Drawer) */}
+              <div className="relative z-10 w-full max-h-[85vh] bg-zinc-900 border-t border-zinc-700/80 rounded-t-3xl shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-200">
+                {/* Drag Handle */}
+                <div className="pt-3 pb-1 flex justify-center shrink-0">
+                  <div className="w-12 h-1.5 bg-zinc-700 rounded-full" />
+                </div>
 
-                return (
+                {/* Шапка шторки */}
+                <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between shrink-0">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Оберіть розділ або форму</h3>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                      Звітний період: {selectedYear} рік
+                    </p>
+                  </div>
                   <button
-                    key={item.code}
                     type="button"
-                    onClick={() => {
-                      onSelectForm(item.code);
-                      setMobileSelectOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between gap-3 p-2 rounded-xl text-left transition-colors cursor-pointer ${
-                      isSelected
-                        ? isKpi
-                          ? 'bg-accent/15 border border-accent/30 text-white'
-                          : 'bg-zinc-800 border border-zinc-700 text-white'
-                        : 'hover:bg-zinc-800/60 text-zinc-300 border border-transparent'
-                    }`}
+                    onClick={() => setMobileSelectOpen(false)}
+                    className="p-2 rounded-xl text-zinc-400 hover:text-white bg-zinc-800/80 hover:bg-zinc-800 transition-colors"
+                    aria-label="Закрити"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Список доступних форм */}
+                <div className="p-3 space-y-1.5 overflow-y-auto overscroll-contain">
+                  {navItems.map((item) => {
+                    const isSelected = item.code === activeFormCode;
+                    const Icon = item.icon;
+                    const isKpi = item.code === 'KPI';
+
+                    return (
+                      <button
+                        key={item.code}
+                        type="button"
+                        onClick={() => {
+                          onSelectForm(item.code);
+                          setMobileSelectOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between gap-3 p-3 rounded-2xl text-left transition-colors cursor-pointer ${
                           isSelected
                             ? isKpi
-                              ? 'bg-accent/20 text-accent'
-                              : 'bg-zinc-700 text-white'
-                            : 'bg-zinc-800/80 text-zinc-400'
+                              ? 'bg-accent/15 border border-accent/40 text-white shadow-sm'
+                              : 'bg-zinc-800 border border-zinc-700 text-white shadow-sm'
+                            : 'bg-zinc-950/60 hover:bg-zinc-800/60 text-zinc-300 border border-zinc-800/70'
                         }`}
                       >
-                        <Icon className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-xs truncate flex items-center gap-1.5">
-                          <span>{item.shortName}</span>
-                          {isKpi && (
-                            <span className="text-[9px] px-1 py-0.2 rounded bg-accent/20 text-accent border border-accent/30 font-mono">
-                              BSC
-                            </span>
-                          )}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                              isSelected
+                                ? isKpi
+                                  ? 'bg-accent/20 text-accent border border-accent/30'
+                                  : 'bg-zinc-700 text-white border border-zinc-600'
+                                : 'bg-zinc-800 text-zinc-400 border border-zinc-700/60'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-xs sm:text-sm text-white truncate flex items-center gap-2">
+                              <span>{item.shortName}</span>
+                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                                {item.badge}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                              {item.fullName}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-[10px] text-zinc-400 truncate">
-                          {item.fullName}
-                        </div>
-                      </div>
-                    </div>
 
-                    {isSelected && (
-                      <Check className="w-4 h-4 text-accent shrink-0" />
-                    )}
-                  </button>
-                );
-              })}
+                        {isSelected && (
+                          <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0">
+                            <Check className="w-3.5 h-3.5 text-accent" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           )}
         </div>

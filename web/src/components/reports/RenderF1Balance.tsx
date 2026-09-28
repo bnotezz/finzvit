@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Eye, EyeOff, CheckCircle2, AlertTriangle } f
 import { F1_BALANCE_ROWS } from '../../lib/form-definitions';
 import { formatCurrency, calculateChange } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
+import { MobileTreeCardView, type MobileReportRowItem } from './MobileTreeCardView';
 
 interface RenderF1BalanceProps {
   report: ReportData;
@@ -44,6 +45,30 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report, year }
       return true;
     });
   }, [activeTab, onlyFilled, data]);
+
+  // Мобільна структура для деревоподібного перегляду
+  const mobileRows = useMemo<MobileReportRowItem[]>(() => {
+    return filteredRows.map((row) => {
+      const isMainBalance = row.code === '1300' || row.code === '1900';
+      const rowCode = row.code;
+      const rowValues = rowCode ? data[rowCode] : null;
+      return {
+        code: row.code,
+        name: row.name,
+        level: row.level,
+        section: row.section,
+        isTotal: row.isTotal,
+        isDeduction: row.isDeduction,
+        isMainHighlight: isMainBalance,
+        val1Label: 'Поч',
+        val1: rowValues?.begin ?? null,
+        val2Label: 'Кін',
+        val2: rowValues?.end ?? null,
+        val1FullLabel: 'На початок року',
+        val2FullLabel: 'На кінець періоду',
+      };
+    });
+  }, [filteredRows, data]);
 
   // Підрахунок заповнених статей для бейджа
   const filledCount = useMemo(() => {
@@ -195,18 +220,17 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report, year }
         </div>
       )}
 
-      {/* Мобільна підказка про свайп таблиці */}
-      <div className="flex sm:hidden items-center justify-between px-3 py-1.5 bg-zinc-900/70 border-b border-zinc-800 text-[11px] text-zinc-400 select-none">
-        <span className="flex items-center gap-1.5 text-zinc-400">
-          <span className="inline-block text-accent font-bold">←</span>
-          <span>Свайп колонок вбік</span>
-          <span className="inline-block text-accent font-bold">→</span>
-        </span>
-        <span className="text-zinc-500 font-mono text-[10px]">тис. ₴</span>
+      {/* Мобільний деревоподібний перегляд (Tree / Card View) */}
+      <div className="md:hidden print:hidden p-3 space-y-2">
+        <MobileTreeCardView
+          rows={mobileRows}
+          collapsedSections={collapsedSections}
+          onToggleSection={toggleSection}
+        />
       </div>
 
-      {/* Таблиця з закріпленою лівою колонкою на мобільному */}
-      <div className="overflow-x-auto relative">
+      {/* Десктопна та друкована таблиця */}
+      <div className="hidden md:block print:block overflow-x-auto relative">
         <table className="fin-table w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">

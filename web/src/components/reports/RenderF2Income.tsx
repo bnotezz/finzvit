@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { F2_INCOME_ROWS } from '../../lib/form-definitions';
 import { formatCurrency, calculateChange } from '../../lib/formatters';
 import type { ReportData } from '../../lib/types';
+import { MobileTreeCardView, type MobileReportRowItem } from './MobileTreeCardView';
 
 interface RenderF2IncomeProps {
   report: ReportData;
@@ -22,10 +23,36 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report, year }) 
   };
 
   const rows = F2_INCOME_ROWS;
+
+  // Мобільна структура для деревоподібного перегляду
+  const mobileRows = useMemo<MobileReportRowItem[]>(() => {
+    return rows.map((row) => {
+      const isNetResult = row.code === '2350' || row.code === '2355';
+      const isGrossResult = row.code === '2090' || row.code === '2095';
+      const isOperatingResult = row.code === '2190' || row.code === '2195';
+      const rowCode = row.code;
+      const rowValues = rowCode ? data[rowCode] : null;
+      return {
+        code: row.code,
+        name: row.name,
+        level: row.level,
+        isTotal: row.isTotal,
+        isDeduction: row.isDeduction,
+        isMainHighlight: isNetResult || isGrossResult || isOperatingResult,
+        val1Label: 'Попер',
+        val1: rowValues?.previous ?? null,
+        val2Label: 'Звіт',
+        val2: rowValues?.current ?? null,
+        val1FullLabel: 'За попередній рік',
+        val2FullLabel: 'За звітний період',
+      };
+    });
+  }, [rows, data]);
+
   let currentSectionHeader = '';
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md">
+    <div className="rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md overflow-hidden">
       <div className="p-4 border-b border-border-subtle flex flex-wrap items-center justify-between gap-4 bg-zinc-900/40">
         <div>
           <h2 className="text-lg font-bold text-white print:text-black tracking-tight flex items-center gap-2">
@@ -43,7 +70,18 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report, year }) 
         </div>
       </div>
 
-      <table className="fin-table w-full text-left border-collapse text-sm">
+      {/* Мобільний деревоподібний перегляд (Tree / Card View) */}
+      <div className="md:hidden print:hidden p-3 space-y-2">
+        <MobileTreeCardView
+          rows={mobileRows}
+          collapsedSections={collapsedSections}
+          onToggleSection={toggleSection}
+        />
+      </div>
+
+      {/* Десктопна та друкована таблиця */}
+      <div className="hidden md:block print:block overflow-x-auto">
+        <table className="fin-table w-full text-left border-collapse text-sm">
         <thead>
           <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 text-xs font-medium">
             <th className="py-3 px-4 w-1/2">Назва статті</th>
@@ -176,6 +214,7 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report, year }) 
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
