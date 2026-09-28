@@ -58,7 +58,7 @@ def process_reports(
     input_source: str,
     output_dir: str = "output",
     year: int = 2025,
-    threads: int = 80,
+    threads: int = 50,
     save_local: bool = False,
     dry_run: bool = False,
     skip_r2: bool = False,
@@ -164,6 +164,13 @@ def process_reports(
         })
         pbar_build.update(1)
     pbar_build.close()
+
+    # Очищення проміжних структур з пам'яті перед запуском мережевих потоків
+    del company_reports
+    del company_form_items
+    del company_last_ts
+    import gc
+    gc.collect()
 
     # 3. ВИСОКОШВИДКІСНЕ ЗАВАНТАЖЕННЯ В CLOUDFLARE R2 ТА/АБО ЗБЕРЕЖЕННЯ НА ДИСК
     if not dry_run:
@@ -442,8 +449,8 @@ def main():
     parser.add_argument(
         "--threads", "-t",
         type=int,
-        default=80,
-        help="Кількість паралельних потоків для R2 (за замовчуванням 80)"
+        default=50,
+        help="Кількість паралельних потоків для R2 (за замовчуванням 50)"
     )
     parser.add_argument(
         "--save-local",
