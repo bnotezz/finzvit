@@ -1,4 +1,5 @@
 import os
+import gzip
 import json
 import threading
 import tempfile
@@ -77,8 +78,35 @@ class TestR2Uploader(unittest.TestCase):
         self.assertEqual(call_kwargs["Bucket"], "test-bucket")
         self.assertEqual(call_kwargs["Key"], "2025/12345678.json")
         self.assertEqual(call_kwargs["ContentType"], "application/json; charset=utf-8")
-        parsed_body = json.loads(call_kwargs["Body"].decode("utf-8"))
+        self.assertEqual(call_kwargs["ContentEncoding"], "gzip")
+        # Перевіряємо, що байти є валідним gzip-потоком і розпаковуються у вихідний JSON
+        decompressed_bytes = gzip.decompress(call_kwargs["Body"])
+        parsed_body = json.loads(decompressed_bytes.decode("utf-8"))
         self.assertEqual(parsed_body, sample_data)
+
+    @patch("boto3.session.Session")
+    def test_upload_raw(self, mock_session_cls):
+        mock_client = MagicMock()
+        mock_session = MagicMock()
+        mock_session.client.return_value = mock_client
+        mock_session_cls.return_value = mock_session
+
+        uploader = R2Uploader(
+            account_id="fake_acc",
+            access_key_id="fake_key",
+            secret_access_key="fake_secret",
+            bucket_name="test-bucket"
+        )
+
+        raw_data = b'{"registry": [1, 2, 3]}'
+        res = uploader.upload_raw("companies_registry.json", raw_data, compress=True)
+        self.assertTrue(res)
+
+        mock_client.put_object.assert_called_once()
+        call_kwargs = mock_client.put_object.call_args[1]
+        self.assertEqual(call_kwargs["Key"], "companies_registry.json")
+        self.assertEqual(call_kwargs["ContentEncoding"], "gzip")
+        self.assertEqual(gzip.decompress(call_kwargs["Body"]), raw_data)
 
     @patch("boto3.session.Session")
     def test_upload_batch_parallel(self, mock_session_cls):

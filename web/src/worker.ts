@@ -55,6 +55,9 @@ export default {
       try {
         let finalResponse: Response | null = null;
 
+        const acceptEncoding = request.headers.get('Accept-Encoding') || '';
+        const acceptsGzip = acceptEncoding.includes('gzip') || acceptEncoding.includes('*');
+
         // 1. Єдиний консолідований JSON компанії: /{year}/{edrpou}.json (напр. 2025/32673400.json)
         const unifiedMatch = key.match(/^(\d{4})\/(\d{6,10})\.json$/);
         if (unifiedMatch) {
@@ -71,8 +74,20 @@ export default {
             headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
             headers.set('Cache-Tag', cacheTag);
             headers.set('X-FinZvit-Source', 'r2-unified');
+            headers.set('Vary', 'Accept-Encoding');
 
-            finalResponse = new Response(unifiedObj.body, { headers });
+            if (acceptsGzip) {
+              // Наскрізний потік без витрат процесорного часу воркера (Zero CPU)
+              headers.set('Content-Encoding', 'gzip');
+              finalResponse = new Response(unifiedObj.body, { headers });
+            } else {
+              // Для клієнтів без підтримки gzip (наприклад curl без --compressed)
+              headers.delete('Content-Encoding');
+              finalResponse = new Response(
+                unifiedObj.body.pipeThrough(new DecompressionStream('gzip')),
+                { headers }
+              );
+            }
           }
         } else {
           // 2. Будь-який інший прямий ключ в R2 (наприклад companies_registry.json)
@@ -84,7 +99,23 @@ export default {
             headers.set('Content-Type', 'application/json; charset=utf-8');
             headers.set('Access-Control-Allow-Origin', '*');
             headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-            finalResponse = new Response(directObj.body, { headers });
+
+            const isGzip = directObj.httpMetadata?.contentEncoding === 'gzip';
+            if (isGzip) {
+              headers.set('Vary', 'Accept-Encoding');
+              if (acceptsGzip) {
+                headers.set('Content-Encoding', 'gzip');
+                finalResponse = new Response(directObj.body, { headers });
+              } else {
+                headers.delete('Content-Encoding');
+                finalResponse = new Response(
+                  directObj.body.pipeThrough(new DecompressionStream('gzip')),
+                  { headers }
+                );
+              }
+            } else {
+              finalResponse = new Response(directObj.body, { headers });
+            }
           }
         }
 
