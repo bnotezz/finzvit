@@ -18,6 +18,7 @@ import type { ReportData } from '../../lib/types';
 
 interface RenderF5NotesProps {
   report: ReportData;
+  year?: number;
 }
 
 // ============================================================================
@@ -137,8 +138,9 @@ const SECTION_XII_ROWS = [
   { code: 'A1243', line: '1243', name: 'інше' },
 ];
 
-export const RenderF5Notes: React.FC<RenderF5NotesProps> = ({ report }) => {
+export const RenderF5Notes: React.FC<RenderF5NotesProps> = ({ report, year }) => {
   const data = (report as any)?.data || report || {};
+  const displayYear = year || report.meta?.period_year;
   const [onlyFilled, setOnlyFilled] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'assets' | 'capex' | 'income' | 'provisions' | 'inventory' | 'debt' | 'tax'>('all');
 
@@ -164,7 +166,7 @@ export const RenderF5Notes: React.FC<RenderF5NotesProps> = ({ report }) => {
             </span>
           </div>
           <p className="text-xs text-zinc-400 print:text-black mt-1">
-            Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
+            Звітний період: за {displayYear ? `${displayYear} рік` : 'звітний період'} · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
 

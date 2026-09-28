@@ -77,14 +77,14 @@ export async function checkAvailableYears(edrpou: string): Promise<number[]> {
     })
   );
   const found = results.filter((r) => r.ok).map((r) => r.year);
-  return found.length > 0 ? found : [2025];
+  return found.length > 0 ? found : [SUPPORTED_YEARS[0]];
 }
 
 /**
  * Завантажує єдиний повний документ компанії зі всіма її звітами та реквізитами (/{year}/{edrpou}.json)
  * Забезпечує завантаження всієї фінансової звітності за 1 надшвидкий мережевий запит.
  */
-export async function fetchCompanyData(edrpou: string, year = 2025): Promise<CompanyFullData> {
+export async function fetchCompanyData(edrpou: string, year: number = SUPPORTED_YEARS[0]): Promise<CompanyFullData> {
   const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json?v=${CACHE_VERSION}`;
   const res = await fetch(url);
   if (!res.ok) {

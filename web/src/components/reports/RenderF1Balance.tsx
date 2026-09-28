@@ -6,10 +6,12 @@ import type { ReportData } from '../../lib/types';
 
 interface RenderF1BalanceProps {
   report: ReportData;
+  year?: number;
 }
 
-export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
+export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report, year }) => {
   const data = (report as any)?.data || report || {};
+  const displayYear = year || report.meta?.period_year;
 
   // Фільтри та керування відображенням
   const [activeTab, setActiveTab] = useState<'all' | 'asset' | 'liability'>('all');
@@ -81,7 +83,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
             </span>
           </div>
           <p className="text-[11px] sm:text-xs text-zinc-400 print:text-black mt-0.5 leading-normal">
-            Звітний період: на 31 грудня {report.meta?.period_year || 2025} року · Одиниця виміру: тис. гривень (тис. ₴)
+            Звітний період: на 31 грудня {displayYear ? `${displayYear} року` : ''} · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
 

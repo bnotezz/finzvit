@@ -6,10 +6,12 @@ import type { ReportData } from '../../lib/types';
 
 interface RenderF2IncomeProps {
   report: ReportData;
+  year?: number;
 }
 
-export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
+export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report, year }) => {
   const data = (report as any)?.data || report || {};
+  const displayYear = year || report.meta?.period_year;
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (sectionName: string) => {
@@ -36,7 +38,7 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
             </span>
           </h2>
           <p className="text-xs text-zinc-400 print:text-black mt-0.5">
-            Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
+            Звітний період: за {displayYear ? `${displayYear} рік` : 'звітний період'} · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
       </div>

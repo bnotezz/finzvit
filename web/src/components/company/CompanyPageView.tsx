@@ -81,15 +81,26 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     });
 
     if (data.reports) {
-      if (f1Form && data.reports[f1Form.code]) {
-        const raw = data.reports[f1Form.code];
+      // Знаходимо звіт Ф1 (Баланс) за доступною формою або безпосередньо за кодом у reports
+      const f1Key = f1Form?.code || Object.keys(data.reports).find((k) => {
+        const c = k.toUpperCase();
+        return c.startsWith('S01001') || c.startsWith('S01100') || c.startsWith('S01110');
+      });
+      if (f1Key && data.reports[f1Key]) {
+        const raw = data.reports[f1Key];
         const rep = raw?.balance ? { ...raw, data: raw.balance } : (raw?.data ? raw : { data: raw });
         setBalanceReport(rep);
       } else {
         setBalanceReport(null);
       }
-      if (f2Form && data.reports[f2Form.code]) {
-        const raw = data.reports[f2Form.code];
+
+      // Знаходимо звіт Ф2 (Фінрезультати) за доступною формою або безпосередньо за кодом у reports
+      const f2Key = f2Form?.code || Object.keys(data.reports).find((k) => {
+        const c = k.toUpperCase();
+        return c.startsWith('S01002') || c.startsWith('S01100') || c.startsWith('S01110');
+      });
+      if (f2Key && data.reports[f2Key]) {
+        const raw = data.reports[f2Key];
         const rep = raw?.income ? { ...raw, data: raw.income } : (raw?.data ? raw : { data: raw });
         setIncomeReport(rep);
       } else {
@@ -314,28 +325,38 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   // Швидкі показники для компактної плашки
   const quickKpi = useMemo(() => {
     const kpi = (company as any)?.financial_kpi;
-    if (kpi) {
-      return {
-        revenue: kpi.revenue?.current,
-        netProfit: kpi.net_profit?.current,
-        netMargin: kpi.net_margin_pct,
-        assets: kpi.assets?.current,
-      };
-    }
+    const mainM = kpi?.main_metrics;
+
+    let revenue: number | null = kpi?.revenue?.current ?? mainM?.revenue?.current ?? null;
+    let netProfit: number | null = kpi?.net_profit?.current ?? mainM?.net_income?.current ?? null;
+    let assets: number | null = kpi?.assets?.current ?? mainM?.assets?.current ?? null;
+    let netMargin: number | null = kpi?.net_margin_pct ?? null;
+
+    // Якщо значення не знайдено в financial_kpi, розраховуємо з наявних звітів балансу та фінрезультатів
     const rawB = (balanceReport as any)?.data || balanceReport || {};
     const bData = rawB.balance || rawB;
     const rawI = (incomeReport as any)?.data || incomeReport || {};
     const iData = rawI.income || rawI;
-    const netProfit = calcNetIncome(iData['2350']?.current, iData['2355']?.current);
-    const revenue = iData['2000']?.current ?? null;
-    const netMargin = (netProfit !== null && revenue && revenue > 0)
-      ? Number(((netProfit / revenue) * 100).toFixed(1))
-      : null;
+
+    if (revenue === null && iData['2000']?.current !== undefined && iData['2000']?.current !== null) {
+      revenue = Number(iData['2000'].current);
+    }
+    if (netProfit === null) {
+      netProfit = calcNetIncome(iData['2350']?.current, iData['2355']?.current);
+    }
+    if (assets === null) {
+      const a = bData['1300']?.end ?? bData['1900']?.end;
+      if (a !== undefined && a !== null) assets = Number(a);
+    }
+    if (netMargin === null && netProfit !== null && revenue && revenue > 0) {
+      netMargin = Number(((netProfit / revenue) * 100).toFixed(1));
+    }
+
     return {
       revenue,
       netProfit,
       netMargin,
-      assets: bData['1300']?.end ?? bData['1900']?.end ?? null,
+      assets,
     };
   }, [company, balanceReport, incomeReport]);
 
@@ -538,6 +559,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         company={company}
         activeReportTitle={activeReportTitle}
         onExportCsv={handleExportCsv}
+        year={selectedYear}
       />
 
       {/* 2. Компактна плашка швидких показників (не займає екран і веде до вкладки KPI) */}

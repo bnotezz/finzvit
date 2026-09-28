@@ -14,7 +14,7 @@ export const RenderGenericReport: React.FC<RenderGenericReportProps> = ({
   report,
   formTitle,
   formCode,
-  year = 2025,
+  year,
 }) => {
   const data = (report as any)?.data || report || {};
   const [filter, setFilter] = useState('');
@@ -25,7 +25,7 @@ export const RenderGenericReport: React.FC<RenderGenericReportProps> = ({
 
   const displayTitle = formTitle || report.meta?.form_name || 'Примітки до річної звітності';
   const displayCode = formCode || report.meta?.form_code || '';
-  const displayYear = year || report.meta?.period_year || 2025;
+  const displayYear = year || report.meta?.period_year;
 
   return (
     <div className="rounded-2xl border border-border-card bg-surface-card shadow-2xl backdrop-blur-md overflow-hidden">

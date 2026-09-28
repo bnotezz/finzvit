@@ -130,25 +130,27 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
     }
 
     const code = activeFormCode.toUpperCase().trim();
+    const effectiveYear = company.year || selectedYear;
+
     if (code.startsWith('S01001')) {
-      return <RenderF1Balance report={currentReport} />;
+      return <RenderF1Balance report={currentReport} year={effectiveYear} />;
     } else if (code.startsWith('S01002')) {
-      return <RenderF2Income report={currentReport} />;
+      return <RenderF2Income report={currentReport} year={effectiveYear} />;
     } else if (code.startsWith('S01100') || code.startsWith('S01110')) {
-      return <RenderMicroReport report={currentReport} />;
+      return <RenderMicroReport report={currentReport} year={effectiveYear} />;
     } else if (code.startsWith('S01003') || code.startsWith('S01033')) {
-      return <RenderF3CashFlow report={currentReport} />;
+      return <RenderF3CashFlow report={currentReport} year={effectiveYear} />;
     } else if (code.startsWith('S01040')) {
-      return <RenderF4Equity report={currentReport} />;
+      return <RenderF4Equity report={currentReport} year={effectiveYear} />;
     } else if (code.startsWith('S01050')) {
-      return <RenderF5Notes report={currentReport} />;
+      return <RenderF5Notes report={currentReport} year={effectiveYear} />;
     } else {
       return (
         <RenderGenericReport
           report={currentReport}
           formTitle={formTitle}
           formCode={activeFormCode}
-          year={company.year || selectedYear}
+          year={effectiveYear}
         />
       );
     }

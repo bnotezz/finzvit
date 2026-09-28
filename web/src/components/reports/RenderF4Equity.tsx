@@ -6,10 +6,12 @@ import type { ReportData } from '../../lib/types';
 
 interface RenderF4EquityProps {
   report: ReportData;
+  year?: number;
 }
 
-export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
+export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report, year }) => {
   const data = (report as any)?.data || report || {};
+  const displayYear = year || report.meta?.period_year;
   const [onlyFilled, setOnlyFilled] = useState(true);
 
   // Фільтрація рядків
@@ -39,7 +41,7 @@ export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
             </span>
           </div>
           <p className="text-xs text-zinc-400 print:text-black mt-1">
-            Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
+            Звітний період: за {displayYear ? `${displayYear} рік` : 'звітний період'} · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
 

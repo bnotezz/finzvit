@@ -6,12 +6,14 @@ interface CompanyHeaderProps {
   company: CompanyMeta;
   activeReportTitle?: string;
   onExportCsv?: () => void;
+  year?: number;
 }
 
 export const CompanyHeader: React.FC<CompanyHeaderProps> = ({
   company,
   activeReportTitle,
   onExportCsv,
+  year,
 }) => {
   const [copied, setCopied] = useState(false);
   const [siteUrl, setSiteUrl] = useState('');
@@ -88,7 +90,7 @@ export const CompanyHeader: React.FC<CompanyHeaderProps> = ({
             </div>
             <div>
               <span className="font-semibold">Звітний період: </span>
-              <span>{company.year || 2025} рік · <span className="italic">Одиниця виміру: тис. гривень</span></span>
+              <span>{company.year || year} рік · <span className="italic">Одиниця виміру: тис. гривень</span></span>
             </div>
           </div>
 

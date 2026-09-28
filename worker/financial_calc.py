@@ -13,7 +13,7 @@ class FinancialCalculator:
         reports = unified_company_data.get("reports", {})
         
         # 1. Дані Балансу (Ф1 або мікро-форми)
-        rep_b = reports.get("S0100115", {})
+        rep_b = next((v for k, v in reports.items() if k.startswith("S01001")), {})
         b_data = rep_b.get("data", rep_b) if isinstance(rep_b, dict) else {}
         if not b_data:
             # Шукаємо комбіновані форми малих підприємств
@@ -25,7 +25,7 @@ class FinancialCalculator:
                     break
 
         # 2. Дані Звіту про фінрезультати (Ф2 або мікро-форми)
-        rep_i = reports.get("S0100215", {})
+        rep_i = next((v for k, v in reports.items() if k.startswith("S01002")), {})
         i_data = rep_i.get("data", rep_i) if isinstance(rep_i, dict) else {}
         if not i_data:
             for micro_code in ["S0110014", "S0110013", "S0111007", "S0111006"]:
