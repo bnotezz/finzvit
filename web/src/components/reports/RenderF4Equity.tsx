@@ -28,14 +28,17 @@ export const RenderF4Equity: React.FC<RenderF4EquityProps> = ({ report }) => {
       <div className="p-4 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-white print:text-black tracking-tight">
               Звіт про власний капітал
             </h2>
-            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20">
+            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent print:bg-transparent print:border-black print:text-black border border-accent/20">
               Форма № 4
             </span>
+            <span className="hidden print:inline text-[9pt] font-mono text-black">
+              (ДКУД 1801004)
+            </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-zinc-400 print:text-black mt-1">
             Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>

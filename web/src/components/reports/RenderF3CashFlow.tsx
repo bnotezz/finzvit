@@ -48,14 +48,17 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report }) =>
       <div className="p-4 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-white print:text-black tracking-tight">
               Звіт про рух грошових коштів (за прямим методом)
             </h2>
-            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20">
+            <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent print:bg-transparent print:border-black print:text-black border border-accent/20">
               Форма № 3
             </span>
+            <span className="hidden print:inline text-[9pt] font-mono text-black">
+              (ДКУД 1801003)
+            </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-zinc-400 print:text-black mt-1">
             Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
@@ -77,15 +80,22 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report }) =>
 
       {/* Таблиця грошових потоків */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse text-sm">
+        <table className="fin-table w-full text-left border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">
               <th className="py-3 px-4 min-w-[320px]">Стаття звіту</th>
               <th className="py-3 px-3 w-16 text-center font-mono">Код</th>
               <th className="py-3 px-4 text-right font-mono min-w-[130px]">За звітний період (тис. ₴)</th>
               <th className="py-3 px-4 text-right font-mono min-w-[130px]">За попередній рік (тис. ₴)</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[110px] hidden sm:table-cell">Зміна (тис. ₴)</th>
-              <th className="py-3 px-4 text-right font-mono min-w-[90px]">Зміна, %</th>
+              <th className="py-3 px-4 text-right font-mono min-w-[110px]">Зміна (+/–, %)</th>
+            </tr>
+            {/* Офіційні номери колонок згідно з бланком ДКУД 1801003 */}
+            <tr className="border-b border-zinc-800 bg-zinc-900/60 text-zinc-500 text-[11px] font-mono text-center">
+              <th className="py-1 px-4 text-left">1</th>
+              <th className="py-1 px-3">2</th>
+              <th className="py-1 px-4 text-right">3</th>
+              <th className="py-1 px-4 text-right">4</th>
+              <th className="py-1 px-4 text-right">5</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
@@ -102,7 +112,7 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report }) =>
                     onClick={() => toggleSection(row.name)}
                     className="bg-zinc-900/90 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
                   >
-                    <td colSpan={6} className="py-2.5 px-4 font-semibold text-white">
+                    <td colSpan={5} className="py-2.5 px-4 font-semibold text-white">
                       <div className="flex items-center gap-2">
                         {isCollapsed ? (
                           <ChevronRight className="w-4 h-4 text-accent" />
@@ -177,27 +187,37 @@ export const RenderF3CashFlow: React.FC<RenderF3CashFlowProps> = ({ report }) =>
                     {formatCurrency(prevVal, { isDeduction: row.isDeduction })}
                   </td>
 
-                  {/* Абсолютна зміна */}
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums text-zinc-400 hidden sm:table-cell">
-                    {change.absolute !== null ? formatCurrency(change.absolute) : '—'}
-                  </td>
-
-                  {/* Відносна зміна % */}
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums">
-                    {change.direction !== 'none' ? (
-                      <span
-                        className={`text-xs font-medium px-1.5 py-0.5 rounded ${
-                          change.direction === 'positive'
-                            ? 'bg-emerald-500/10 text-emerald-400'
-                            : change.direction === 'negative'
-                            ? 'bg-rose-500/10 text-rose-400'
-                            : 'text-zinc-400'
-                        }`}
-                      >
-                        {change.text}
-                      </span>
+                  {/* Зміна (об'єднана: абсолютна + %) */}
+                  <td className="py-2.5 px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
+                    {change.absolute !== null ? (
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1">
+                        <span
+                          className={`font-medium ${
+                            change.direction === 'positive'
+                              ? 'text-emerald-400 print:text-black'
+                              : change.direction === 'negative'
+                              ? 'text-rose-400 print:text-black'
+                              : 'text-zinc-400 print:text-black'
+                          }`}
+                        >
+                          {change.absolute > 0 ? '+' : ''}{formatCurrency(change.absolute)}
+                        </span>
+                        {change.direction !== 'none' && (
+                          <span
+                            className={`text-[11px] px-1 py-0.2 rounded whitespace-nowrap print:bg-transparent print:p-0 print:text-black ${
+                              change.direction === 'positive'
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : change.direction === 'negative'
+                                ? 'bg-rose-500/10 text-rose-400'
+                                : 'text-zinc-400'
+                            }`}
+                          >
+                            ({change.text})
+                          </span>
+                        )}
+                      </div>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-zinc-600 print:text-black">—</span>
                     )}
                   </td>
                 </tr>

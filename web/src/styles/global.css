@@ -58,27 +58,188 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Оптимізація друку */
+/* Оптимізація друку: Офіційний формат звітності А4 (ДКУД / НП(С)БО) */
+@page {
+  size: A4 portrait;
+  margin: 8mm 8mm 10mm 8mm;
+}
+
 @media print {
-  body {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-size: 8.5pt !important;
+    line-height: 1.25 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
   }
-  .no-print {
+
+  /* Приховуємо інтерактивні елементи та веб-навігацію */
+  .no-print,
+  nav,
+  header,
+  footer,
+  button,
+  input,
+  .sticky {
     display: none !important;
+    position: static !important;
   }
+
   .print-only {
     display: block !important;
   }
-  .bg-surface, .bg-surface-card {
+
+  /* Скидання розмітки та відступів зовнішніх контейнерів */
+  main, .container, .space-y-6, .space-y-4 {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    gap: 0 !important;
+  }
+
+  /* Заборона обрізки та горизонтального скролу */
+  .overflow-x-auto, .overflow-y-auto, .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  /* Скидання заокруглень та тіней */
+  .rounded-2xl, .rounded-xl, .rounded-lg, .rounded, .rounded-3xl {
+    border-radius: 0 !important;
+  }
+
+  .backdrop-blur-md, .backdrop-blur-xl, .shadow-xl, .shadow-2xl, .shadow-lg, .shadow-md, .shadow-sm {
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Фонові кольори для друку - прозорі або білі */
+  .bg-surface,
+  .bg-surface-card,
+  .bg-zinc-950,
+  .bg-zinc-900,
+  .bg-zinc-900\/40,
+  .bg-zinc-900\/60,
+  .bg-zinc-900\/70,
+  .bg-zinc-900\/80,
+  .bg-zinc-900\/90,
+  .bg-zinc-900\/95,
+  .bg-zinc-800 {
     background: transparent !important;
   }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  th, td {
-    border: 1px solid #ddd !important;
+
+  /* Усі тексти чітко чорні */
+  .text-white,
+  .text-zinc-100,
+  .text-zinc-200,
+  .text-zinc-300,
+  .text-zinc-400,
+  .text-zinc-500,
+  .text-zinc-600,
+  .text-accent,
+  .text-emerald-400,
+  .text-rose-400,
+  .text-amber-400,
+  .text-indigo-400,
+  .text-blue-400 {
     color: #000000 !important;
+  }
+
+  /* Межі офіційного бланку */
+  .border,
+  .border-b,
+  .border-t,
+  .border-y,
+  .border-border-card,
+  .border-border-subtle,
+  .border-zinc-800,
+  .border-zinc-700 {
+    border-color: #000000 !important;
+  }
+
+  /* Офіційні таблиці звітів: фіксована ширина без виходу за межі А4 */
+  table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    border: 1.5px solid #000000 !important;
+    margin-top: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  thead tr {
+    background-color: #f1f5f9 !important;
+    border-bottom: 1.5px solid #000000 !important;
+  }
+
+  th {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 8pt !important;
+    padding: 3px 4px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    line-height: 1.15 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  td {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    padding: 2.5px 4px !important;
+    font-size: 8pt !important;
+    line-height: 1.15 !important;
+    vertical-align: middle !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    word-break: break-word !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Розподіл колонок для стандартних 5-колонкових форм (Ф1, Ф2, Ф3, Ф1-м, Ф2-м) */
+  .fin-table th:nth-child(1),
+  .fin-table td:nth-child(1) {
+    width: 48% !important;
+    text-align: left !important;
+  }
+  .fin-table th:nth-child(2),
+  .fin-table td:nth-child(2) {
+    width: 9% !important;
+    text-align: center !important;
+  }
+  .fin-table th:nth-child(3),
+  .fin-table td:nth-child(3) {
+    width: 14% !important;
+    text-align: right !important;
+  }
+  .fin-table th:nth-child(4),
+  .fin-table td:nth-child(4) {
+    width: 14% !important;
+    text-align: right !important;
+  }
+  .fin-table th:nth-child(5),
+  .fin-table td:nth-child(5) {
+    width: 15% !important;
+    text-align: right !important;
   }
 }

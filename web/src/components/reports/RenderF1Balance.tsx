@@ -70,14 +70,17 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
       <div className="p-3.5 sm:p-5 border-b border-border-subtle bg-zinc-900/60 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold text-white print:text-black tracking-tight">
               Баланс (Звіт про фінансовий стан)
             </h2>
-            <span className="text-[10px] sm:text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent border border-accent/20 shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-zinc-800 text-accent print:bg-transparent print:border-black print:text-black border border-accent/20 shrink-0">
               Форма № 1
             </span>
+            <span className="hidden print:inline text-[9pt] font-mono text-black">
+              (ДКУД 1801001)
+            </span>
           </div>
-          <p className="text-[11px] sm:text-xs text-zinc-400 mt-0.5 leading-normal">
+          <p className="text-[11px] sm:text-xs text-zinc-400 print:text-black mt-0.5 leading-normal">
             Звітний період: на 31 грудня {report.meta?.period_year || 2025} року · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
@@ -202,7 +205,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
 
       {/* Таблиця з закріпленою лівою колонкою на мобільному */}
       <div className="overflow-x-auto relative">
-        <table className="w-full text-left border-collapse text-xs sm:text-sm">
+        <table className="fin-table w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/90 text-zinc-400 text-xs font-medium">
               {/* Стаття звіту: закріплена зліва (sticky) на мобільному */}
@@ -227,16 +230,20 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                 <span className="hidden sm:inline">На кінець (тис. ₴)</span>
               </th>
 
-              {/* Абсолютна зміна: тільки на десктопі */}
-              <th className="py-3 px-4 text-right font-mono min-w-[120px] hidden sm:table-cell">
-                Зміна (тис. ₴)
+              {/* Об'єднана зміна (+/–, %) */}
+              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[95px] sm:min-w-[130px]">
+                <span className="sm:hidden">Зміна</span>
+                <span className="hidden sm:inline">Зміна (+/–, %)</span>
               </th>
+            </tr>
 
-              {/* Відносна зміна */}
-              <th className="py-2.5 sm:py-3 px-2.5 sm:px-4 text-right font-mono min-w-[70px] sm:min-w-[90px]">
-                <span className="sm:hidden">Δ, %</span>
-                <span className="hidden sm:inline">Зміна, %</span>
-              </th>
+            {/* Офіційні номери колонок згідно з бланком ДКУД 1801001 */}
+            <tr className="border-b border-zinc-800 bg-zinc-900/60 text-zinc-500 text-[11px] font-mono text-center">
+              <th className="py-1 px-3 text-left">1</th>
+              <th className="hidden sm:table-cell py-1 px-2">2</th>
+              <th className="py-1 px-3 text-right">3</th>
+              <th className="py-1 px-3 text-right">4</th>
+              <th className="py-1 px-3 text-right">5</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
@@ -253,7 +260,7 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                     onClick={() => toggleSection(row.name)}
                     className="bg-zinc-900/95 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
                   >
-                    <td colSpan={6} className="py-2.5 px-3 sm:px-4 font-semibold text-white">
+                    <td colSpan={5} className="py-2.5 px-3 sm:px-4 font-semibold text-white">
                       <div className="sticky left-3 sm:left-4 inline-flex items-center justify-between w-full max-w-[calc(100vw-48px)] sm:max-w-none pr-2">
                         <div className="flex items-center gap-2">
                           {isCollapsed ? (
@@ -359,27 +366,37 @@ export const RenderF1Balance: React.FC<RenderF1BalanceProps> = ({ report }) => {
                     {formatCurrency(endVal, { isDeduction: row.isDeduction })}
                   </td>
 
-                  {/* Абсолютна зміна (десктоп) */}
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums text-zinc-400 hidden sm:table-cell">
-                    {change.absolute !== null ? formatCurrency(change.absolute) : '—'}
-                  </td>
-
-                  {/* Відносна зміна % */}
+                  {/* Зміна (об'єднана: абсолютна + %) */}
                   <td className="py-2 sm:py-2.5 px-2.5 sm:px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
-                    {change.direction !== 'none' ? (
-                      <span
-                        className={`text-[11px] sm:text-xs font-medium px-1 sm:px-1.5 py-0.5 rounded whitespace-nowrap ${
-                          change.direction === 'positive'
-                            ? 'bg-emerald-500/10 text-emerald-400'
-                            : change.direction === 'negative'
-                            ? 'bg-rose-500/10 text-rose-400'
-                            : 'text-zinc-400'
-                        }`}
-                      >
-                        {change.text}
-                      </span>
+                    {change.absolute !== null ? (
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1">
+                        <span
+                          className={`font-medium ${
+                            change.direction === 'positive'
+                              ? 'text-emerald-400 print:text-black'
+                              : change.direction === 'negative'
+                              ? 'text-rose-400 print:text-black'
+                              : 'text-zinc-400 print:text-black'
+                          }`}
+                        >
+                          {change.absolute > 0 ? '+' : ''}{formatCurrency(change.absolute)}
+                        </span>
+                        {change.direction !== 'none' && (
+                          <span
+                            className={`text-[11px] px-1 py-0.2 rounded whitespace-nowrap print:bg-transparent print:p-0 print:text-black ${
+                              change.direction === 'positive'
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : change.direction === 'negative'
+                                ? 'bg-rose-500/10 text-rose-400'
+                                : 'text-zinc-400'
+                            }`}
+                          >
+                            ({change.text})
+                          </span>
+                        )}
+                      </div>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-zinc-600 print:text-black">—</span>
                     )}
                   </td>
                 </tr>

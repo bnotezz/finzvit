@@ -26,27 +26,37 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
     <div className="overflow-x-auto rounded-2xl border border-border-card bg-surface-card shadow-xl backdrop-blur-md">
       <div className="p-4 border-b border-border-subtle flex flex-wrap items-center justify-between gap-4 bg-zinc-900/40">
         <div>
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg font-bold text-white print:text-black tracking-tight flex items-center gap-2">
             <span>Звіт про фінансові результати (Звіт про сукупний дохід)</span>
-            <span className="text-xs font-mono font-normal px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+            <span className="text-xs font-mono font-normal px-2 py-0.5 rounded bg-zinc-800 print:bg-transparent print:border-black text-zinc-400 print:text-black border border-zinc-700">
               Форма № 2
             </span>
+            <span className="hidden print:inline text-[9pt] font-mono text-black">
+              (ДКУД 1801002)
+            </span>
           </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-400 print:text-black mt-0.5">
             Звітний період: за {report.meta?.period_year || 2025} рік · Одиниця виміру: тис. гривень (тис. ₴)
           </p>
         </div>
       </div>
 
-      <table className="w-full text-left border-collapse text-sm">
+      <table className="fin-table w-full text-left border-collapse text-sm">
         <thead>
           <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 text-xs font-medium">
             <th className="py-3 px-4 w-1/2">Назва статті</th>
             <th className="py-3 px-3 w-16 text-center font-mono">Код</th>
             <th className="py-3 px-4 text-right font-mono">За звітний період (тис. ₴)</th>
             <th className="py-3 px-4 text-right font-mono">За попередній рік (тис. ₴)</th>
-            <th className="py-3 px-4 text-right font-mono hidden sm:table-cell">Зміна (тис. ₴)</th>
-            <th className="py-3 px-4 text-right font-mono">Зміна, %</th>
+            <th className="py-3 px-4 text-right font-mono">Зміна (+/–, %)</th>
+          </tr>
+          {/* Офіційні номери колонок згідно з бланком ДКУД 1801002 */}
+          <tr className="border-b border-zinc-800 bg-zinc-900/60 text-zinc-500 text-[11px] font-mono text-center">
+            <th className="py-1 px-4 text-left">1</th>
+            <th className="py-1 px-3">2</th>
+            <th className="py-1 px-4 text-right">3</th>
+            <th className="py-1 px-4 text-right">4</th>
+            <th className="py-1 px-4 text-right">5</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-800/40">
@@ -62,7 +72,7 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
                   onClick={() => toggleSection(row.name)}
                   className="bg-zinc-900/90 hover:bg-zinc-800/80 cursor-pointer transition-colors border-t border-b border-zinc-700/80 select-none"
                 >
-                  <td colSpan={6} className="py-3 px-4 font-semibold text-white">
+                  <td colSpan={5} className="py-3 px-4 font-semibold text-white">
                     <div className="flex items-center gap-2">
                       {isCollapsed ? (
                         <ChevronRight className="w-4 h-4 text-accent" />
@@ -126,25 +136,37 @@ export const RenderF2Income: React.FC<RenderF2IncomeProps> = ({ report }) => {
                   {formatCurrency(prevVal, { isDeduction: row.isDeduction })}
                 </td>
 
-                <td className="py-2.5 px-4 text-right font-mono tabular-nums text-zinc-400 hidden sm:table-cell">
-                  {change.absolute !== null ? formatCurrency(change.absolute) : '—'}
-                </td>
-
-                <td className="py-2.5 px-4 text-right font-mono tabular-nums">
-                  {change.direction !== 'none' ? (
-                    <span
-                      className={`text-xs font-medium px-1.5 py-0.5 rounded ${
-                        change.direction === 'positive'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : change.direction === 'negative'
-                          ? 'bg-rose-500/10 text-rose-400'
-                          : 'text-zinc-400'
-                      }`}
-                    >
-                      {change.text}
-                    </span>
+                {/* Зміна (об'єднана: абсолютна + %) */}
+                <td className="py-2.5 px-4 text-right font-mono tabular-nums text-xs sm:text-sm">
+                  {change.absolute !== null ? (
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1">
+                      <span
+                        className={`font-medium ${
+                          change.direction === 'positive'
+                            ? 'text-emerald-400 print:text-black'
+                            : change.direction === 'negative'
+                            ? 'text-rose-400 print:text-black'
+                            : 'text-zinc-400 print:text-black'
+                        }`}
+                      >
+                        {change.absolute > 0 ? '+' : ''}{formatCurrency(change.absolute)}
+                      </span>
+                      {change.direction !== 'none' && (
+                        <span
+                          className={`text-[11px] px-1 py-0.2 rounded whitespace-nowrap print:bg-transparent print:p-0 print:text-black ${
+                            change.direction === 'positive'
+                              ? 'bg-emerald-500/10 text-emerald-400'
+                              : change.direction === 'negative'
+                              ? 'bg-rose-500/10 text-rose-400'
+                              : 'text-zinc-400'
+                          }`}
+                        >
+                          ({change.text})
+                        </span>
+                      )}
+                    </div>
                   ) : (
-                    <span className="text-zinc-600">—</span>
+                    <span className="text-zinc-600 print:text-black">—</span>
                   )}
                 </td>
               </tr>
