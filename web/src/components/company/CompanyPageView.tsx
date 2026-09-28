@@ -36,12 +36,18 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!effectiveEdrpou) return;
+    if (!effectiveEdrpou) {
+      setIsLoading(false);
+      return;
+    }
 
     let isMounted = true;
     setIsLoading(true);
     setError(null);
     setErrorStatus(null);
+
+    // Попередньо оновлюємо заголовок вкладки під час завантаження
+    document.title = `ЄДРПОУ ${effectiveEdrpou} — Фінансова звітність | FinZvit`;
 
     // Завантажуємо єдиний консолідований JSON компанії за 1 мережевий запит
     fetchCompanyData(effectiveEdrpou)
@@ -78,7 +84,13 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
         if (!isMounted) return;
         console.error('Помилка завантаження компанії:', err);
         setError(err.message || 'Не вдалося завантажити дані компанії.');
-        setErrorStatus(err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500)));
+        const status = err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500));
+        setErrorStatus(status);
+        if (status === 404) {
+          document.title = `Підприємство ЄДРПОУ ${effectiveEdrpou} не знайдено | FinZvit`;
+        } else {
+          document.title = `Помилка завантаження ЄДРПОУ ${effectiveEdrpou} | FinZvit`;
+        }
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -100,6 +112,9 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
 
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', desc);
+
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) metaKeywords.setAttribute('content', `${company.name}, ${company.edrpou}, фінансова звітність ${company.edrpou}, баланс ${company.name}, прибуток, виручка, відкриті дані, звітність 2025`);
 
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', pageTitle);
@@ -229,6 +244,30 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
       <div className="py-32 flex flex-col items-center justify-center gap-4 text-zinc-400">
         <Loader2 className="w-10 h-10 text-accent animate-spin" />
         <p className="text-sm font-medium">Завантаження фінансової звітності підприємства...</p>
+      </div>
+    );
+  }
+
+  // Якщо код ЄДРПОУ не вказано в URL (користувач просто відкрив /company)
+  if (!effectiveEdrpou) {
+    return (
+      <div className="max-w-2xl mx-auto py-16 px-4 text-center space-y-8 animate-in fade-in duration-300">
+        <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mx-auto shadow-xl shadow-emerald-500/5">
+          <Building2 className="w-8 h-8" />
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            Пошук фінансової звітності підприємства
+          </h2>
+          <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
+            Введіть код ЄДРПОУ (8 цифр) або назву підприємства України для перегляду балансу, звіту про фінансові результати та аналітики.
+          </p>
+        </div>
+
+        <div className="w-full max-w-xl mx-auto pt-2">
+          <SearchBar size="large" autoFocus={true} />
+        </div>
       </div>
     );
   }

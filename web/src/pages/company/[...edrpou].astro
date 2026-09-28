@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { CompanyPageView } from '../../components/company/CompanyPageView';
+
+export function getStaticPaths() {
+  return [
+    { params: { edrpou: undefined } },
+  ];
+}
+
+const { edrpou } = Astro.params;
+
+const pageTitle = 'Фінансова звітність компаній України | FinZvit';
+const pageDescription = 'Офіційна фінансова звітність юридичних осіб України за даними Держстату та ДПС (data.gov.ua). Баланс (Ф1), звіт про фінансові результати (Ф2), рух грошових коштів, звіт про власний капітал та показники фінансового стану.';
+const canonical = 'https://finzvit.bnotezz.workers.dev/company/';
+const keywords = 'фінансова звітність, баланс підприємства, звіт про фінансові результати, ф1, ф2, відкриті дані, єдрпоу, FinZvit';
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  keywords={keywords}
+  canonicalUrl={canonical}
+>
+  <CompanyPageView client:only="react" edrpou={edrpou || ''} />
+</Layout>
