@@ -72,6 +72,7 @@ def process_reports(
     resource_url: Optional[str] = None,
     remote_updated_at: Optional[str] = None
 ):
+    input_source = os.path.expanduser(input_source)
     logger.info("=" * 60)
     logger.info("🚀 Запуск FinZvit Data Worker (Unified Company JSON Engine)")
     logger.info("Вхідне джерело: %s", input_source)
@@ -543,12 +544,26 @@ def main():
         help="ID набору даних на data.gov.ua (наприклад 7436ae83-dfc1-4836-9962-8af3e831c522)"
     )
     parser.add_argument(
+        "--upload-r2",
+        action="store_true",
+        help="Завантажувати в Cloudflare R2 (увімкнено за замовчуванням)"
+    )
+    parser.add_argument(
+        "--upload-supabase",
+        action="store_true",
+        help="Синхронізувати з Supabase (увімкнено за замовчуванням)"
+    )
+    parser.add_argument(
         "--resource-name",
+        "--dataset-name",
+        dest="resource_name",
         default=None,
         help="Назва імпортованого ресурсу"
     )
     parser.add_argument(
         "--resource-url",
+        "--file-url",
+        dest="resource_url",
         default=None,
         help="URL файлу ресурсу на data.gov.ua"
     )
