@@ -172,3 +172,60 @@ class SupabaseUploader:
                 return resp.status in (200, 201, 204)
         except Exception as e:
             return False
+
+    def log_imported_dataset(
+        self,
+        name: str,
+        year: int,
+        resource_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        url: Optional[str] = None,
+        file_name: Optional[str] = None,
+        file_hash: Optional[str] = None,
+        remote_updated_at: Optional[str] = None,
+        companies_count: int = 0,
+        forms_count: int = 0,
+        status: str = "completed",
+        details: Optional[Dict[str, Any]] = None
+    ) -> bool:
+        """
+        Записує звіт про імпортований ресурс/датасет у таблицю public.imported_datasets.
+        """
+        if not self.url or not self.key:
+            logger.info("ℹ️ Пропуск логування датасету (Supabase не підключено).")
+            return False
+
+        payload = {
+            "name": name,
+            "year": year,
+            "resource_id": resource_id,
+            "dataset_id": dataset_id,
+            "url": url,
+            "file_name": file_name,
+            "file_hash": file_hash,
+            "remote_updated_at": remote_updated_at,
+            "companies_count": companies_count,
+            "forms_count": forms_count,
+            "status": status,
+            "details": details or {}
+        }
+
+        api_url = f"{self.url.rstrip('/')}/rest/v1/imported_datasets"
+        req_data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        headers = {
+            "apikey": self.key,
+            "Authorization": f"Bearer {self.key}",
+            "Content-Type": "application/json; charset=utf-8",
+            "Prefer": "return=minimal"
+        }
+        try:
+            req = urllib.request.Request(api_url, data=req_data, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                success = resp.status in (200, 201, 204)
+                if success:
+                    logger.info("📋 Успішно зафіксовано імпорт ресурсу в Supabase (imported_datasets).")
+                return success
+        except Exception as e:
+            logger.warning("Не вдалося зафіксувати запис у imported_datasets: %s", e)
+            return False
+

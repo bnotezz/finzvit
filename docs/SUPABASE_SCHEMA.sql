@@ -130,3 +130,46 @@ $$;
 
 -- Надання прав на виклик функції
 GRANT EXECUTE ON FUNCTION public.search_companies(TEXT, INTEGER) TO anon, authenticated;
+
+-- ==============================================================================
+-- 7. Журнал імпортованих датасетів та ресурсів (data.gov.ua)
+-- Фіксує версії завантажених архівів, MD5-хеші, дати оновлення та статистику
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.imported_datasets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    resource_id VARCHAR(64),
+    dataset_id VARCHAR(64),
+    name TEXT NOT NULL,
+    year SMALLINT NOT NULL DEFAULT 2025,
+    url TEXT,
+    file_name TEXT,
+    file_hash VARCHAR(64),
+    remote_updated_at TIMESTAMP WITH TIME ZONE,
+    imported_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    companies_count INTEGER DEFAULT 0,
+    forms_count INTEGER DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'completed',
+    details JSONB DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX IF NOT EXISTS idx_imported_datasets_resource_id ON public.imported_datasets (resource_id);
+CREATE INDEX IF NOT EXISTS idx_imported_datasets_year ON public.imported_datasets (year);
+CREATE INDEX IF NOT EXISTS idx_imported_datasets_file_hash ON public.imported_datasets (file_hash);
+
+ALTER TABLE public.imported_datasets ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public read access for imported_datasets" ON public.imported_datasets;
+CREATE POLICY "Public read access for imported_datasets"
+ON public.imported_datasets
+FOR SELECT
+TO anon, authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Service role full access for imported_datasets" ON public.imported_datasets;
+CREATE POLICY "Service role full access for imported_datasets"
+ON public.imported_datasets
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
+

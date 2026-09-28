@@ -65,7 +65,12 @@ def process_reports(
     dry_run: bool = False,
     skip_r2: bool = False,
     skip_supabase: bool = False,
-    purge_cf: bool = True
+    purge_cf: bool = True,
+    resource_id: Optional[str] = None,
+    dataset_id: Optional[str] = None,
+    resource_name: Optional[str] = None,
+    resource_url: Optional[str] = None,
+    remote_updated_at: Optional[str] = None
 ):
     logger.info("=" * 60)
     logger.info("🚀 Запуск FinZvit Data Worker (Unified Company JSON Engine)")
@@ -216,6 +221,36 @@ def process_reports(
     # 5. СКИДАННЯ КЕШУ CLOUDFLARE CDN
     if not dry_run and purge_cf and cf_cache.is_configured():
         cf_cache.purge_everything()
+
+    # 6. ФІКСАЦІЯ ІМПОРТОВАНОГО ДАТАСЕТУ В ЖУРНАЛІ SUPABASE
+    if not dry_run and not skip_supabase:
+        file_hash = None
+        file_name = os.path.basename(input_source)
+        if os.path.isfile(input_source):
+            try:
+                import hashlib
+                hasher = hashlib.md5()
+                with open(input_source, "rb") as f:
+                    for chunk in iter(lambda: f.read(1024 * 1024), b""):
+                        hasher.update(chunk)
+                file_hash = hasher.hexdigest()
+            except Exception as e:
+                logger.warning("Не вдалося розрахувати MD5 хеш файлу: %s", e)
+
+        effective_name = resource_name or f"Фінансова звітність підприємств за {year} рік ({file_name})"
+        supabase.log_imported_dataset(
+            name=effective_name,
+            year=year,
+            resource_id=resource_id,
+            dataset_id=dataset_id,
+            url=resource_url,
+            file_name=file_name,
+            file_hash=file_hash,
+            remote_updated_at=remote_updated_at,
+            companies_count=unique_companies_count,
+            forms_count=total_forms_processed,
+            status="completed"
+        )
 
     logger.info("=" * 60)
     logger.info("🎉 ВСІ ОПЕРАЦІЇ УСПІШНО ЗАВЕРШЕНО!")
@@ -497,6 +532,31 @@ def main():
         action="store_true",
         help="Не скидати кеш Cloudflare після завершення"
     )
+    parser.add_argument(
+        "--resource-id",
+        default=None,
+        help="ID ресурсу на data.gov.ua (наприклад fe3f6731-8a79-463b-b3af-03811d7a0e26)"
+    )
+    parser.add_argument(
+        "--dataset-id",
+        default=None,
+        help="ID набору даних на data.gov.ua (наприклад 7436ae83-dfc1-4836-9962-8af3e831c522)"
+    )
+    parser.add_argument(
+        "--resource-name",
+        default=None,
+        help="Назва імпортованого ресурсу"
+    )
+    parser.add_argument(
+        "--resource-url",
+        default=None,
+        help="URL файлу ресурсу на data.gov.ua"
+    )
+    parser.add_argument(
+        "--remote-updated-at",
+        default=None,
+        help="Дата оновлення на порталі data.gov.ua (наприклад '2026-09-09 00:34:00+03:00')"
+    )
 
     args = parser.parse_args()
     skip_r2 = args.skip_r2 or args.supabase_only
@@ -510,7 +570,12 @@ def main():
         dry_run=args.dry_run,
         skip_r2=skip_r2,
         skip_supabase=args.skip_supabase,
-        purge_cf=not args.no_purge_cf
+        purge_cf=not args.no_purge_cf,
+        resource_id=args.resource_id,
+        dataset_id=args.dataset_id,
+        resource_name=args.resource_name,
+        resource_url=args.resource_url,
+        remote_updated_at=args.remote_updated_at
     )
 
 if __name__ == "__main__":
