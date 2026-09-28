@@ -16,6 +16,19 @@ export interface Env {
   CACHE_VERSION?: string;
 }
 
+interface MemoryCacheItem {
+  bytes: ArrayBuffer;
+  etag: string;
+  cacheTag?: string;
+  version: string;
+}
+
+// In-memory кеш для гарячих звітів компаній на рівні воркер-ізоляту
+// Забезпечує миттєвий HIT (< 1 мс) та 0 звернень до R2 навіть на *.workers.dev
+// (де системний Cloudflare Cache API офіційно відключений платформою)
+const memoryCache = new Map<string, MemoryCacheItem>();
+const MAX_MEMORY_ITEMS = 500;
+
 export default {
   async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const url = new URL(request.url);
@@ -30,24 +43,67 @@ export default {
         });
       }
 
-      // Безпечне глобальне версіонування кешу:
-      // Дозволяє миттєво скинути кеш для ВСІХ файлів проєкту одночасно
-      // через зміну CACHE_VERSION у wrangler.jsonc або у Cloudflare Dashboard (без відчинених публічних ендпоінтів).
+      const isHead = request.method === 'HEAD';
+      const isGet = request.method === 'GET';
+      if (!isGet && !isHead) {
+        return new Response('Method Not Allowed', { status: 405 });
+      }
+
+      const acceptEncoding = request.headers.get('Accept-Encoding') || '';
+      const acceptsGzip = acceptEncoding.includes('gzip') || acceptEncoding.includes('*');
+
+      // Безпечне глобальне версіонування кешу (через CACHE_VERSION у wrangler.jsonc / Dashboard)
       const cacheVersion = env.CACHE_VERSION || 'v1';
+
+      // 1.1. Перевірка in-memory кешу ізоляту воркера
+      const memCached = memoryCache.get(key);
+      if (memCached && memCached.version === cacheVersion) {
+        const headers = new Headers();
+        headers.set('etag', memCached.etag);
+        headers.set('Content-Type', 'application/json; charset=utf-8');
+        headers.set('Access-Control-Allow-Origin', '*');
+        headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+        if (memCached.cacheTag) headers.set('Cache-Tag', memCached.cacheTag);
+        headers.set('X-FinZvit-Source', 'r2-unified');
+        headers.set('Vary', 'Accept-Encoding');
+        headers.set('X-FinZvit-Cache', 'HIT');
+        headers.set('X-FinZvit-Cache-Version', cacheVersion);
+
+        if (isHead) {
+          if (acceptsGzip) headers.set('Content-Encoding', 'gzip');
+          return new Response(null, { status: 200, headers });
+        }
+
+        if (acceptsGzip) {
+          headers.set('Content-Encoding', 'gzip');
+          return new Response(memCached.bytes, { headers });
+        } else {
+          headers.delete('Content-Encoding');
+          const decompressed = new Response(memCached.bytes).body!.pipeThrough(new DecompressionStream('gzip'));
+          return new Response(decompressed, { headers });
+        }
+      }
+
+      // 1.2. Перевірка Cloudflare Edge Cache API (для Custom Domains)
+      const cache = typeof caches !== 'undefined' && (caches as any).default ? (caches as any).default : null;
       const cacheUrl = new URL(request.url);
       cacheUrl.searchParams.set('_v', cacheVersion);
-      const cacheKey = new Request(cacheUrl.toString(), request);
+      const cacheKey = new Request(cacheUrl.toString(), {
+        method: 'GET',
+        headers: request.headers,
+      });
 
-      // Перевірка Cloudflare Edge Cache API (HIT)
-      const cache = typeof caches !== 'undefined' && (caches as any).default ? (caches as any).default : null;
-      if (cache && request.method === 'GET') {
+      if (cache) {
         try {
           const cachedResponse = await cache.match(cacheKey);
           if (cachedResponse) {
-            const hitRes = new Response(cachedResponse.body, cachedResponse);
-            hitRes.headers.set('X-FinZvit-Cache', 'HIT');
-            hitRes.headers.set('X-FinZvit-Cache-Version', cacheVersion);
-            return hitRes;
+            const hitHeaders = new Headers(cachedResponse.headers);
+            hitHeaders.set('X-FinZvit-Cache', 'HIT');
+            hitHeaders.set('X-FinZvit-Cache-Version', cacheVersion);
+            if (isHead) {
+              return new Response(null, { status: cachedResponse.status, headers: hitHeaders });
+            }
+            return new Response(cachedResponse.body, { status: cachedResponse.status, headers: hitHeaders });
           }
         } catch {
           // Ігноруємо помилки кешу для стабільності
@@ -88,18 +144,43 @@ export default {
             headers.set('Cache-Tag', cacheTag);
             headers.set('X-FinZvit-Source', 'r2-unified');
             headers.set('Vary', 'Accept-Encoding');
+            headers.set('X-FinZvit-Cache', 'MISS');
+            headers.set('X-FinZvit-Cache-Version', cacheVersion);
+
+            const rawBytes = await unifiedObj.arrayBuffer();
+
+            // Зберігаємо в in-memory кеш ізоляту воркера (активно на *.workers.dev)
+            if (memoryCache.size >= MAX_MEMORY_ITEMS) {
+              const oldestKey = memoryCache.keys().next().value;
+              if (oldestKey) memoryCache.delete(oldestKey);
+            }
+            memoryCache.set(key, {
+              bytes: rawBytes,
+              etag: unifiedObj.httpEtag,
+              cacheTag,
+              version: cacheVersion,
+            });
+
+            // Зберігаємо також в системний Cache API (для Custom Domains)
+            if (cache && ctx?.waitUntil) {
+              const cacheHeaders = new Headers(headers);
+              cacheHeaders.set('Content-Encoding', 'gzip');
+              const toCache = new Response(rawBytes, { headers: cacheHeaders });
+              ctx.waitUntil(cache.put(cacheKey, toCache));
+            }
+
+            if (isHead) {
+              if (acceptsGzip) headers.set('Content-Encoding', 'gzip');
+              return new Response(null, { status: 200, headers });
+            }
 
             if (acceptsGzip) {
-              // Наскрізний потік без витрат процесорного часу воркера (Zero CPU)
               headers.set('Content-Encoding', 'gzip');
-              finalResponse = new Response(unifiedObj.body, { headers });
+              return new Response(rawBytes, { headers });
             } else {
-              // Для клієнтів без підтримки gzip (наприклад curl без --compressed)
               headers.delete('Content-Encoding');
-              finalResponse = new Response(
-                unifiedObj.body.pipeThrough(new DecompressionStream('gzip')),
-                { headers }
-              );
+              const decompressed = new Response(rawBytes).body!.pipeThrough(new DecompressionStream('gzip'));
+              return new Response(decompressed, { headers });
             }
           }
         } else {
@@ -112,34 +193,31 @@ export default {
             headers.set('Content-Type', 'application/json; charset=utf-8');
             headers.set('Access-Control-Allow-Origin', '*');
             headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+            headers.set('X-FinZvit-Cache', 'MISS');
+            headers.set('X-FinZvit-Cache-Version', cacheVersion);
 
             const isGzip = directObj.httpMetadata?.contentEncoding === 'gzip';
+            const rawBytes = await directObj.arrayBuffer();
+
+            if (isHead) {
+              if (isGzip && acceptsGzip) headers.set('Content-Encoding', 'gzip');
+              return new Response(null, { status: 200, headers });
+            }
+
             if (isGzip) {
               headers.set('Vary', 'Accept-Encoding');
               if (acceptsGzip) {
                 headers.set('Content-Encoding', 'gzip');
-                finalResponse = new Response(directObj.body, { headers });
+                return new Response(rawBytes, { headers });
               } else {
                 headers.delete('Content-Encoding');
-                finalResponse = new Response(
-                  directObj.body.pipeThrough(new DecompressionStream('gzip')),
-                  { headers }
-                );
+                const decompressed = new Response(rawBytes).body!.pipeThrough(new DecompressionStream('gzip'));
+                return new Response(decompressed, { headers });
               }
             } else {
-              finalResponse = new Response(directObj.body, { headers });
+              return new Response(rawBytes, { headers });
             }
           }
-        }
-
-        // Якщо в R2 знайдено відповідь: кешуємо в Edge Cache і повертаємо
-        if (finalResponse && finalResponse.status === 200) {
-          finalResponse.headers.set('X-FinZvit-Cache', 'MISS');
-          finalResponse.headers.set('X-FinZvit-Cache-Version', cacheVersion);
-          if (cache && ctx?.waitUntil && request.method === 'GET') {
-            ctx.waitUntil(cache.put(cacheKey, finalResponse.clone()));
-          }
-          return finalResponse;
         }
 
         // Якщо в R2 нічого не знайдено — fallback до статичних файлів (якщо такі є в dist/data)
