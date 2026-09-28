@@ -54,16 +54,13 @@ export default {
 
       try {
         let finalResponse: Response | null = null;
-        let cacheTag: string | null = null;
 
-        // ПАТЕРН А: Запит консолідованого файлу компанії: /{year}/{edrpou}.json
-        // Наприклад: /data/2025/32673400.json
+        // 1. Єдиний консолідований JSON компанії: /{year}/{edrpou}.json (напр. 2025/32673400.json)
         const unifiedMatch = key.match(/^(\d{4})\/(\d{6,10})\.json$/);
         if (unifiedMatch) {
           const [, year, edrpou] = unifiedMatch;
-          cacheTag = `company-${edrpou},year-${year},finzvit-data`;
+          const cacheTag = `company-${edrpou},year-${year},finzvit-data`;
 
-          // 1. Спроба взяти єдиний файл з R2
           const unifiedObj = await env.R2_BUCKET.get(key);
           if (unifiedObj) {
             const headers = new Headers();
@@ -76,141 +73,9 @@ export default {
             headers.set('X-FinZvit-Source', 'r2-unified');
 
             finalResponse = new Response(unifiedObj.body, { headers });
-          } else {
-            // 2. Fallback / Проксі: якщо єдиного файлу ще немає в R2, зшиваємо на льоту зі старих split-файлів
-            // Шукаємо {year}/{edrpou}/meta.json
-            const metaObj = await env.R2_BUCKET.get(`${year}/${edrpou}/meta.json`);
-            if (metaObj) {
-              const metaText = await metaObj.text();
-              const metaData = JSON.parse(metaText);
-              const forms = metaData.available_forms || [];
-
-              // Паралельно завантажуємо всі форми компанії
-              const reports: Record<string, any> = {};
-              await Promise.all(
-                forms.map(async (f: any) => {
-                  if (!f.code) return;
-                  try {
-                    const formObj = await env.R2_BUCKET!.get(`${year}/${edrpou}/${f.code}.json`);
-                    if (formObj) {
-                      const formText = await formObj.text();
-                      const parsed = JSON.parse(formText);
-                      reports[f.code] = parsed.data || parsed;
-                    }
-                  } catch (e) {
-                    // Ігноруємо поодинокі збої окремих форм
-                  }
-                })
-              );
-
-              const unifiedData = {
-                ...metaData,
-                year: Number(year),
-                reports,
-              };
-
-              const headers = new Headers();
-              headers.set('Content-Type', 'application/json; charset=utf-8');
-              headers.set('Access-Control-Allow-Origin', '*');
-              headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-              headers.set('Cache-Tag', cacheTag);
-              headers.set('X-FinZvit-Source', 'stitched-proxy');
-
-              finalResponse = new Response(JSON.stringify(unifiedData), { headers });
-            }
           }
-        }
-
-        // ПАТЕРН Б: Запит legacy-метаданих: /{year}/{edrpou}/meta.json
-        const metaMatch = key.match(/^(\d{4})\/(\d{6,10})\/meta\.json$/);
-        if (!finalResponse && metaMatch) {
-          const [, year, edrpou] = metaMatch;
-          cacheTag = `company-${edrpou},year-${year},finzvit-data`;
-
-          const metaObj = await env.R2_BUCKET.get(key);
-          if (metaObj) {
-            const headers = new Headers();
-            metaObj.writeHttpMetadata(headers);
-            headers.set('etag', metaObj.httpEtag);
-            headers.set('Content-Type', 'application/json; charset=utf-8');
-            headers.set('Access-Control-Allow-Origin', '*');
-            headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-            headers.set('Cache-Tag', cacheTag);
-            finalResponse = new Response(metaObj.body, { headers });
-          } else {
-            // Зворотна сумісність: витягуємо meta з консолідованого /{year}/{edrpou}.json
-            const unifiedObj = await env.R2_BUCKET.get(`${year}/${edrpou}.json`);
-            if (unifiedObj) {
-              const uData = JSON.parse(await unifiedObj.text());
-              const { reports, ...metaOnly } = uData;
-              const headers = new Headers();
-              headers.set('Content-Type', 'application/json; charset=utf-8');
-              headers.set('Access-Control-Allow-Origin', '*');
-              headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-              headers.set('Cache-Tag', cacheTag);
-              finalResponse = new Response(JSON.stringify(metaOnly), { headers });
-            }
-          }
-        }
-
-        // ПАТЕРН В: Запит окремої форми: /{year}/{edrpou}/{formCode}.json
-        const formMatch = key.match(/^(\d{4})\/(\d{6,10})\/([A-Za-z0-9_]+)\.json$/);
-        if (!finalResponse && formMatch) {
-          const [, year, edrpou, formCode] = formMatch;
-          cacheTag = `company-${edrpou},year-${year},finzvit-data`;
-
-          const formObj = await env.R2_BUCKET.get(key);
-          if (formObj) {
-            const headers = new Headers();
-            formObj.writeHttpMetadata(headers);
-            headers.set('etag', formObj.httpEtag);
-            headers.set('Content-Type', 'application/json; charset=utf-8');
-            headers.set('Access-Control-Allow-Origin', '*');
-            headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-            headers.set('Cache-Tag', cacheTag);
-            finalResponse = new Response(formObj.body, { headers });
-          } else {
-            // Зворотна сумісність: витягуємо форму з консолідованого /{year}/{edrpou}.json
-            const unifiedObj = await env.R2_BUCKET.get(`${year}/${edrpou}.json`);
-            if (unifiedObj) {
-              const uData = JSON.parse(await unifiedObj.text());
-              const rep = uData.reports?.[formCode];
-              if (rep) {
-                const rowData = rep.data || rep;
-                const formMeta = uData.available_forms?.find((f: any) => f.code === formCode);
-                const singleForm = {
-                  meta: {
-                    form_code: formCode,
-                    form_name: formMeta?.title || `Форма ${formCode}`,
-                    period_year: uData.year || Number(year),
-                    date_filled: formMeta?.date_filled,
-                    timestamp: formMeta?.timestamp
-                  },
-                  company: {
-                    edrpou: uData.edrpou,
-                    name: uData.name,
-                    kved: uData.kved,
-                    kved_name: uData.kved_name,
-                    address: uData.address,
-                    director: uData.director,
-                    employees: uData.employees,
-                    accounting_standard: uData.accounting_standard
-                  },
-                  data: rowData
-                };
-                const headers = new Headers();
-                headers.set('Content-Type', 'application/json; charset=utf-8');
-                headers.set('Access-Control-Allow-Origin', '*');
-                headers.set('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-                headers.set('Cache-Tag', cacheTag);
-                finalResponse = new Response(JSON.stringify(singleForm), { headers });
-              }
-            }
-          }
-        }
-
-        // ПАТЕРН Г: Будь-який інший прямий ключ в R2 (наприклад companies_registry.json)
-        if (!finalResponse) {
+        } else {
+          // 2. Будь-який інший прямий ключ в R2 (наприклад companies_registry.json)
           const directObj = await env.R2_BUCKET.get(key);
           if (directObj) {
             const headers = new Headers();

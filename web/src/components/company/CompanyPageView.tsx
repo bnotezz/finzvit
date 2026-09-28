@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Loader2, ArrowLeft, AlertCircle, BarChart3, Building2, HelpCircle, ArrowRight } from 'lucide-react';
-import { fetchCompanyData, fetchReportData } from '../../lib/api';
+import { fetchCompanyData } from '../../lib/api';
 import type { CompanyFullData, ReportData } from '../../lib/types';
 import { CompanyHeader } from './CompanyHeader';
 import { ReportContainer } from '../reports/ReportContainer';
@@ -55,7 +55,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
           f.code.includes('002') || f.code.includes('110') || f.code.includes('111')
         );
 
-        // Якщо звіти вже вбудовані в консолідований документ — встановлюємо їх миттєво з пам'яті
+        // Встановлюємо звіти безпосередньо з єдиного консолідованого документу
         if (data.reports) {
           if (f1Form && data.reports[f1Form.code]) {
             setBalanceReport(data.reports[f1Form.code]);
@@ -63,27 +63,6 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
           if (f2Form && data.reports[f2Form.code]) {
             setIncomeReport(data.reports[f2Form.code]);
           }
-        }
-
-        // Fallback: якщо це застаріле джерело без вбудованих звітів, довантажуємо окремо
-        const fallbackPromises: Promise<any>[] = [];
-        if (f1Form && (!data.reports || !data.reports[f1Form.code])) {
-          fallbackPromises.push(
-            fetchReportData(effectiveEdrpou, f1Form.code)
-              .then((rep) => isMounted && setBalanceReport(rep))
-              .catch((err) => console.error('Помилка довантаження Ф1:', err))
-          );
-        }
-        if (f2Form && f2Form.code !== f1Form?.code && (!data.reports || !data.reports[f2Form.code])) {
-          fallbackPromises.push(
-            fetchReportData(effectiveEdrpou, f2Form.code)
-              .then((rep) => isMounted && setIncomeReport(rep))
-              .catch((err) => console.error('Помилка довантаження Ф2:', err))
-          );
-        }
-
-        if (fallbackPromises.length > 0) {
-          await Promise.all(fallbackPromises);
         }
       })
       .catch((err) => {

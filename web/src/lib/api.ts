@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { CompanyMeta, ReportData, CompanySearchResult, CompanyFullData } from './types';
+import type { CompanySearchResult, CompanyFullData } from './types';
 
 // Базовий URL сховища звітів (Cloudflare R2 або локальний fallback /data/)
 const R2_PUBLIC_URL = import.meta.env.PUBLIC_R2_URL || '/data';
@@ -58,44 +58,7 @@ export async function fetchCompanyData(edrpou: string, year = 2025): Promise<Com
   const url = `${R2_PUBLIC_URL}/${year}/${edrpou}.json`;
   const res = await fetch(url);
   if (!res.ok) {
-    // Fallback: якщо єдиного файлу немає, спробувати завантажити legacy meta.json
-    try {
-      const meta = await fetchCompanyMeta(edrpou, year);
-      return {
-        ...meta,
-        reports: {},
-      };
-    } catch {
-      throw new Error(`Компанію з ЄДРПОУ ${edrpou} не знайдено або звітність за ${year} рік відсутня.`);
-    }
-  }
-  return res.json();
-}
-
-/**
- * Завантажує зведені метадані компанії (meta.json)
- */
-export async function fetchCompanyMeta(edrpou: string, year = 2025): Promise<CompanyMeta> {
-  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}/meta.json`;
-  const res = await fetch(url);
-  if (!res.ok) {
     throw new Error(`Компанію з ЄДРПОУ ${edrpou} не знайдено або звітність за ${year} рік відсутня.`);
-  }
-  return res.json();
-}
-
-/**
- * Завантажує дані конкретної форми ({formCode}.json)
- */
-export async function fetchReportData(
-  edrpou: string,
-  formCode: string,
-  year = 2025
-): Promise<ReportData> {
-  const url = `${R2_PUBLIC_URL}/${year}/${edrpou}/${formCode}.json`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Звіт форми ${formCode} для компанії ${edrpou} не знайдено.`);
   }
   return res.json();
 }

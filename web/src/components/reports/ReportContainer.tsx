@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, FileText, AlertCircle, BarChart3 } from 'lucide-react';
-import { fetchReportData } from '../../lib/api';
+import { FileText, BarChart3 } from 'lucide-react';
 import type { CompanyMeta, ReportData } from '../../lib/types';
 import { RenderF1Balance } from './RenderF1Balance';
 import { RenderF2Income } from './RenderF2Income';
@@ -12,7 +11,7 @@ import { RenderGenericReport } from './RenderGenericReport';
 import { KpiCards } from '../company/KpiCards';
 
 interface ReportContainerProps {
-  company: CompanyMeta;
+  company: CompanyMeta & { reports?: Record<string, any> };
   initialReports?: Record<string, ReportData>;
   balanceReport?: ReportData | null;
   incomeReport?: ReportData | null;
@@ -56,9 +55,9 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
   const [activeFormCode, setActiveFormCode] = useState<string>(
     activeTabOverride || sortedForms[0]?.code || 'KPI'
   );
-  const [loadedReports, setLoadedReports] = useState<Record<string, ReportData>>(initialReports || {});
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadedReports, setLoadedReports] = useState<Record<string, any>>(() => {
+    return initialReports || company.reports || {};
+  });
 
   // Синхронізація активного табу ззовні, якщо передано activeTabOverride
   useEffect(() => {
@@ -69,12 +68,13 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
 
   // Синхронізація попередньо завантажених звітів
   useEffect(() => {
-    if (initialReports && Object.keys(initialReports).length > 0) {
-      setLoadedReports((prev) => ({ ...initialReports, ...prev }));
+    const reps = initialReports || company.reports;
+    if (reps && Object.keys(reps).length > 0) {
+      setLoadedReports(reps);
     }
-  }, [initialReports]);
+  }, [initialReports, company.reports]);
 
-  // Завантаження або активація звіту при зміні активного табу
+  // Активація обраного звіту при зміні активного табу
   useEffect(() => {
     if (!activeFormCode || activeFormCode === 'KPI') {
       if (activeFormCode === 'KPI') {
@@ -85,36 +85,10 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
 
     const activeForm = sortedForms.find((f) => f.code === activeFormCode);
     const formTitle = activeForm?.title || activeFormCode;
+    const rep = loadedReports[activeFormCode] || null;
 
-    if (loadedReports[activeFormCode]) {
-      const rep = loadedReports[activeFormCode];
-      onActiveReportChange?.(formTitle, rep);
-      return;
-    }
-
-    let isMounted = true;
-    setIsLoading(true);
-    setError(null);
-
-    fetchReportData(company.edrpou, activeFormCode, company.year || 2025)
-      .then((data) => {
-        if (!isMounted) return;
-        setLoadedReports((prev) => ({ ...prev, [activeFormCode]: data }));
-        onActiveReportChange?.(formTitle, data);
-      })
-      .catch((err) => {
-        if (!isMounted) return;
-        console.error('Помилка завантаження звіту:', err);
-        setError(`Не вдалося завантажити звіт (${err.message})`);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [activeFormCode, company.edrpou, loadedReports, sortedForms]);
+    onActiveReportChange?.(formTitle, rep);
+  }, [activeFormCode, loadedReports, sortedForms]);
 
   if (sortedForms.length === 0 && !balanceReport && !incomeReport) {
     return (
@@ -135,7 +109,14 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
       return <KpiCards balanceReport={balanceReport} incomeReport={incomeReport} />;
     }
 
-    if (!currentReport) return null;
+    if (!currentReport) {
+      return (
+        <div className="p-8 text-center rounded-2xl border border-zinc-800 bg-surface-card">
+          <FileText className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+          <p className="text-zinc-400 text-sm">Звіт форми {formTitle} відсутній у наборі даних цієї компанії.</p>
+        </div>
+      );
+    }
 
     const code = activeFormCode.toUpperCase();
     if (code.includes('001')) {
@@ -200,20 +181,8 @@ export const ReportContainer: React.FC<ReportContainerProps> = ({
         </button>
       </div>
 
-      {/* Стан завантаження / помилки / відображення звіту */}
-      {isLoading ? (
-        <div className="py-20 flex flex-col items-center justify-center gap-3 text-zinc-400">
-          <Loader2 className="w-8 h-8 text-accent animate-spin" />
-          <span className="text-sm">Завантаження офіційної форми звіту...</span>
-        </div>
-      ) : error ? (
-        <div className="p-6 rounded-2xl border border-rose-500/30 bg-rose-500/5 text-rose-400 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span className="text-sm">{error}</span>
-        </div>
-      ) : (
-        renderReportContent()
-      )}
+      {/* Відображення активного звіту або вкладки KPI */}
+      {renderReportContent()}
     </div>
   );
 };
