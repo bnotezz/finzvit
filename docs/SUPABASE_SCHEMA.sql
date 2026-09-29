@@ -71,6 +71,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET enable_seqscan = off
 AS $$
 DECLARE
     cleaned_query TEXT;
@@ -101,8 +102,10 @@ BEGIN
         LIMIT lim;
     ELSE
         -- 6.2. Швидкий пошук за назвою через GIN-триграмний індекс
+        -- SET enable_seqscan = off гарантує використання Bitmap Index Scan (GIN)
+        -- і запобігає падінню у повільний Sequential Scan на великих масивах.
         RETURN QUERY
-        WITH matched AS (
+        WITH matched AS MATERIALIZED (
             SELECT 
                 c.edrpou,
                 c.name,

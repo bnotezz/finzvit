@@ -24,7 +24,23 @@ export async function searchCompanies(query: string, limit = 8): Promise<Company
     });
 
     if (error) {
-      console.error('Помилка пошуку через Supabase RPC search_companies:', error.message || error);
+      console.warn('Попередження RPC search_companies, перехід на прямий запит:', error.message || error);
+      const isNumeric = /^\d+$/.test(clean);
+      let qb = supabase.from('companies').select('edrpou, name, kved, weight');
+      if (isNumeric) {
+        qb = qb.like('edrpou', `${clean}%`).order('weight', { ascending: false });
+      } else {
+        qb = qb.ilike('name', `%${clean}%`).order('weight', { ascending: false });
+      }
+      const { data: fb } = await qb.limit(limit);
+      if (fb && Array.isArray(fb)) {
+        return fb.map((item) => ({
+          edrpou: item.edrpou,
+          name: item.name,
+          kved: item.kved,
+          similarity: 1.0,
+        })) as CompanySearchResult[];
+      }
       return [];
     }
 
@@ -34,6 +50,24 @@ export async function searchCompanies(query: string, limit = 8): Promise<Company
     return [];
   } catch (err) {
     console.error('Мережева помилка пошуку через Supabase:', err);
+    try {
+      const isNumeric = /^\d+$/.test(clean);
+      let qb = supabase.from('companies').select('edrpou, name, kved, weight');
+      if (isNumeric) {
+        qb = qb.like('edrpou', `${clean}%`).order('weight', { ascending: false });
+      } else {
+        qb = qb.ilike('name', `%${clean}%`).order('weight', { ascending: false });
+      }
+      const { data: fb } = await qb.limit(limit);
+      if (fb && Array.isArray(fb)) {
+        return fb.map((item) => ({
+          edrpou: item.edrpou,
+          name: item.name,
+          kved: item.kved,
+          similarity: 1.0,
+        })) as CompanySearchResult[];
+      }
+    } catch {}
     return [];
   }
 }
