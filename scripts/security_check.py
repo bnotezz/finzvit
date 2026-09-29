@@ -39,6 +39,7 @@ ALLOWED_FILENAMES = {
     ".env.example",
     ".env.template",
     "sample.env",
+    "security_check.py",
 }
 
 # 2. Регулярні вирази для пошуку секретів у вмісті файлів
@@ -70,6 +71,18 @@ SECRET_PATTERNS = [
     (
         "Hardcoded Secret / API Key Assignment",
         re.compile(r"(?i)(?:secret[-_]?key|api[-_]?key|auth[-_]?token)\s*[:=]\s*['\"][A-Za-z0-9_\-\.]{24,}['\"]"),
+    ),
+    (
+        "Supabase Publishable Key",
+        re.compile(r"sb_publishable_[A-Za-z0-9_-]{15,}|sbp_[A-Za-z0-9_-]{15,}"),
+    ),
+    (
+        "Supabase Project Host / URL",
+        re.compile(r"https:\/\/[a-z0-9_\-]{15,}\.supabase\.co"),
+    ),
+    (
+        "Google Analytics Measurement ID",
+        re.compile(r"['\"]G-[A-Z0-9]{8,12}['\"]"),
     ),
 ]
 

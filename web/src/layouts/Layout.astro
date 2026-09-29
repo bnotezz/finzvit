@@ -52,6 +52,19 @@ const defaultJsonLd = jsonLd || {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+
+    {gaId && (
+      <>
+        <!-- Google tag (gtag.js) -->
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}');
+        `} />
+      </>
+    )}
     
     <!-- Primary SEO Meta Tags -->
     <title>{title}</title>
@@ -104,18 +117,6 @@ const defaultJsonLd = jsonLd || {
     />
     {gscVerification && (
       <meta name="google-site-verification" content={gscVerification} />
-    )}
-
-    {gaId && (
-      <>
-        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
-        <script is:inline set:html={`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${gaId}');
-        `} />
-      </>
     )}
   </head>
   <body class="bg-[#07080B] text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-accent/20 selection:text-accent relative overflow-x-hidden">

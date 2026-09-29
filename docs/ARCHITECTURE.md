@@ -358,6 +358,20 @@ const data = await fetchCompanyData(edrpou, year);
 // data.reports -> дані всіх форм для табів без повторних запитів
 ```
 
+### 5.4. Клієнтська аналітика (Google Analytics 4)
+- **Zero-Backend Analytics**: Трекінг переглядів компаній здійснюється без жодних серверних логів чи викликів воркера.
+- **Canonical `gtag.js`**: Скрипт завантажується асинхронно на початку `<head>` одразу після viewport meta tags для надійного виявлення пошуковими ботами та Google Tag Assistant.
+- **Клієнтські події**: У компоненті `CompanyPageView.tsx` при отриманні даних компанії відправляється стандартна подія GA4:
+  ```javascript
+  window.gtag('event', 'view_company', {
+    edrpou: data.edrpou,
+    company_name: data.name,
+    kved: data.kved,
+    year: data.year,
+  });
+  ```
+- **Параметри збірки фронтенду**: Змінні `PUBLIC_GA_ID`, `PUBLIC_SUPABASE_URL` та `PUBLIC_SUPABASE_PUBLISHABLE_KEY` налаштовуються у середовищі збірки (Cloudflare Build Variables або `.env.local` локально). Вони вшиваються в статичний бандл під час виконання `astro build` без жодного хардкоду в Git-репозиторії.
+
 ---
 
 ## 6. Безпека та масштабування
