@@ -108,13 +108,13 @@ const defaultJsonLd = jsonLd || {
 
     {gaId && (
       <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
-        <script is:inline define:vars={{ gaId }}>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline set:html={`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', gaId, { send_page_view: true });
-        </script>
+          gtag('config', '${gaId}');
+        `} />
       </>
     )}
   </head>
