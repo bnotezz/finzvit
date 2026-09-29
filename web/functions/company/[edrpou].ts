@@ -9,7 +9,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   // Якщо сторінка для цього конкретного ЄДРПОУ не була пре-рендерена під час білду,
   // віддаємо універсальну оболонку CompanyPageView, яка змонтується на клієнті
   if (res.status === 404) {
-    const fallbackUrl = new URL('/company/32673400/', context.request.url);
+    const fallbackUrl = new URL('/company/', context.request.url);
     const fallbackRes = await context.env.ASSETS.fetch(fallbackUrl.toString());
     
     // Повертаємо 200 OK з HTML оболонкою

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { SearchBar } from '../components/search/SearchBar';
+import { FeaturedCompanies } from '../components/home/FeaturedCompanies';
 import { 
   Building2, 
   TrendingUp, 
@@ -13,45 +14,6 @@ import {
   Database,
   BarChart3
 } from 'lucide-react';
-
-const FEATURED_COMPANIES = [
-  {
-    name: 'ТзОВ "Кормотех"',
-    edrpou: '32673400',
-    industry: 'Виробництво готових кормів',
-    badge: 'Корми для тварин',
-    metric: '6.2 млрд ₴ виручки',
-    forms: '5 форм подано',
-    highlight: true,
-  },
-  {
-    name: 'ПАТ "Укрзалізниця"',
-    edrpou: '40075815',
-    industry: 'Залізничний транспорт',
-    badge: 'Державний сектор',
-    metric: 'Транспортні перевезення',
-    forms: 'Форми Ф1, Ф2',
-    highlight: false,
-  },
-  {
-    name: 'ТОВ "Нова Пошта"',
-    edrpou: '31316718',
-    industry: 'Поштова та кур\'єрська діяльність',
-    badge: 'Логістика',
-    metric: 'Експрес-доставка',
-    forms: 'Форми Ф1, Ф2',
-    highlight: false,
-  },
-  {
-    name: 'ТОВ "Розетка.УА"',
-    edrpou: '37193071',
-    industry: 'Електронна комерція',
-    badge: 'E-Commerce',
-    metric: 'Онлайн-ритейл',
-    forms: 'Форми Ф1, Ф2',
-    highlight: false,
-  },
-];
 ---
 
 <Layout
@@ -105,58 +67,8 @@ const FEATURED_COMPANIES = [
       <SearchBar client:load autoFocus={true} size="large" />
     </div>
 
-    <!-- Картки верифікованих підприємств для швидкого перегляду -->
-    <div class="w-full pt-4 space-y-3">
-      <div className="flex items-center justify-between text-xs text-zinc-500 font-mono uppercase tracking-wider px-1">
-        <span>Швидкий перехід до підприємств:</span>
-        <span className="hidden sm:inline">Річна звітність підприємств</span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {FEATURED_COMPANIES.map((c) => (
-          <a
-            key={c.edrpou}
-            href={`/company/${c.edrpou}`}
-            class={`p-4 rounded-2xl border transition-all duration-300 text-left flex flex-col justify-between group relative overflow-hidden backdrop-blur-xl ${
-              c.highlight
-                ? 'bg-zinc-900/90 border-accent/40 hover:border-accent hover:shadow-lg hover:shadow-accent/10'
-                : 'bg-zinc-950/60 border-white/5 hover:border-white/20 hover:bg-zinc-900/80'
-            }`}
-          >
-            {c.highlight && (
-              <div class="absolute top-0 right-0 w-24 h-24 bg-accent/10 rounded-full blur-xl pointer-events-none"></div>
-            )}
-
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <span class={`text-[10px] font-mono font-medium px-2 py-0.5 rounded-full border ${
-                  c.highlight
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    : 'bg-zinc-800/80 border-zinc-700/80 text-zinc-400'
-                }`}>
-                  {c.badge}
-                </span>
-                <span class="font-mono text-xs text-zinc-400 group-hover:text-white transition-colors">
-                  {c.edrpou}
-                </span>
-              </div>
-
-              <div class="font-bold text-white text-base group-hover:text-accent transition-colors line-clamp-1">
-                {c.name}
-              </div>
-              <div class="text-xs text-zinc-400 mt-1 line-clamp-1">
-                {c.industry}
-              </div>
-            </div>
-
-            <div class="pt-4 mt-3 border-t border-white/5 flex items-center justify-between text-xs">
-              <span class="font-mono text-zinc-400 text-[11px]">{c.metric}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-accent group-hover:translate-x-1 transition-all" />
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
+    <!-- Картки верифікованих підприємств для швидкого перегляду (випадкові 3 на клієнті) -->
+    <FeaturedCompanies client:load />
 
     <!-- Трійка головних переваг системи -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 w-full">

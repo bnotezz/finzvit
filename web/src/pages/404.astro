@@ -2,12 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import { SearchBar } from '../components/search/SearchBar';
 import { AlertCircle, ArrowLeft, Building2 } from 'lucide-react';
+import featuredCompaniesData from '../data/featured-companies.json';
 
-const SUGGESTED_COMPANIES = [
-  { name: 'ТзОВ "Кормотех"', edrpou: '32673400' },
-  { name: 'ТОВ "Нова Пошта"', edrpou: '31316718' },
-  { name: 'ПАТ "Укрзалізниця"', edrpou: '40075815' },
-];
+const SUGGESTED_COMPANIES = featuredCompaniesData.slice(0, 4);
 ---
 
 <Layout title="404 — Сторінку не знайдено | FinZvit">
@@ -50,7 +47,7 @@ const SUGGESTED_COMPANIES = [
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 hover:border-accent/40 text-xs text-zinc-300 hover:text-white transition-all font-mono"
           >
             <Building2 className="w-3.5 h-3.5 text-accent" />
-            <span>{c.name} ({c.edrpou})</span>
+            <span>{c.shortName || c.name} ({c.edrpou})</span>
           </a>
         ))}
       </div>

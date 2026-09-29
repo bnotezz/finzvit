@@ -480,11 +480,11 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
               <span>На головну сторінку</span>
             </a>
             <a
-              href="/company/32673400"
+              href="/company/31729918"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent text-xs font-medium transition-all"
             >
               <Building2 className="w-4 h-4" />
-              <span>Зразок: Кормотех (32673400)</span>
+              <span>Зразок: ОККО (31729918)</span>
             </a>
           </div>
         </div>
