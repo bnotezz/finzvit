@@ -32,18 +32,20 @@ flowchart TD
         UploaderSupa["Supabase Uploader<br/>(batch upsert, lean schema)"]
     end
 
-    subgraph Storage["Cloudflare R2 & Edge Worker"]
-        R2Files["finzvit-data/{year}/{edrpou}.json<br/>(єдиний компактний файл)"]
-        CFWorker["Cloudflare Worker API<br/>(Edge Cache API + Stitched Fallback)"]
+    subgraph Storage["Cloudflare R2 & Edge Infrastructure"]
+        R2Files["finzvit-data/{year}/{edrpou}.json<br/>(єдиний компактний gzip-файл)"]
+        CFAssets["Cloudflare Assets CDN<br/>(головна, 404, JS/CSS без запуску воркера)"]
+        CFWorker["Cloudflare Worker API (/data/*)<br/>(Edge Cache API + In-Memory LRU Cache)"]
     end
 
     subgraph Database["Supabase (PostgreSQL)"]
-        CompaniesTable["Таблиця companies<br/>(edrpou, name, kved, forms)"]
+        CompaniesTable["Таблиця companies<br/>(edrpou, name, kved, year, weight)"]
         FTSSearch["Повнотекстовий індекс + pg_trgm<br/>RPC: search_companies()"]
     end
 
-    subgraph Client["Браузер користувача (Astro Web App)"]
-        SearchUI["Autocomplete Пошук<br/>(виклик Supabase RPC)"]
+    subgraph Client["Браузер користувача (100% Статичний Astro Web App)"]
+        StaticViews["Статичні сторінки (/, 404)<br/>Завантаження з CDN"]
+        SearchUI["Autocomplete Пошук<br/>(ПРЯМИЙ запит на Supabase, повз воркер)"]
         CompanyPage["/company/:edrpou<br/>1 HTTP-запит до /{year}/{edrpou}.json<br/>Миттєве відображення Шапки, KPI та Звітів"]
         ReportTabs["Таби доступних звітів"]
         
@@ -70,8 +72,9 @@ flowchart TD
     UploaderSupa -->|Upsert| CompaniesTable
     CompaniesTable --- FTSSearch
 
-    SearchUI -->|Швидкий пошук < 50ms| FTSSearch
-    CompanyPage -->|1 Request to CDN / Worker| CFWorker
+    StaticViews -->|0 мс CPU воркера| CFAssets
+    SearchUI -->|Прямий HTTPS POST повз Cloudflare < 25ms| FTSSearch
+    CompanyPage -->|1 Request (кеш 1 рік immutable)| CFWorker
     ReportTabs --> RF1 & RF2 & RF3 & RF4 & RF5 & RFMicro
 ```
 
@@ -276,37 +279,65 @@ finzvit-data/
   - Автоматичне розпакування через Web Standard `DecompressionStream('gzip')` для застарілих клієнтів/curl.
   - HTTP-заголовки `Cache-Control: public, max-age=31536000, immutable` та `Cache-Tag` для максимального кешування на CDN.
 
+### 3.4. Багаторівневе кешування та стратегія інвалідації при оновленні R2
+Для досягнення максимальної швидкості (< 1 мс) та нульових витрат на виклики R2 у `web/src/worker.ts` реалізовано 4 рівні кешування:
+1. **Рівень 1 (Кеш браузера)**: `Cache-Control: public, max-age=31536000, immutable`. Браузер кешує JSON-файл локально на диску. Повторні перегляди навіть не роблять мережевих запитів (`from disk cache`).
+2. **Рівень 2 (Cloudflare Edge CDN)**: `s-maxage=31536000` та заголовок `Cache-Tag`. Відповіді кешуються на Edge POP-серверах Cloudflare для всіх наступних користувачів.
+3. **Рівень 3 (In-Memory LRU кеш воркера)**: У пам'яті ізоляту зберігається до 500 гарячих звітів (`memoryCache`), що забезпечує миттєву віддачу (< 0.5 мс) без звернення до R2 навіть на `*.workers.dev`.
+4. **Рівень 4 (Cloudflare Cache API)**: Системний `caches.default` для кастомних доменів.
+5. **Рівень 5 (Cloudflare R2)**: Холодний запит виконується лише 1 раз при першому зверненні до даного ЄДРПОУ.
+
+#### Протокол інвалідації та очищення кешу при оновленні файлів у R2:
+Коли звіт компанії або річний датасет оновлюється/перезавантажується в R2, застосовуються такі механізми:
+- **Метод 1: Глобальне версіонування (CACHE_VERSION)**:
+  У `web/wrangler.jsonc` (`CACHE_VERSION: "v3"`) та `web/src/lib/api.ts` змінюється версія (наприклад, `v3` ➔ `v4`). При наступному деплої воркер автоматично очищує свій `memoryCache` та `caches.default`, а клієнти запитують `/{year}/{edrpou}.json?v=v4`, що обходить дисковий кеш браузерів по всьому світу.
+- **Метод 2: Точкове скидання за Cache-Tag (Cloudflare Purge API)**:
+  Кожен звіт віддається з унікальним тегом: `Cache-Tag: company-{edrpou},year-{year},finzvit-data`. Для скидання кешу конкретної компанії без зачіпання інших викликається Cloudflare Purge API:
+  ```bash
+  curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+    -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"tags": ["company-32673400"]}'
+  ```
+- **Метод 3: Очищення через Cloudflare Dashboard або Wrangler**:
+  У Cloudflare Dashboard: **Caching** ➔ **Configuration** ➔ **Purge Cache** (Custom Purge за URL або Purge Everything).
+
 ---
 
 ## 4. База даних Supabase (Ультра-легкий реєстр та Пошук)
 
-### 4.1. Схема оптимізованої таблиці `companies`:
+### 4.1. Схема ультра-оптимізованої таблиці `companies`:
 ```sql
 CREATE TABLE public.companies (
-    edrpou VARCHAR(10) PRIMARY KEY,
+    edrpou VARCHAR(10) COLLATE "C" PRIMARY KEY,
     name TEXT NOT NULL,
     kved VARCHAR(10),
-    kved_name TEXT,
-    available_forms JSONB DEFAULT '[]'::jsonb,
     year SMALLINT DEFAULT 2025,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    weight INTEGER DEFAULT 0
 );
 ```
 
 ### 4.2. Економія пам'яті та оптимізація запитів:
-- **Зменшення розміру БД на 50%**: Усі важкі текстові реквізити (юридична адреса, територія, ОПФ, стандарти обліку) виносяться в R2 JSON, залишаючи в PostgreSQL лише дані, необхідні для швидкого пошуку. Це дозволяє зберігати понад 450,000 підприємств без ризику виходу за 500 MB дискового ліміту Supabase Free Tier.
+- **Ультра-компактний розмір (~74 байти на рядок)**: Усі важкі текстові реквізити (юридична адреса, форми, звітність) виносяться в R2 JSON, залишаючи в PostgreSQL лише мінімальні дані для автокомпліту. Вся база України (435,000+ підприємств) займає лише **~40 МБ**, маючи 12-кратний запас до безкоштовного ліміту 500 МБ.
+- **Прямий клієнтський пошук (Zero-Worker Execution)**:
+  Пошук компаній у `SearchBar.tsx` виконується **напряму з браузера користувача** на хост Supabase (`https://<project>.supabase.co/rest/v1/rpc/search_companies`) за допомогою публічного ключа з увімкненим RLS (лише SELECT). Запити **повністю обходять Cloudflare Worker**, що зберігає 100% безкоштовного ліміту у 100,000 викликів воркера/день.
 - **Індексація пошуку**:
   - Триграмний GIN індекс (`gin_trgm_ops`) по полю `name` для нечіткого пошуку за назвою компанії.
-  - B-tree індекс по первинному ключу `edrpou` для миттєвого пошуку за кодом.
-- **RPC функція `search_companies(query text, lim int)`**:
-  - Цифровий запит → швидкий пошук за префіксом `edrpou LIKE query || '%'`.
-  - Текстовий запит → ранжований триграмний пошук за назвою з `LIMIT lim`.
+  - B-tree індекс по первинному ключу `edrpou` з COLLATE "C" для миттєвого пошуку за префіксом коду.
+- **RPC функція `search_companies(search_query text, lim int)`**:
+  - Цифровий запит → швидкий пошук за префіксом `edrpou LIKE cleaned_query || '%'`.
+  - Текстовий запит → ранжований триграмний пошук за назвою з ранжуванням за точністю та коефіцієнтом масштабу `weight`.
 
 ---
 
-## 5. Веб-інтерфейс (Astro + React)
+## 5. Веб-інтерфейс (100% Static Astro + React)
 
-### 5.1. Розділені компоненти рендерингу (React Islands)
+### 5.1. Принцип 100% статичного сайту (Zero-SSR Jamstack Architecture)
+Веб-частину побудовано виключно як статичний генератор (`output: 'static'` в `astro.config.mjs`):
+- **Нуль серверного коду на сторінках**: Головна сторінка `/`, сторінка помилки `404` та статичні ассети (`/_astro/*`, CSS, SVG) віддаються безпосередньо через Cloudflare Assets CDN і взагалі не викликають код воркера.
+- **Універсальна оболонка компанії (`/company/index.html`)**: Замість важкого SSR для 435 тис. сторінок воркер повертає одну статичну оболонку з кешем `max-age=3600`. Усі дані компанії гідратуються клієнтським React-компонентом `CompanyPageView` (`client:only="react"`).
+
+### 5.2. Розділені компоненти рендерингу (React Islands)
 
 Кожна форма має окремий модульний рендерер:
 - `ReportContainer.tsx`: контейнер табів, керування активною формою, адаптація під мобільні екрани.
@@ -318,11 +349,11 @@ CREATE TABLE public.companies (
 - `RenderMicroReport.tsx`: Спрощені форми для малого та мікробізнесу (Ф1-м/Ф2-м та Ф1-мс/Ф2-мс).
 - `RenderGenericReport.tsx`: Універсальний рендерер для додаткових спеціалізованих форм звітності.
 
-### 5.2. Робота клієнтського API
+### 5.3. Робота клієнтського API
 Клієнт завантажує дані компанії за **1 єдиний HTTP-запит**:
 ```typescript
 const data = await fetchCompanyData(edrpou, year);
-// data.company -> реквізити для шапки
+// data.edrpou, data.name, data.kved -> реквізити для шапки
 // data.financial_kpi -> готові показники для карток KPI
 // data.reports -> дані всіх форм для табів без повторних запитів
 ```
@@ -332,19 +363,19 @@ const data = await fetchCompanyData(edrpou, year);
 ## 6. Безпека та масштабування
 
 1. **Безпека**:
-   - Supabase захищено Row Level Security (RLS) у режимі тільки читання (`SELECT`) через публічний ключ (`anon_key`).
+   - Supabase захищено Row Level Security (RLS) у режимі тільки читання (`SELECT`) через публічний ключ (`PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
    - Бакет Cloudflare R2 захищений від прямих мутацій; оновлення відбуваються виключно через підписані запити воркера з авторизацією AWS S3 V4.
 2. **Масштабування**:
-   - Статичний сайт на Cloudflare Pages кешується на edge-вузлах по всьому світу.
+   - Статичний сайт на Cloudflare Workers / Assets кешується на edge-вузлах по всьому світу.
    - Cloudflare R2 витримує мільйони паралельних запитів на читання без додаткових витрат.
 
 ---
 
 ## 7. Тестування та контроль якості (Test Suite)
 
-Проєкт містить автоматизований набір з **54 unit-тестів** (`tests/`), що покривають усі ключові компоненти системи:
+Проєкт містить автоматизований набір з **67 unit-тестів** (`tests/`), що покривають усі ключові компоненти системи:
 
-1. **Парсинг усіх 5 форм звітності (`test_xml_to_json_parser.py`)**:
+1. **Парсинг усіх форм звітності (`test_xml_to_json_parser.py`)**:
    - Тестування форм Ф1, Ф2, Ф3 (прямий та непрямий методи), Ф4 та Ф5 на реальних XML-файлах підприємств різного масштабу (ТзОВ «Кормотех» 32673400 та ТОВ «Нова Пошта» 31316718).
 2. **Перевірка фундаментальних бухгалтерських рівностей**:
    - Баланс: `Рядок 1300 (Усього активів) == Рядок 1900 (Усього пасивів)`.
@@ -366,5 +397,5 @@ const data = await fetchCompanyData(edrpou, year);
 
 **Запуск тестів**:
 ```bash
-python3 -m unittest discover -v tests
+./scripts/qa.sh
 ```
