@@ -8,10 +8,26 @@ dist/
 build/
 output/
 
-# Environment files
+# Environment and secret files
 .env
-.env.local
-.env.production
+.env.*
+*.env
+*.env.*
+!*.env.example
+!*.env.template
+
+# Credentials, private keys, certificates, tokens
+*.pem
+*.key
+*.pkcs12
+*.pfx
+*.p12
+*.crt
+*.cert
+*.token
+credentials.json
+service-account*.json
+service_account*.json
 
 # Astro
 .astro/
