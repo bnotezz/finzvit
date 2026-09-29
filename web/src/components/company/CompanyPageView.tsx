@@ -7,6 +7,7 @@ import { ReportContainer } from '../reports/ReportContainer';
 import { SearchBar } from '../search/SearchBar';
 import { formatCurrency, calcNetIncome } from '../../lib/formatters';
 import { F1M_BALANCE_ROWS, F2M_INCOME_ROWS } from '../../lib/form-definitions';
+import { trackCompanyView } from '../../lib/analytics';
 
 interface CompanyPageViewProps {
   edrpou: string;
@@ -69,6 +70,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
   // Виділення звітів Ф1 та Ф2 з отриманого консолідованого документу
   const applyCompanyReports = useCallback((data: CompanyFullData) => {
     setCompany(data);
+    trackCompanyView(data.edrpou, data.name, data.kved, data.year);
 
     const forms = data.available_forms || [];
     const f1Form = forms.find((f) => {

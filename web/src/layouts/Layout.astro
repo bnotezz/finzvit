@@ -9,6 +9,7 @@ interface Props {
   ogImage?: string;
   canonicalUrl?: string;
   jsonLd?: Record<string, any> | Array<Record<string, any>>;
+  googleSiteVerification?: string;
 }
 
 const {
@@ -19,11 +20,15 @@ const {
   ogImage = '/og-image.png',
   canonicalUrl,
   jsonLd,
+  googleSiteVerification,
 } = Astro.props;
 
 const siteUrl = 'https://finzvit.bnotezz.workers.dev';
 const effectiveCanonical = canonicalUrl || new URL(Astro.url.pathname, siteUrl).toString();
 const effectiveOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+
+const gaId = import.meta.env.PUBLIC_GA_ID;
+const gscVerification = googleSiteVerification || import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 const defaultJsonLd = jsonLd || {
   '@context': 'https://schema.org',
@@ -97,6 +102,21 @@ const defaultJsonLd = jsonLd || {
       href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
+    {gscVerification && (
+      <meta name="google-site-verification" content={gscVerification} />
+    )}
+
+    {gaId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+        <script is:inline define:vars={{ gaId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', gaId, { send_page_view: true });
+        </script>
+      </>
+    )}
   </head>
   <body class="bg-[#07080B] text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-accent/20 selection:text-accent relative overflow-x-hidden">
     <!-- Верхній навігаційний бар -->
