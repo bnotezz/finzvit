@@ -15,6 +15,67 @@ export interface Env {
     } | null>;
   };
   CACHE_VERSION?: string;
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
+  SUPABASE_KEY?: string;
+  PUBLIC_SUPABASE_URL?: string;
+  PUBLIC_SUPABASE_ANON_KEY?: string;
+  PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
+}
+
+/**
+ * Виконує тестовий запит до Supabase REST API для оновлення таймера активності проєкту (Keep-Alive).
+ * Запобігає автоматичному переходу в стан Paused на безкоштовному тарифі Supabase.
+ */
+export async function pingSupabase(env: Env): Promise<{
+  success: boolean;
+  status?: number;
+  durationMs?: number;
+  message: string;
+}> {
+  const supabaseUrl = env.SUPABASE_URL || env.PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+    env.SUPABASE_ANON_KEY ||
+    env.SUPABASE_KEY ||
+    env.PUBLIC_SUPABASE_ANON_KEY ||
+    env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    const msg = 'SUPABASE_URL або API-ключ не налаштовано у змінних середовища воркера.';
+    console.warn(`[Keep-Alive Cron] ${msg}`);
+    return { success: false, message: msg };
+  }
+
+  const start = Date.now();
+  try {
+    const cleanUrl = supabaseUrl.replace(/\/+$/, '');
+    const pingUrl = `${cleanUrl}/rest/v1/companies?select=edrpou&limit=1`;
+    const res = await fetch(pingUrl, {
+      method: 'GET',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+    });
+
+    const durationMs = Date.now() - start;
+
+    if (!res.ok) {
+      const errText = await res.text();
+      const msg = `Supabase повернула помилку HTTP ${res.status}: ${errText.slice(0, 150)}`;
+      console.error(`[Keep-Alive Cron] ${msg}`);
+      return { success: false, status: res.status, durationMs, message: msg };
+    }
+
+    const msg = `✓ Успішний пінг Supabase (HTTP ${res.status}, ${durationMs} мс). Активність оновлено.`;
+    console.log(`[Keep-Alive Cron] ${msg}`);
+    return { success: true, status: res.status, durationMs, message: msg };
+  } catch (err: any) {
+    const durationMs = Date.now() - start;
+    const msg = `Помилка мережевого запиту: ${err?.message || String(err)}`;
+    console.error(`[Keep-Alive Cron] ${msg}`);
+    return { success: false, durationMs, message: msg };
+  }
 }
 
 interface MemoryCacheItem {
@@ -49,6 +110,18 @@ export default {
           console.warn('ctx.cache.purge error:', e);
         }
       }
+    }
+
+    // 0. Діагностичний ендпоінт для ручної перевірки або зовнішнього моніторингу keep-alive (/api/keepalive)
+    if (url.pathname === '/api/keepalive') {
+      const result = await pingSupabase(env);
+      return new Response(JSON.stringify(result, null, 2), {
+        status: result.success ? 200 : 502,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store',
+        },
+      });
     }
 
     // 1. Обробка запитів до фінансових даних (/data/...)
@@ -300,5 +373,18 @@ export default {
     }
 
     return new Response('Not found', { status: 404 });
+  },
+
+  /**
+   * Cloudflare Workers Cron Trigger (тригер за розкладом).
+   * Автоматично виконує легкий keep-alive запит до Supabase для запобігання паузі на Free Tier.
+   */
+  async scheduled(event: any, env: Env, ctx: any): Promise<void> {
+    console.log(`[Cron Trigger] Запуск планового keep-alive для Supabase. Розклад: ${event?.cron || 'scheduled'}`);
+    if (ctx?.waitUntil) {
+      ctx.waitUntil(pingSupabase(env));
+    } else {
+      await pingSupabase(env);
+    }
   },
 };

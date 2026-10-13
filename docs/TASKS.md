@@ -175,9 +175,13 @@
 ---
 
 ### Ітерація 11: Захист від призупинення Supabase Free Tier (Keep-Alive Automation)
-- [x] Автоматизація періодичного пінгу бази даних через GitHub Actions (`.github/workflows/supabase-keepalive.yml`):
-  - [x] Запуск двічі на тиждень (щопонеділка та щочетверга) за розкладом cron (кожні 3-4 дні із запасом до ліміту в 7 днів).
+- [x] Cloudflare Worker Cron Trigger (`web/wrangler.jsonc` та `web/src/worker.ts`):
+  - [x] Налаштовано розклад cron `"0 7 */3 * *"` (кожні 3 дні о 07:00 UTC) у `wrangler.jsonc`.
+  - [x] Реалізовано обробник `scheduled(event, env, ctx)` та утиліту `pingSupabase(env)`.
+  - [x] Додано діагностичний ендпоінт `/api/keepalive` для миттєвої ручної перевірки або зовнішнього моніторингу.
+  - [x] Повна автономність у Cloudflare (не засинає через неактивність у Git, 0 витрат лімітів).
+- [x] Резервний пінг через GitHub Actions (`.github/workflows/supabase-keepalive.yml`):
+  - [x] Запуск двічі на тиждень (щопонеділка та щочетверга) за розкладом cron.
   - [x] Безпечний виклик без хардкоду токенів через наявні GitHub Secrets (`SUPABASE_URL`, `SUPABASE_KEY`).
   - [x] Підтримка ручного запуску `workflow_dispatch` в один клік з веб-інтерфейсу GitHub Actions.
-  - [x] Документування альтернативного зовнішнього моніторингу (UptimeRobot / Cron-job.org) для безперервної роботи незалежно від git-активності.
 
