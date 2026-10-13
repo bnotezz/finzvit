@@ -1,0 +1,32 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Запуск щопонеділка та щочетверга о 07:00 UTC (кожні 3-4 дні, із запасом до ліміту 7 днів)
+    - cron: '0 7 * * 1,4'
+  workflow_dispatch: # Дозволяє ручний запуск в один клік у GitHub Actions
+
+jobs:
+  keep-alive:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send keep-alive query to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::Необхідні змінні SUPABASE_URL або SUPABASE_KEY не знайдено в GitHub Secrets!"
+            exit 1
+          fi
+
+          echo "Виконується тестовий запит для підтримки активності проєкту..."
+          # Запитуємо 1 запис з таблиці companies (мінімальне навантаження, < 50 мс)
+          RESPONSE=$(curl -fsS -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s\n" \
+            -X GET "${SUPABASE_URL}/rest/v1/companies?select=edrpou&limit=1" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}")
+
+          echo "$RESPONSE"
+          echo "✓ Успішно! Активність Supabase оновлено."
