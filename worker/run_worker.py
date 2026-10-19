@@ -2,6 +2,7 @@
 import os
 import io
 import sys
+import json
 import argparse
 import logging
 import zipfile
@@ -119,13 +120,30 @@ def process_reports(
             company_last_ts=company_last_ts
         )
     elif os.path.isdir(input_source):
-        total_forms_processed = _process_directory(
-            dir_path=input_source,
-            company_demographics=company_demographics,
-            company_reports=company_reports,
-            company_form_items=company_form_items,
-            company_last_ts=company_last_ts
-        )
+        zip_files = [
+            os.path.join(input_source, f)
+            for f in sorted(os.listdir(input_source))
+            if f.lower().endswith(".zip") and os.path.isfile(os.path.join(input_source, f))
+        ]
+        if zip_files:
+            logger.info("📂 У директорії %s виявлено %d ZIP-архівів:", input_source, len(zip_files))
+            for zf in zip_files:
+                logger.info("   - %s (%.1f МБ)", os.path.basename(zf), os.path.getsize(zf) / (1024 * 1024))
+            total_forms_processed = _process_multiple_zips(
+                zip_paths=zip_files,
+                company_demographics=company_demographics,
+                company_reports=company_reports,
+                company_form_items=company_form_items,
+                company_last_ts=company_last_ts
+            )
+        else:
+            total_forms_processed = _process_directory(
+                dir_path=input_source,
+                company_demographics=company_demographics,
+                company_reports=company_reports,
+                company_form_items=company_form_items,
+                company_last_ts=company_last_ts
+            )
     else:
         logger.error("❌ Джерело не знайдено або не є ZIP архівом / папкою: %s", input_source)
         sys.exit(1)
@@ -173,9 +191,18 @@ def process_reports(
         )
 
         file_key = f"{year}/{edrpou}.json"
-        upload_items.append((file_key, unified_json))
 
-        # Легкий запис для Supabase з вагою ранжування
+        # Локальне потокове збереження для мінімізації споживання оперативної пам'яті
+        if save_local:
+            loc_path = os.path.join(output_dir, file_key)
+            os.makedirs(os.path.dirname(loc_path), exist_ok=True)
+            with open(loc_path, "wb") as f:
+                f.write(json.dumps(unified_json, ensure_ascii=False, separators=(',', ':')).encode("utf-8"))
+
+        if not skip_r2 and not dry_run:
+            upload_items.append((file_key, unified_json))
+
+        # Легкий запис для Supabase та локального реєстру з вагою ранжування
         companies_registry_meta.append({
             "edrpou": edrpou,
             "name": comp_info.get("name"),
@@ -183,8 +210,24 @@ def process_reports(
             "year": year,
             "weight": weight
         })
+
+        # Звільняємо пам'ять компанії одразу, якщо upload_items не накопичуються в RAM
+        if (skip_r2 or dry_run) and edrpou in company_reports:
+            del company_reports[edrpou]
+            if edrpou in company_form_items:
+                del company_form_items[edrpou]
+
         pbar_build.update(1)
     pbar_build.close()
+
+    if save_local:
+        reg_path = os.path.join(output_dir, f"companies_registry_{year}.json")
+        try:
+            with open(reg_path, "w", encoding="utf-8") as f:
+                json.dump(companies_registry_meta, f, ensure_ascii=False, indent=2)
+            logger.info("💾 Локальний реєстр компаній збережено у: %s", reg_path)
+        except Exception as e:
+            logger.warning("Не вдалося зберегти локальний реєстр: %s", e)
 
     # Очищення проміжних структур з пам'яті перед запуском мережевих потоків
     del company_reports
@@ -201,16 +244,7 @@ def process_reports(
             r2.upload_batch_parallel(upload_items, pbar=pbar_r2)
             pbar_r2.close()
         elif save_local:
-            import json as _json
-            logger.info("💾 Збереження %d файлів на локальний диск (%s)...", len(upload_items), output_dir)
-            pbar_disk = ProgressBar(total=len(upload_items), prefix="Save Disk", unit="file")
-            for k, d in upload_items:
-                loc_path = os.path.join(output_dir, k)
-                os.makedirs(os.path.dirname(loc_path), exist_ok=True)
-                with open(loc_path, "wb") as f:
-                    f.write(_json.dumps(d, ensure_ascii=False, separators=(',', ':')).encode("utf-8"))
-                pbar_disk.update(1)
-            pbar_disk.close()
+            logger.info("💾 Всі %d файлів збережено на локальний диск (%s/%d/)", unique_companies_count, output_dir, year)
 
     # 4. СИНХРОНІЗАЦІЯ РЕЄСТРУ З SUPABASE (УЛЬТРА-ЛЕГКОВИЙ ФОРМАТ)
     if not dry_run and not skip_supabase and companies_registry_meta:
@@ -260,62 +294,169 @@ def process_reports(
     logger.info("=" * 60)
 
 
-def _process_zip_master(
-    master_zip_path: str,
+def _process_multiple_zips(
+    zip_paths: List[str],
     company_demographics: Dict[str, Dict[str, Any]],
     company_reports: Dict[str, Dict[str, Any]],
     company_form_items: Dict[str, List[Dict[str, Any]]],
     company_last_ts: Dict[str, str]
 ) -> int:
     """
-    Однопрохідне потокове читання головного ZIP-архіву.
-    Вичитує кожен підархів лише ОДИН раз у пам'ять, парсить потоково XML.
+    Двоетапна потокова обробка списку ZIP-архівів із глобальною дедуплікацією версій:
+    1. Швидке сканування метаданих усіх архівів без розпакування XML для знаходження найновіших версій звітів (ts).
+    2. Потоковий парсинг виключно найсвіжіших версій звітів, згрупованих за архівами.
     """
-    total_forms = 0
+    logger.info("🔍 Етап 1/2: Швидке сканування та дедуплікація версій у %d архівах...", len(zip_paths))
+    # best_reports: (edrpou, form_code) -> (ts, master_zip_path, inner_zip_name, xml_filename)
+    best_reports: Dict[Tuple[str, str], Tuple[str, str, Optional[str], str]] = {}
+    total_xml_count = 0
+    revisions_updated = 0
 
-    with zipfile.ZipFile(master_zip_path, "r") as master_zf:
-        infolist = master_zf.infolist()
-        sub_zips = [item.filename for item in infolist if item.filename.lower().endswith(".zip") and not item.is_dir()]
-        direct_xmls = [item.filename for item in infolist if item.filename.lower().endswith(".xml") and not item.is_dir()]
+    for master_path in zip_paths:
+        try:
+            with zipfile.ZipFile(master_path, "r") as mzf:
+                infolist = mzf.infolist()
+                sub_zips = [item.filename for item in infolist if item.filename.lower().endswith(".zip") and not item.is_dir()]
+                direct_xmls = [item.filename for item in infolist if item.filename.lower().endswith(".xml") and not item.is_dir()]
 
-        if sub_zips:
-            logger.info("📦 Виявлено %d підархівів у файлі %s", len(sub_zips), os.path.basename(master_zip_path))
-            for idx, sub_zip_name in enumerate(sub_zips, 1):
-                logger.info("👉 [%d/%d] Обробка підархіву: %s", idx, len(sub_zips), os.path.basename(sub_zip_name))
-                
-                # Читаємо підархів у пам'ять рівно 1 раз
-                inner_bytes = master_zf.read(sub_zip_name)
-                with zipfile.ZipFile(io.BytesIO(inner_bytes), "r") as inner_zf:
-                    # Дедуплікація версій по infolist
-                    dedup_items: Dict[Tuple[str, str], Tuple[str, str]] = {}
-                    for item in inner_zf.infolist():
-                        if item.is_dir() or not item.filename.lower().endswith(".xml"):
-                            continue
-                        parsed = ReportScanner.parse_filename(item.filename)
+                if sub_zips:
+                    for sub_name in sub_zips:
+                        try:
+                            inner_bytes = mzf.read(sub_name)
+                            with zipfile.ZipFile(io.BytesIO(inner_bytes), "r") as izf:
+                                for item in izf.infolist():
+                                    if item.is_dir() or not item.filename.lower().endswith(".xml"):
+                                        continue
+                                    total_xml_count += 1
+                                    parsed = ReportScanner.parse_filename(item.filename)
+                                    if not parsed:
+                                        continue
+                                    edrpou, form_code, ts = parsed
+                                    key = (edrpou, form_code)
+                                    if key not in best_reports:
+                                        best_reports[key] = (ts, master_path, sub_name, item.filename)
+                                    elif ts > best_reports[key][0]:
+                                        best_reports[key] = (ts, master_path, sub_name, item.filename)
+                                        revisions_updated += 1
+                            del inner_bytes
+                        except Exception as e:
+                            logger.warning("Помилка читання підархіву %s у %s: %s", sub_name, master_path, e)
+
+                if direct_xmls:
+                    for xml_name in direct_xmls:
+                        total_xml_count += 1
+                        parsed = ReportScanner.parse_filename(xml_name)
                         if not parsed:
                             continue
                         edrpou, form_code, ts = parsed
                         key = (edrpou, form_code)
-                        if key not in dedup_items or ts > dedup_items[key][0]:
-                            dedup_items[key] = (ts, item.filename)
+                        if key not in best_reports:
+                            best_reports[key] = (ts, master_path, None, xml_name)
+                        elif ts > best_reports[key][0]:
+                            best_reports[key] = (ts, master_path, None, xml_name)
+                            revisions_updated += 1
+        except Exception as e:
+            logger.error("Не вдалося відкрити ZIP-архів %s: %s", master_path, e)
 
-                    logger.info("   Знайдено %d унікальних звітів. Парсинг...", len(dedup_items))
-                    pbar_parse = ProgressBar(total=len(dedup_items), prefix="   Парсинг XML", unit="doc")
+    logger.info("=" * 60)
+    logger.info("📊 ПІДСУМОК СКАНУВАННЯ АРХІВІВ:")
+    logger.info("Всього проскановано XML-документів: %d", total_xml_count)
+    logger.info("Унікальних найсвіжіших форм: %d", len(best_reports))
+    logger.info("Застарілих ревізій замінено новішими: %d", revisions_updated)
+    logger.info("=" * 60)
 
-                    for (edrpou, form_code), (ts, filename) in dedup_items.items():
+    if not best_reports:
+        return 0
+
+    needed_subzips = defaultdict(lambda: defaultdict(list))
+    needed_direct = defaultdict(list)
+
+    for (edrpou, form_code), (ts, m_path, inner_name, x_name) in best_reports.items():
+        if inner_name:
+            needed_subzips[m_path][inner_name].append((x_name, edrpou, form_code, ts))
+        else:
+            needed_direct[m_path].append((x_name, edrpou, form_code, ts))
+
+    logger.info("⚡ Етап 2/2: Потоковий парсинг %d унікальних звітів...", len(best_reports))
+    pbar_parse = ProgressBar(total=len(best_reports), prefix="Парсинг XML", unit="doc")
+    total_forms = 0
+
+    for master_path in zip_paths:
+        has_sub = master_path in needed_subzips
+        has_dir = master_path in needed_direct
+        if not has_sub and not has_dir:
+            continue
+
+        try:
+            with zipfile.ZipFile(master_path, "r") as mzf:
+                if has_sub:
+                    for sub_name, files_to_read in needed_subzips[master_path].items():
+                        try:
+                            inner_bytes = mzf.read(sub_name)
+                            with zipfile.ZipFile(io.BytesIO(inner_bytes), "r") as izf:
+                                for xml_name, edrpou, form_code, ts in files_to_read:
+                                    parser = ParserRegistry.get_parser(form_code)
+                                    if not parser:
+                                        pbar_parse.update(1)
+                                        continue
+                                    try:
+                                        raw_xml = izf.read(xml_name)
+                                        parsed_data = parser.parse(
+                                            raw_xml,
+                                            filename=os.path.basename(xml_name),
+                                            timestamp=ts
+                                        )
+                                        company_reports[edrpou][form_code] = parsed_data
+
+                                        comp = parsed_data.get("company", {})
+                                        if comp.get("name"):
+                                            if edrpou not in company_demographics:
+                                                company_demographics[edrpou] = comp
+                                            else:
+                                                for k, v in comp.items():
+                                                    if v and not company_demographics[edrpou].get(k):
+                                                        company_demographics[edrpou][k] = v
+
+                                        meta = parsed_data.get("meta", {})
+                                        d_fill = meta.get("date_filled")
+                                        formatted_date = d_fill
+                                        if d_fill and len(d_fill) == 8 and d_fill.isdigit():
+                                            formatted_date = f"{d_fill[:2]}.{d_fill[2:4]}.{d_fill[4:]}"
+
+                                        company_form_items[edrpou].append({
+                                            "code": form_code,
+                                            "title": meta.get("form_name", f"Форма {form_code}"),
+                                            "date_filled": formatted_date,
+                                            "timestamp": ts
+                                        })
+
+                                        if ts > company_last_ts[edrpou]:
+                                            company_last_ts[edrpou] = ts
+
+                                        total_forms += 1
+                                    except Exception as e:
+                                        logger.debug("Помилка парсингу %s: %s", xml_name, e)
+
+                                    pbar_parse.update(1)
+                            del inner_bytes
+                        except Exception as e:
+                            logger.warning("Помилка обробки підархіву %s: %s", sub_name, e)
+
+                if has_dir:
+                    for xml_name, edrpou, form_code, ts in needed_direct[master_path]:
                         parser = ParserRegistry.get_parser(form_code)
                         if not parser:
                             pbar_parse.update(1)
                             continue
-
                         try:
-                            raw_xml = inner_zf.read(filename)
-                            parsed_data = parser.parse(raw_xml, filename=os.path.basename(filename), timestamp=ts)
-
-                            # Зберігаємо форму у словнику компанії
+                            raw_xml = mzf.read(xml_name)
+                            parsed_data = parser.parse(
+                                raw_xml,
+                                filename=os.path.basename(xml_name),
+                                timestamp=ts
+                            )
                             company_reports[edrpou][form_code] = parsed_data
 
-                            # Оновлюємо демографічні реквізити компанії
                             comp = parsed_data.get("company", {})
                             if comp.get("name"):
                                 if edrpou not in company_demographics:
@@ -343,71 +484,39 @@ def _process_zip_master(
 
                             total_forms += 1
                         except Exception as e:
-                            logger.debug("Помилка парсингу %s: %s", filename, e)
+                            logger.debug("Помилка парсингу %s: %s", xml_name, e)
 
                         pbar_parse.update(1)
-                    pbar_parse.close()
+        except Exception as e:
+            logger.error("Помилка читання архіву %s: %s", master_path, e)
 
-                    del inner_bytes
-
-        elif direct_xmls:
-            logger.info("📦 Виявлено %d прямих XML файлів. Дедуплікація...", len(direct_xmls))
-            dedup_direct: Dict[Tuple[str, str], Tuple[str, str]] = {}
-            for filename in direct_xmls:
-                parsed = ReportScanner.parse_filename(filename)
-                if not parsed:
-                    continue
-                edrpou, form_code, ts = parsed
-                key = (edrpou, form_code)
-                if key not in dedup_direct or ts > dedup_direct[key][0]:
-                    dedup_direct[key] = (ts, filename)
-
-            pbar_direct = ProgressBar(total=len(dedup_direct), prefix="Парсинг XML", unit="doc")
-
-            for (edrpou, form_code), (ts, filename) in dedup_direct.items():
-                parser = ParserRegistry.get_parser(form_code)
-                if not parser:
-                    pbar_direct.update(1)
-                    continue
-
-                try:
-                    raw_xml = master_zf.read(filename)
-                    parsed_data = parser.parse(raw_xml, filename=os.path.basename(filename), timestamp=ts)
-
-                    company_reports[edrpou][form_code] = parsed_data
-                    comp = parsed_data.get("company", {})
-                    if comp.get("name"):
-                        if edrpou not in company_demographics:
-                            company_demographics[edrpou] = comp
-                        else:
-                            for k, v in comp.items():
-                                if v and not company_demographics[edrpou].get(k):
-                                    company_demographics[edrpou][k] = v
-
-                    meta = parsed_data.get("meta", {})
-                    d_fill = meta.get("date_filled")
-                    formatted_date = d_fill
-                    if d_fill and len(d_fill) == 8 and d_fill.isdigit():
-                        formatted_date = f"{d_fill[:2]}.{d_fill[2:4]}.{d_fill[4:]}"
-
-                    company_form_items[edrpou].append({
-                        "code": form_code,
-                        "title": meta.get("form_name", f"Форма {form_code}"),
-                        "date_filled": formatted_date,
-                        "timestamp": ts
-                    })
-
-                    if ts > company_last_ts[edrpou]:
-                        company_last_ts[edrpou] = ts
-
-                    total_forms += 1
-                except Exception as e:
-                    logger.debug("Помилка парсингу %s: %s", filename, e)
-
-                pbar_direct.update(1)
-            pbar_direct.close()
+    pbar_parse.close()
+    del best_reports
+    del needed_subzips
+    del needed_direct
+    import gc
+    gc.collect()
 
     return total_forms
+
+
+def _process_zip_master(
+    master_zip_path: str,
+    company_demographics: Dict[str, Dict[str, Any]],
+    company_reports: Dict[str, Dict[str, Any]],
+    company_form_items: Dict[str, List[Dict[str, Any]]],
+    company_last_ts: Dict[str, str]
+) -> int:
+    """
+    Однопрохідне потокове читання головного ZIP-архіву через загальний механізм.
+    """
+    return _process_multiple_zips(
+        zip_paths=[master_zip_path],
+        company_demographics=company_demographics,
+        company_reports=company_reports,
+        company_form_items=company_form_items,
+        company_last_ts=company_last_ts
+    )
 
 
 def _process_directory(

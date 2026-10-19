@@ -31,20 +31,38 @@ class BaseFormParser(ABC):
         # Очищаємо від null-байтів
         clean_bytes = xml_bytes.replace(b"\x00", b"")
 
+        root = None
         try:
             root = ET.fromstring(clean_bytes)
         except ET.ParseError:
-            # Fallback 1: Спроба декодування як Windows-1251 (поширена для звітів ДПС/Стату)
+            pass
+
+        if root is None:
+            # Fallback 1: Перевіряємо, чи байти є коректним UTF-8 із хибним заголовком WINDOWS-1251
             try:
-                decoded = clean_bytes.decode("windows-1251")
-                root = ET.fromstring(decoded.encode("utf-8"))
+                decoded_utf8 = clean_bytes.decode("utf-8")
+                fixed_utf8 = re.sub(r'encoding=[\'"][^\'"]*[\'"]', 'encoding="utf-8"', decoded_utf8, flags=re.IGNORECASE)
+                root = ET.fromstring(fixed_utf8.encode("utf-8"))
             except Exception:
-                # Fallback 2: UTF-8 з відкиданням некоректних байтів
-                try:
-                    decoded = clean_bytes.decode("utf-8", errors="ignore")
-                    root = ET.fromstring(decoded.encode("utf-8"))
-                except Exception:
-                    raise ET.ParseError("Не вдалося розпарсити XML навіть після fallback-декодувань")
+                pass
+
+        if root is None:
+            # Fallback 2: Спроба декодування як Windows-1251 (поширена для звітів ДПС/Стату)
+            try:
+                decoded_cp = clean_bytes.decode("windows-1251")
+                fixed_cp = re.sub(r'encoding=[\'"][^\'"]*[\'"]', 'encoding="utf-8"', decoded_cp, flags=re.IGNORECASE)
+                root = ET.fromstring(fixed_cp.encode("utf-8"))
+            except Exception:
+                pass
+
+        if root is None:
+            # Fallback 3: UTF-8 з відкиданням некоректних байтів
+            try:
+                decoded = clean_bytes.decode("utf-8", errors="replace")
+                fixed = re.sub(r'encoding=[\'"][^\'"]*[\'"]', 'encoding="utf-8"', decoded, flags=re.IGNORECASE)
+                root = ET.fromstring(fixed.encode("utf-8"))
+            except Exception:
+                raise ET.ParseError("Не вдалося розпарсити XML навіть після fallback-декодувань")
         
         head = root.find("DECLARHEAD")
         body = root.find("DECLARBODY")

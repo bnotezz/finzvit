@@ -113,6 +113,57 @@ class TestScannerAndDeduplication(unittest.TestCase):
             raw2 = ReportScanner.read_file_content(info_f2)
             self.assertEqual(raw2, b"<DECLAR><DECLARBODY><A2000>777</A2000></DECLARBODY></DECLAR>")
 
+    def test_multiple_zips_cross_archive_deduplication(self):
+        """Тестування глобальної дедуплікації між кількома ZIP-архівами (вибір найсвіжішої версії)."""
+        from collections import defaultdict
+        from worker.run_worker import _process_multiple_zips
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            zip1_path = os.path.join(tmpdir, "archive1.zip")
+            zip2_path = os.path.join(tmpdir, "archive2.zip")
+
+            # В архіві 1 стара версія Ф1 (2024-01-10) та Ф2
+            sub1_buf = io.BytesIO()
+            with zipfile.ZipFile(sub1_buf, "w") as s1:
+                s1.writestr(
+                    "12345678_460140012345678S010011410000001122023.XML_2024-01-10 10:00:00.xml",
+                    b"<DECLAR><DECLARHEAD><TIN>12345678</TIN><PERIOD_YEAR>2023</PERIOD_YEAR></DECLARHEAD><DECLARBODY><FIRM_NAME>\xd0\xa2\xd0\x9e\xd0\x92 \"\xd0\xa1\xd0\xa2\xd0\x90\xd0\xa0\xd0\x95\"</FIRM_NAME><A1000>100</A1000></DECLARBODY></DECLAR>"
+                )
+            with zipfile.ZipFile(zip1_path, "w") as z1:
+                z1.writestr("FG_S0100114.zip", sub1_buf.getvalue())
+
+            # В архіві 2 нова версія Ф1 (2024-06-20)
+            sub2_buf = io.BytesIO()
+            with zipfile.ZipFile(sub2_buf, "w") as s2:
+                s2.writestr(
+                    "12345678_460140012345678S010011410000002122023.XML_2024-06-20 18:00:00.xml",
+                    b"<DECLAR><DECLARHEAD><TIN>12345678</TIN><PERIOD_YEAR>2023</PERIOD_YEAR></DECLARHEAD><DECLARBODY><FIRM_NAME>\xd0\xa2\xd0\x9e\xd0\x92 \"\xd0\x9d\xd0\x9e\xd0\x92\xd0\x95\"</FIRM_NAME><A1000>999</A1000></DECLARBODY></DECLAR>"
+                )
+            with zipfile.ZipFile(zip2_path, "w") as z2:
+                z2.writestr("FG_S0100114.zip", sub2_buf.getvalue())
+
+            comp_demographics = {}
+            comp_reports = defaultdict(dict)
+            comp_form_items = defaultdict(list)
+            comp_last_ts = defaultdict(str)
+
+            total = _process_multiple_zips(
+                zip_paths=[zip1_path, zip2_path],
+                company_demographics=comp_demographics,
+                company_reports=comp_reports,
+                company_form_items=comp_form_items,
+                company_last_ts=comp_last_ts
+            )
+
+            # Має бути рівно 1 форма (найновіша), а не 2!
+            self.assertEqual(total, 1)
+            self.assertEqual(len(comp_demographics), 1)
+            self.assertIn("12345678", comp_demographics)
+            self.assertEqual(comp_demographics["12345678"]["name"], 'ТОВ "НОВЕ"')
+            self.assertEqual(comp_last_ts["12345678"], "2024-06-20 18:00:00")
+            self.assertEqual(comp_reports["12345678"]["S0100114"]["data"]["1000"]["begin"], 999)
+            self.assertEqual(len(comp_form_items["12345678"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

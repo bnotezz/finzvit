@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest.mock import patch, MagicMock
 from worker.uploaders.supabase_uploader import SupabaseUploader
@@ -5,13 +6,14 @@ from worker.uploaders.supabase_uploader import SupabaseUploader
 class TestSupabaseUploader(unittest.TestCase):
 
     def test_log_imported_dataset_without_credentials(self):
-        uploader = SupabaseUploader(supabase_url=None, supabase_key=None)
-        res = uploader.log_imported_dataset(
-            name="Тестовий датасет",
-            year=2025,
-            resource_id="test-res-id"
-        )
-        self.assertFalse(res)
+        with patch.dict(os.environ, {}, clear=True):
+            uploader = SupabaseUploader(supabase_url=None, supabase_key=None)
+            res = uploader.log_imported_dataset(
+                name="Тестовий датасет",
+                year=2025,
+                resource_id="test-res-id"
+            )
+            self.assertFalse(res)
 
     @patch("urllib.request.urlopen")
     def test_log_imported_dataset_success(self, mock_urlopen):
