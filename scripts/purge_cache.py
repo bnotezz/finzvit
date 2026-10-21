@@ -28,9 +28,9 @@ from pathlib import Path
 
 def load_env_local():
     """Завантажує змінні з .env.local якщо вони не задані в системі."""
-    env_file = Path(__file__).resolve().parent.parent / "web" / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent / ".env.local"
     if not env_file.exists():
-        env_file = Path(__file__).resolve().parent.parent / ".env.local"
+        env_file = Path(__file__).resolve().parent.parent / "web" / ".env.local"
     if env_file.exists():
         try:
             with open(env_file, "r", encoding="utf-8") as f:

@@ -18,11 +18,12 @@ logger = logging.getLogger("FinZvitWorker")
 
 def _auto_load_env():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(cur_dir)
     candidates = [
+        os.path.join(root_dir, ".env.local"),
+        os.path.join(root_dir, ".env"),
         os.path.join(cur_dir, ".env.local"),
         os.path.join(cur_dir, ".env"),
-        os.path.join(os.path.dirname(cur_dir), ".env.local"),
-        os.path.join(os.path.dirname(cur_dir), ".env"),
     ]
     loaded = []
     for path in candidates:

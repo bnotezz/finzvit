@@ -60,7 +60,6 @@ output/
 dist/
 node_modules/
 .env.local
-web/.env.local
 *.zip
 *.xml
 ```
@@ -157,12 +156,12 @@ cd web
 npm install
 ```
 
-### 6.2. Налаштування `web/.env.local`
-Створіть файл `web/.env.local` на основі `web/.env.example`:
+### 6.2. Налаштування єдиного `.env.local`
+Створіть файл `.env.local` у корені проєкту на основі шаблону `.env.example`:
 ```bash
 cp .env.example .env.local
 ```
-Відкрийте `web/.env.local` і вкажіть параметри вашого Supabase:
+Відкрийте `.env.local` і вкажіть параметри вашого Supabase:
 ```env
 PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key_here
@@ -221,12 +220,8 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 7.2. Налаштування `.env.local` для воркера
-Створіть файл `.env.local` у корені проєкту:
-```bash
-cp .env.example .env.local
-```
-Заповніть його даними, отриманими на Кроках 2 та 3:
+### 7.2. Перевірка секретів у `.env.local` для воркера
+Переконайтеся, що у вашому кореневому `.env.local` заповнено параметри для воркера та сховища R2:
 ```env
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
@@ -307,7 +302,7 @@ python3 worker/run_worker.py \
 ### П: Пошук повертає порожній результат, що перевірити?
 1. Відкрийте Developer Console у браузері (F12) -> вкладку **Console**.
 2. Якщо бачите помилку Supabase:
-   - Перевірте правильність `PUBLIC_SUPABASE_URL` та `PUBLIC_SUPABASE_PUBLISHABLE_KEY` у `web/.env.local`.
+   - Перевірте правильність `PUBLIC_SUPABASE_URL` та `PUBLIC_SUPABASE_PUBLISHABLE_KEY` у `.env.local`.
    - Перевірте, чи виконано міграцію SQL для створення RPC функції `search_companies`:
      ```sql
      SELECT * FROM search_companies('Кормотех', 5);
