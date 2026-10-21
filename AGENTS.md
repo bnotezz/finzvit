@@ -142,7 +142,7 @@
 1. **Сувора заборона коміту будь-яких токенів та ідентифікаторів проєкту**:
    * **Ніколи не хардкодити та не комітити**:
      * Токени Cloudflare API, R2 Access/Secret Keys.
-     * Supabase Service Role або Publishable / Anon ключі (`sb_publishable_*`, `sbp_*`, `eyJ*`).
+     * Supabase Secret Key або Publishable ключі (`sb_publishable_*`, `sb_secret_*`, `sbp_*`, `sbs_*`, `eyJ*`).
      * Реальні URL проєкту Supabase (`https://<project-ref>.supabase.co`).
      * Google Analytics Measurement IDs (`G-*`).
      * Паролі баз даних, приватні ключі SSL/SSH (`*.pem`, `*.key`, `*.pfx`, `id_rsa`).

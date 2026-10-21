@@ -16,10 +16,9 @@ export interface Env {
   };
   CACHE_VERSION?: string;
   SUPABASE_URL?: string;
-  SUPABASE_ANON_KEY?: string;
-  SUPABASE_KEY?: string;
+  SUPABASE_PUBLISHABLE_KEY?: string;
+  SUPABASE_SECRET_KEY?: string;
   PUBLIC_SUPABASE_URL?: string;
-  PUBLIC_SUPABASE_ANON_KEY?: string;
   PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
 }
 
@@ -33,15 +32,14 @@ export async function pingSupabase(env: Env): Promise<{
   durationMs?: number;
   message: string;
 }> {
-  const supabaseUrl = env.SUPABASE_URL || env.PUBLIC_SUPABASE_URL;
+  const supabaseUrl = env.PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
   const supabaseKey =
-    env.SUPABASE_ANON_KEY ||
-    env.SUPABASE_KEY ||
-    env.PUBLIC_SUPABASE_ANON_KEY ||
-    env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    env.SUPABASE_PUBLISHABLE_KEY ||
+    env.SUPABASE_SECRET_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    const msg = 'SUPABASE_URL або API-ключ не налаштовано у змінних середовища воркера.';
+    const msg = 'PUBLIC_SUPABASE_URL або PUBLIC_SUPABASE_PUBLISHABLE_KEY не налаштовано у змінних середовища воркера.';
     console.warn(`[Keep-Alive Cron] ${msg}`);
     return { success: false, message: msg };
   }

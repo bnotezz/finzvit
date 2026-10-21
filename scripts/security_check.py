@@ -3,7 +3,7 @@
 FinZvit Security & Secret Leak Scanner
 Перевіряє репозиторій та staged-файли на наявність випадково доданих секретів:
 - Токени Cloudflare API, R2 Access/Secret Keys
-- Supabase Service Role / Anon JWT ключі
+- Supabase Secret Key / Publishable Key JWT токени
 - Приватні ключі SSL/SSH (*.pem, *.key, *.pfx)
 - Файли конфігурацій середовища (.env*)
 - Рядки підключення до баз даних з реальними паролями
@@ -97,6 +97,8 @@ SAFE_PLACEHOLDERS = [
     "<token>",
     "<api_key>",
     "change_me",
+    "supabase_publishable_key",
+    "supabase_secret_key",
     "supabase_anon_key",
     "cf_api_token",
     "r2_access_key",

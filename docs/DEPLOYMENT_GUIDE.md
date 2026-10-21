@@ -97,8 +97,8 @@ Supabase використовується виключно як високошв
 Перейдіть у **Project Settings** -> **API**:
 1. **Project URL**: наприклад `https://xyzcompany.supabase.co`
 2. **Project API Keys**:
-   - `anon` / `publishable` (наприклад `sb_publishable_...` або `eyJ...`) — використовується для фронтенду.
-   - `service_role` (секретний ключ!) — використовується Python воркером для пакетного запису компаній.
+   - `Publishable key` (`sb_publishable_...`) — публічний ключ для фронтенду (`PUBLIC_SUPABASE_PUBLISHABLE_KEY`).
+   - `Secret key` (`sb_secret_...`) — секретний ключ для Python воркера (`SUPABASE_SECRET_KEY`).
 
 ---
 
@@ -230,7 +230,7 @@ cp .env.example .env.local
 ```env
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SECRET_KEY=eyJhbGciOi... # Ваш service_role key
+SUPABASE_SECRET_KEY=sb_secret_your_key_here # Ваш Secret key
 
 # Cloudflare R2
 R2_ACCOUNT_ID=your_cloudflare_account_id

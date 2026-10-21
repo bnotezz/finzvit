@@ -182,6 +182,6 @@
   - [x] Повна автономність у Cloudflare (не засинає через неактивність у Git, 0 витрат лімітів).
 - [x] Резервний пінг через GitHub Actions (`.github/workflows/supabase-keepalive.yml`):
   - [x] Запуск двічі на тиждень (щопонеділка та щочетверга) за розкладом cron.
-  - [x] Безпечний виклик без хардкоду токенів через наявні GitHub Secrets (`SUPABASE_URL`, `SUPABASE_KEY`).
+  - [x] Безпечний виклик без хардкоду токенів через канонічні GitHub Secrets (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`).
   - [x] Підтримка ручного запуску `workflow_dispatch` в один клік з веб-інтерфейсу GitHub Actions.
 
