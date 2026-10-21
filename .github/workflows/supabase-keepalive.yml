@@ -14,7 +14,7 @@ jobs:
       - name: Send keep-alive query to Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || secrets.SUPABASE_ANON_KEY || secrets.SUPABASE_SECRET_KEY || secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
             echo "::error::Необхідні змінні SUPABASE_URL або SUPABASE_KEY не знайдено в GitHub Secrets!"
