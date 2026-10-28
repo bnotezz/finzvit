@@ -29,7 +29,7 @@ else
 fi
 
 # 2. Тести Python (ETL, Парсери, Фін. калькулятор, Розрахунки 2350/2355)
-echo -e "\n${YELLOW}[2/3] 🧪 Запуск автоматичних тестів Python (67 тестів)...${NC}"
+echo -e "\n${YELLOW}[2/3] 🧪 Запуск автоматичних тестів Python (73 тести)...${NC}"
 if python3 -m unittest discover -v tests; then
     echo -e "${GREEN}✓ Всі Python-тести успішно пройдено!${NC}"
 else

@@ -25,7 +25,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
     return edrpou || '';
   }, [edrpou]);
 
-  // Зчитування початкового року з URL-параметра (?year=2024), за замовчуванням найновіший підтримуваний (2025)
+  // Зчитування початкового року з URL-параметра (?year=2023), за замовчуванням найновіший підтримуваний (2025)
   const getInitialYear = (): number => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -144,7 +144,7 @@ export const CompanyPageView: React.FC<CompanyPageViewProps> = ({ edrpou }) => {
       console.error(`Помилка завантаження компанії за ${targetYear} рік:`, err);
       const status = err.status || (err.name === 'SyntaxError' ? 500 : (err.message?.includes('не знайдено') ? 404 : 500));
 
-      // Розумний fallback: якщо 2025 повернув 404 при першому заході без явного ?year, перевіряємо 2024
+      // Розумний fallback: якщо 2025 повернув 404 при першому заході без явного ?year, перевіряємо попередні доступні роки (2024, 2023)
       if (isInitial && targetYear === SUPPORTED_YEARS[0] && status === 404) {
         try {
           const avail = await checkAvailableYears(effectiveEdrpou);

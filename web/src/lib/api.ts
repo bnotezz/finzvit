@@ -81,10 +81,10 @@ export class ApiError extends Error {
   }
 }
 
-export const CACHE_VERSION = 'v3';
+export const CACHE_VERSION = 'v4';
 
 // Список офіційно підтримуваних років у сховищі R2 (у порядку від найновішого)
-export const SUPPORTED_YEARS = [2025, 2024] as const;
+export const SUPPORTED_YEARS = [2025, 2024, 2023] as const;
 export type SupportedYear = typeof SUPPORTED_YEARS[number];
 
 /**
