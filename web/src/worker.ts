@@ -47,6 +47,27 @@ export async function pingSupabase(env: Env): Promise<{
   const start = Date.now();
   try {
     const cleanUrl = supabaseUrl.replace(/\/+$/, '');
+    
+    // 1. Пріоритет: POST виклик RPC search_companies (примусове виконання SQL у PostgreSQL, без кешування)
+    const rpcUrl = `${cleanUrl}/rest/v1/rpc/search_companies`;
+    const rpcRes = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ search_query: '32673400', lim: 1 }),
+    });
+
+    if (rpcRes.ok) {
+      const durationMs = Date.now() - start;
+      const msg = `✓ Успішний RPC пінг Supabase search_companies (HTTP ${rpcRes.status}, ${durationMs} мс). Транзакція зареєстрована.`;
+      console.log(`[Keep-Alive Cron] ${msg}`);
+      return { success: true, status: rpcRes.status, durationMs, message: msg };
+    }
+
+    // 2. Fallback: GET запит до таблиці companies
     const pingUrl = `${cleanUrl}/rest/v1/companies?select=edrpou&limit=1`;
     const res = await fetch(pingUrl, {
       method: 'GET',
